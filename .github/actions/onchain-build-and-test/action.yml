@@ -1,0 +1,43 @@
+name: On-chain Build + Test
+description: Runs forge build and test commands for on-chain microservices.
+inputs:
+  alchemy_eth_api:
+    description: The Alchemy API key to use for Ethereum RPC calls.
+    required: true
+  alchemy_polygon_api:
+    description: The Alchemy API key to use for Polygon RPC calls.
+    required: true
+runs:
+  using: 'composite'
+  steps:
+    - name: Install Foundry
+      uses: foundry-rs/foundry-toolchain@v1
+      with:
+        version: v1.2.1
+    - name: Install python dependencies for tests
+      shell: bash
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y python3-pip
+        if [ -f requirements.txt ]; then
+          pip3 install -r requirements.txt
+        fi
+        if [ -f soldeer.toml ] || [ -f forge.toml ]; then
+          forge soldeer install
+        fi
+    - name: Display Foundry version
+      shell: bash
+      run: forge --version
+    - name: Build the repository
+      shell: bash
+      run: |
+        forge clean && forge build --optimize
+      id: build
+    - name: Run Foundry tests
+      shell: bash
+      env:
+        ETHEREUM_RPC_KEY: ${{ inputs.alchemy_eth_api }}
+        POLYGON_RPC_KEY: ${{ inputs.alchemy_polygon_api }}
+      run: |
+        forge test --ffi
+      id: forge-test
