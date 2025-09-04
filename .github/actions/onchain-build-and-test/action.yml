@@ -23,7 +23,7 @@ runs:
           pip3 install -r requirements.txt
         fi
         if [ -f soldeer.toml ] || [ -f forge.toml ] || [ -f foundry.toml ]; then
-          forge soldeer install
+          forge soldeer install || echo "Warning: Soldeer install failed, continuing without soldeer dependencies"
         fi
     - name: Display Foundry version
       shell: bash
