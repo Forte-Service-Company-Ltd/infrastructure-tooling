@@ -8,8 +8,14 @@ inputs:
     description: The Alchemy API key to use for Polygon RPC calls.
     required: false
 runs:
-  using: 'composite'
+  using: "composite"
   steps:
+    - name: Checkout infrastructure-tooling repository
+      uses: actions/checkout@v4
+      with:
+        repository: Forte-Service-Company-Ltd/infrastructure-tooling
+        path: infrastructure-tooling
+
     - name: Install Foundry
       uses: foundry-rs/foundry-toolchain@v1
       with:
@@ -36,4 +42,4 @@ runs:
     - name: Check Contract Size
       shell: bash
       run: |
-        bash .github/scripts/contract-size.sh
+        bash infrastructure-tooling/.github/scripts/contract-size.sh
