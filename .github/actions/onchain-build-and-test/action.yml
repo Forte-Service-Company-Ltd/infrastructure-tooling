@@ -22,7 +22,7 @@ runs:
         if [ -f requirements.txt ]; then
           pip3 install -r requirements.txt
         fi
-        if [ -f soldeer.toml ] || [ -f forge.toml ]; then
+        if [ -f soldeer.toml ] || [ -f forge.toml ] || [ -f foundry.toml ]; then
           forge soldeer install
         fi
     - name: Display Foundry version
