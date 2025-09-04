@@ -31,7 +31,7 @@ runs:
     - name: Build the repository
       shell: bash
       run: |
-        forge clean && forge build --optimize
+       forge build
       id: build
     - name: Run Foundry tests
       shell: bash
