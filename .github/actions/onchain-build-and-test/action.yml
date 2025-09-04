@@ -3,10 +3,10 @@ description: Runs forge build and test commands for on-chain microservices.
 inputs:
   alchemy_eth_api:
     description: The Alchemy API key to use for Ethereum RPC calls.
-    required: true
+    required: false
   alchemy_polygon_api:
     description: The Alchemy API key to use for Polygon RPC calls.
-    required: true
+    required: false
 runs:
   using: 'composite'
   steps:
