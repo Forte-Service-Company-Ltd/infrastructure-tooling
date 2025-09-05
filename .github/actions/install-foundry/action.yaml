@@ -1,0 +1,17 @@
+name: On-chain Build + Test
+description: Installs foundry toolchain.
+inputs:
+  version:
+    description: The version of foundry to install
+    required: false
+    default: v1.2.1
+runs:
+  using: 'composite'
+  steps:
+    - name: Install Foundry
+      uses: foundry-rs/foundry-toolchain@v1
+      with:
+        version: ${{ inputs.version }}
+    - name: Display Foundry version
+      shell: bash
+      run: forge --version
