@@ -1,5 +1,5 @@
 name: On-chain Build + Test
-description: Runs forge build and test commands for on-chain microservices.
+description: Runs forge build and contract size checks for on-chain microservices.
 inputs:
   alchemy_eth_api:
     description: The Alchemy API key to use for Ethereum RPC calls.
