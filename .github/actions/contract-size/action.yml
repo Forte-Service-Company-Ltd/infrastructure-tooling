@@ -13,8 +13,8 @@ runs:
     - name: Checkout infrastructure-tooling repository
       uses: actions/checkout@v4
       with:
-        branch: INF-264-On-Chain-Contract-Size
         repository: Forte-Service-Company-Ltd/infrastructure-tooling
+        ref: INF-264-On-Chain-Contract-Size
         path: infrastructure-tooling
 
     - name: Install Foundry
