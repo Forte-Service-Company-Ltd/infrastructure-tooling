@@ -1,45 +1,8 @@
 name: On-chain Build + Test
 description: Runs forge build and contract size checks for on-chain microservices.
-inputs:
-  alchemy_eth_api:
-    description: The Alchemy API key to use for Ethereum RPC calls.
-    required: false
-  alchemy_polygon_api:
-    description: The Alchemy API key to use for Polygon RPC calls.
-    required: false
 runs:
   using: "composite"
   steps:
-    - name: Checkout infrastructure-tooling repository
-      uses: actions/checkout@v4
-      with:
-        repository: Forte-Service-Company-Ltd/infrastructure-tooling
-        ref: INF-264-On-Chain-Contract-Size
-        path: infrastructure-tooling
-
-    - name: Install Foundry
-      uses: foundry-rs/foundry-toolchain@v1
-      with:
-        version: v1.2.1
-    - name: Install python dependencies for tests
-      shell: bash
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y python3-pip
-        if [ -f requirements.txt ]; then
-          pip3 install -r requirements.txt
-        fi
-        if [ -f soldeer.toml ] || [ -f forge.toml ] || [ -f foundry.toml ]; then
-          forge soldeer install || echo "Warning: Soldeer install failed, continuing without soldeer dependencies"
-        fi
-    - name: Display Foundry version
-      shell: bash
-      run: forge --version
-    - name: Build the repository
-      shell: bash
-      run: |
-        forge clean && forge build --optimize
-      id: build
     - name: Check Contract Size
       shell: bash
       run: |
