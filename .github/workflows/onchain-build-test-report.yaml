@@ -50,3 +50,6 @@ jobs:
       - name: Contract Size
         id: contract-size
         uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/contract-size@staging
+      - name: Slither Analysis
+        id: slither-analysis
+        uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/slither-analysis@staging

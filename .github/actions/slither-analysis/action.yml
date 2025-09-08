@@ -8,37 +8,6 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - name: Checkout infrastructure-tooling repository
-      uses: actions/checkout@v4
-      with:
-        repository: Forte-Service-Company-Ltd/infrastructure-tooling
-        ref: INF-266-Adding-Slither-Analysis
-        path: infrastructure-tooling
-
-    - name: Install Foundry
-      uses: foundry-rs/foundry-toolchain@v1
-      with:
-        version: v1.2.1
-
-    - name: Install python dependencies for tests
-      shell: bash
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y python3-pip
-        pip3 install eth_abi
-        forge install dapphub/ds-test 
-        if [ -f requirements.txt ]; then
-          pip3 install -r requirements.txt
-        fi
-        if [ -f soldeer.toml ] || [ -f forge.toml ] || [ -f foundry.toml ]; then
-          forge soldeer install || echo "Warning: Soldeer install failed, continuing without soldeer dependencies"
-        fi
-        npm install
-
-    - name: Display Foundry version
-      shell: bash
-      run: forge --version
-
     - name: Slither Analyze
       uses: crytic/slither-action@v0.4.1
       if: github.event_name != 'pull_request'
