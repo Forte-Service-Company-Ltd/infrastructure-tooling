@@ -6,6 +6,12 @@ name: Remote GitOps Deployments
 on:
   # Triggered from app repo's workflows
   workflow_call:
+    inputs:
+      # Define any inputs needed from the calling workflow
+      markdown-file-path:
+        description: Comma-separated list of markdown files to check
+        required: false
+        default: './README.md, ./CHANGELOG.md, ./CODE_OF_CONDUCT.md, ./CONTRIBUTING.md, ./SECURITY.md'
     outputs:
       status:
         description: The status of the deployment job, either 'success', 'failure', or 'skipped'
@@ -41,6 +47,8 @@ jobs:
       - name: Markdown Link Check
         id: markdown-link-check
         uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/markdown-link-checker@staging
+        with:
+          file-path: ${{ inputs.markdown-file-path }}
       # - name: Install Foundry
       #   id: install-foundry
       #   uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/install-foundry@staging
