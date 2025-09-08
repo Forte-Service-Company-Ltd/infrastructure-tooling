@@ -1,4 +1,4 @@
-name: On-chain Build + Test
+name: On-chain Slither Analysis
 description: Runs forge build and slither analysis for on-chain microservices.
 inputs:
   CONFIG:

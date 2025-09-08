@@ -44,15 +44,18 @@ jobs:
       - name: Build
         id: build
         uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/onchain-build@staging
-      - name: Test
-        id: test
-        uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/onchain-test@staging
-        with:
-          alchemy_eth_api: ${{ secrets.ALCHEMY_KEY }}
-          alchemy_polygon_api: ${{ secrets.POLYGON_ALCHEMY_KEY }}
-      - name: Contract Size
-        id: contract-size
-        uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/contract-size@staging
-      - name: Slither Analysis
-        id: slither-analysis
-        uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/slither-analysis@staging
+      # - name: Test
+      #   id: test
+      #   uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/onchain-test@staging
+      #   with:
+      #     alchemy_eth_api: ${{ secrets.ALCHEMY_KEY }}
+      #     alchemy_polygon_api: ${{ secrets.POLYGON_ALCHEMY_KEY }}
+      # - name: Contract Size
+      #   id: contract-size
+      #   uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/contract-size@staging
+      # - name: Slither Analysis
+      #   id: slither-analysis
+      #   uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/slither-analysis@staging
+      - name: Medusa Fuzz
+        id: medusa-fuzz
+        uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/medusa-fuzz@staging

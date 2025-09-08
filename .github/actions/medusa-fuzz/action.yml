@@ -1,0 +1,25 @@
+name: On-chain Medusa Fuzz
+description: Runs forge build and test commands for on-chain microservices.
+runs:
+  using: 'composite'
+  steps:
+  - name: Go setup
+    uses: actions/setup-go@v4
+    with:
+        go-version: "^1.18.1"
+
+  - name: Install medusa
+    id: install-medusa
+    shell: bash
+    run: |
+        git clone https://github.com/crytic/medusa.git
+        cd medusa
+        go build -o medusa -v .
+        go install -v .
+        sudo cp medusa /usr/bin
+        pip install crytic-compile
+  - name: Run Medusa tests
+    id: medusa-test
+    shell: bash
+    run: |
+      medusa fuzz --config medusa.json
