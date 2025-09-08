@@ -10,6 +10,8 @@ on:
       # Define any inputs needed from the calling workflow
       markdown-file-path:
         description: Comma-separated list of markdown files to check
+        type: string
+        required: false
         default: './README.md, ./CHANGELOG.md, ./CODE_OF_CONDUCT.md, ./CONTRIBUTING.md, ./SECURITY.md'
     outputs:
       status:
