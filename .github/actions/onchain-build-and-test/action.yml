@@ -10,7 +10,7 @@ inputs:
 runs:
   using: 'composite'
   steps:
-    - name: Install python dependencies for tests
+    - name: Install dependencies for tests
       shell: bash
       run: |
         sudo apt-get update
