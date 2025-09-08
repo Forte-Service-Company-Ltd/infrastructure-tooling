@@ -9,13 +9,6 @@ name: Remote GitOps Deployments
 on:
   # Triggered from app repo's workflows
   workflow_call:
-    inputs:
-      alchemy_eth_api:
-        description: The Alchemy API key to use for Ethereum RPC calls.
-        required: false
-      alchemy_polygon_api:
-        description: The Alchemy API key to use for Polygon RPC calls.
-        required: false
     outputs:
       status:
         description: The status of the deployment job, either 'success', 'failure', or 'skipped'
@@ -23,6 +16,14 @@ on:
       pr-url:
         description: The URL of the pull request created by this workflow
         value: '${{ github.event.repository.html_url }}/pull/${{ jobs.validate.outputs.pr-branch }}'
+    secrets:
+      # Secrets are passed from the calling repository
+      ALCHEMY_KEY: # optional, only if needed for tests requiring mainnet fork
+        required: false
+        description: Alchemy API key for Ethereum mainnet (for tests requiring mainnet fork)
+      POLYGON_ALCHEMY_KEY: # optional, only if needed for tests requiring polygon fork
+        required: false
+        description: Alchemy API key for Polygon mainnet (for tests requiring polygon fork)
 
 
 jobs:
