@@ -1,9 +1,6 @@
 # GitOps On-chain Build Test and Report Workflow - Callable from remote repositories
-# Builds and tests the on-chain code, then generates a report comment on the PR.
+# Builds, tests, and runs report jobs for on-chain projects.
 # This workflow is designed to be called from other repositories via 'workflow_call' event.
-
-permissions:
-  pull-requests: write
 
 name: Remote GitOps Deployments
 on:
