@@ -1,0 +1,54 @@
+# GitOps On-chain Build Test and Report Workflow - Callable from remote repositories
+# Builds and tests the on-chain code, then generates a report comment on the PR.
+# This workflow is designed to be called from other repositories via 'workflow_call' event.
+
+permissions:
+  pull-requests: write
+
+name: Remote GitOps Deployments
+on:
+  # Triggered from app repo's workflows
+  workflow_call:
+    inputs:
+      alchemy_eth_api:
+        description: The Alchemy API key to use for Ethereum RPC calls.
+        required: false
+      alchemy_polygon_api:
+        description: The Alchemy API key to use for Polygon RPC calls.
+        required: false
+    outputs:
+      status:
+        description: The status of the deployment job, either 'success', 'failure', or 'skipped'
+        value: ${{ jobs.deploy.result }}
+      pr-url:
+        description: The URL of the pull request created by this workflow
+        value: '${{ github.event.repository.html_url }}/pull/${{ jobs.validate.outputs.pr-branch }}'
+
+
+jobs:
+  check:
+    name: Build and Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout local repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - name: Checkout infrastructure-tooling repository
+        uses: actions/checkout@v4
+        with:
+          repository: Forte-Service-Company-Ltd/infrastructure-tooling
+          ref: staging
+          path: infrastructure-tooling
+      - name: Install Foundry
+        id: install-foundry
+        uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/install-foundry@staging
+      - name: Build and Test
+        id: build-and-test
+        uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/onchain-build-and-test@staging
+        with:
+          alchemy_eth_api: ${{ input.alchemy_eth_api }}
+          alchemy_polygon_api: ${{ input.alchemy_polygon_api }}
+      - name: Contract Size
+        id: contract-size
+        uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/contract-size@staging
