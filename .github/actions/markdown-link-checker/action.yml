@@ -3,7 +3,6 @@ description: Checks markdown files for broken links.
 inputs:
   file-path:
     description: Comma-separated list of markdown files to check
-    required: false
     default: './README.md, ./CHANGELOG.md, ./CODE_OF_CONDUCT.md, ./CONTRIBUTING.md, ./SECURITY.md'
 runs:
   using: 'composite'
