@@ -48,8 +48,8 @@ jobs:
         id: build-and-test
         uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/onchain-build-and-test@staging
         with:
-          alchemy_eth_api: ${{ input.alchemy_eth_api }}
-          alchemy_polygon_api: ${{ input.alchemy_polygon_api }}
+          alchemy_eth_api: ${{ secrets.ALCHEMY_KEY }}
+          alchemy_polygon_api: ${{ secrets.POLYGON_ALCHEMY_KEY }}
       - name: Contract Size
         id: contract-size
         uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/contract-size@staging
