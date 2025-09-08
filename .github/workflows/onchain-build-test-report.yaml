@@ -12,7 +12,7 @@ on:
         description: Comma-separated list of markdown files to check
         type: string
         required: false
-        default: './README.md, ./CHANGELOG.md, ./CODE_OF_CONDUCT.md, ./CONTRIBUTING.md, ./SECURITY.md'
+        default: "./README.md, ./CHANGELOG.md, ./CODE_OF_CONDUCT.md, ./CONTRIBUTING.md, ./SECURITY.md"
     outputs:
       status:
         description: The status of the deployment job, either 'success', 'failure', or 'skipped'
