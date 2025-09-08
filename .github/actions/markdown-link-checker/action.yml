@@ -1,0 +1,11 @@
+name: Markdown Link Checker
+description: Checks markdown files for broken links.
+runs:
+  using: 'composite'
+  steps:
+    - uses: actions/checkout@master
+    - uses: gaurav-nelson/github-action-markdown-link-check@v1
+      with:
+        config-file: "infrastructure-tooling/.github/config/mlc_config.json"
+        #folder-path: "docs"
+        file-path: "./README.md, ./CHANGELOG.md, ./CODE_OF_CONDUCT.md, ./CONTRIBUTING.md, ./SECURITY.md"

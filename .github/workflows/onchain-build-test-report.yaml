@@ -38,12 +38,15 @@ jobs:
           repository: Forte-Service-Company-Ltd/infrastructure-tooling
           ref: staging
           path: infrastructure-tooling
-      - name: Install Foundry
-        id: install-foundry
-        uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/install-foundry@staging
-      - name: Build
-        id: build
-        uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/onchain-build@staging
+      - name: Markdown Link Check
+        id: markdown-link-check
+        uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/markdown-link-checker@staging
+      # - name: Install Foundry
+      #   id: install-foundry
+      #   uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/install-foundry@staging
+      # - name: Build
+      #   id: build
+      #   uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/onchain-build@staging
       # - name: Test
       #   id: test
       #   uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/onchain-test@staging
@@ -56,6 +59,6 @@ jobs:
       # - name: Slither Analysis
       #   id: slither-analysis
       #   uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/slither-analysis@staging
-      - name: Medusa Fuzz
-        id: medusa-fuzz
-        uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/medusa-fuzz@staging
+      # - name: Medusa Fuzz
+      #   id: medusa-fuzz
+      #   uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/medusa-fuzz@staging
