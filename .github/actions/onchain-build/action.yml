@@ -3,7 +3,7 @@ description: Runs forge build and test commands for on-chain microservices.
 runs:
   using: 'composite'
   steps:
-    - name: Install dependencies for tests
+    - name: Install dependencies for build and tests
       shell: bash
       run: |
         sudo apt-get update
