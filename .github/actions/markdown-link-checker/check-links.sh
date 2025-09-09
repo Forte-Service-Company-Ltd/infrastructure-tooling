@@ -3,8 +3,8 @@
 # Custom markdown link checker script that respects file-path parameter
 set -e
 
-CONFIG_FILE="${INPUT_CONFIG-FILE:-}"
-FILE_PATH="${INPUT_FILE-PATH:-}"
+CONFIG_FILE="${INPUT_CONFIG_FILE:-}"
+FILE_PATH="${INPUT_FILE_PATH:-}"
 
 echo "Config file: $CONFIG_FILE"
 echo "File paths: $FILE_PATH"

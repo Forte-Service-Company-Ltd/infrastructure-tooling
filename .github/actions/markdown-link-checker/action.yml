@@ -5,17 +5,17 @@ inputs:
     description: Comma-separated list of markdown files to check
     required: true
 runs:
-  using: 'composite'
+  using: "composite"
   steps:
     - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
-        node-version: '18'
+        node-version: "20"
     - name: Check markdown links
       shell: bash
       env:
-        INPUT_CONFIG-FILE: "infrastructure-tooling/.github/configs/mlc_config.json"
-        INPUT_FILE-PATH: ${{ inputs.file-path }}
+        INPUT_CONFIG_FILE: "infrastructure-tooling/.github/configs/mlc_config.json"
+        INPUT_FILE_PATH: ${{ inputs.file-path }}
       run: |
         chmod +x infrastructure-tooling/.github/actions/markdown-link-checker/check-links.sh
         infrastructure-tooling/.github/actions/markdown-link-checker/check-links.sh
