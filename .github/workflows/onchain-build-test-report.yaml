@@ -28,9 +28,9 @@ on:
       POLYGON_ALCHEMY_KEY: # optional, only if needed for tests requiring polygon fork
         required: false
         description: Alchemy API key for Polygon mainnet (for tests requiring polygon fork)
-      GITHUB_TOKEN:
-        required: true
-        description: Token to authenticate on GitHub API, typically provided by the calling workflow
+      # GITHUB_PR_COMMENT_TOKEN:
+      #   required: true
+      #   description: Token to authenticate on GitHub API, typically provided by the calling workflow
 
 
 jobs:
@@ -71,6 +71,8 @@ jobs:
       - name: Code Coverage
         id: code-coverage
         uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/code-coverage@staging
+        # with:
+        #   github_pr_comment_token: ${{ secrets.GITHUB_PR_COMMENT_TOKEN }}
       - name: Slither Analysis
         id: slither-analysis
         uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/slither-analysis@staging
