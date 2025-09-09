@@ -1,0 +1,41 @@
+name: On-chain Code Coverage
+description: Runs code coverage evaluation for on-chain project.
+runs:
+  using: "composite"
+  steps:
+      - name: Install LCOV and its dependencies on Linux
+        shell: bash
+        # Install LCOV so we can leverage lcov and genhtml commands
+        # uses: hrishikesh-kadam/setup-lcov@v1 # This only brings an older incompatible version so we're manually installing
+        working-directory: ${{github.workspace}}
+        run: |
+          VERSION="2.0"
+          mkdir lcov
+          cd lcov
+          sudo apt install alien -y
+          sudo apt install libcapture-tiny-perl -y
+          sudo apt install libdatetime-perl -y
+          wget https://github.com/linux-test-project/lcov/releases/download/v$VERSION/lcov-$VERSION-1.noarch.rpm
+          sudo alien lcov-$VERSION-1.noarch.rpm
+          sudo dpkg -i lcov_$VERSION-2_all.deb
+          lcov --version
+
+      - name: Run tests with coverage option
+        shell: bash
+        run: |
+          forge coverage --ffi --report lcov --no-match-path "*invariant*" --fuzz-runs 1
+
+      - name: Filter the coverage reports and reformat them
+        shell: bash
+        run: |
+          lcov --extract lcov.info 'src/*' -o lcov.info
+        #  lcov -r lcov.info 'example' --rc lcov_branch_coverage=1 --rc derive_function_end_line=0 -o lcov.info
+
+      - name: Report the code coverage if pull request
+        if: ${{github.event_name}} == 'pull_request'
+        uses: zgosalvez/github-actions-report-lcov@v3
+        with:
+          coverage-files: lcov.info
+          minimum-coverage: 0
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          update-comment: false
