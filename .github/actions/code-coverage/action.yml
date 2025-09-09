@@ -17,7 +17,6 @@ runs:
       shell: bash
       # Install LCOV so we can leverage lcov and genhtml commands
       # uses: hrishikesh-kadam/setup-lcov@v1 # This only brings an older incompatible version so we're manually installing
-      working-directory: ${{github.workspace}}
       run: |
         VERSION="2.0"
         mkdir lcov
