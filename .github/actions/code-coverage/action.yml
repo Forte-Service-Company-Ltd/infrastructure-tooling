@@ -1,6 +1,12 @@
 name: On-chain Code Coverage
 description: Runs code coverage evaluation for on-chain project.
-# inputs:
+inputs:
+  alchemy_eth_api:
+    description: The Alchemy API key to use for Ethereum RPC calls.
+    required: false
+  alchemy_polygon_api:
+    description: The Alchemy API key to use for Polygon RPC calls.
+    required: false
 #   github_pr_comment_token:
 #     description: 'GitHub token to post comments on PRs'
 #     required: true
@@ -12,6 +18,9 @@ runs:
       # Install LCOV so we can leverage lcov and genhtml commands
       # uses: hrishikesh-kadam/setup-lcov@v1 # This only brings an older incompatible version so we're manually installing
       working-directory: ${{github.workspace}}
+      env:
+        ETHEREUM_RPC_KEY: ${{ inputs.alchemy_eth_api }}
+        POLYGON_RPC_KEY: ${{ inputs.alchemy_polygon_api }}
       run: |
         VERSION="2.0"
         mkdir lcov
