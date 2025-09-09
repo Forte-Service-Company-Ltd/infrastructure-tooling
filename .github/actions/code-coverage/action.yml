@@ -1,5 +1,9 @@
 name: On-chain Code Coverage
 description: Runs code coverage evaluation for on-chain project.
+inputs:
+  GITHUB_TOKEN:
+    description: 'GitHub token to post comments on PRs'
+    required: true
 runs:
   using: "composite"
   steps:
@@ -37,5 +41,5 @@ runs:
         with:
           coverage-files: lcov.info
           minimum-coverage: 0
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          github-token: ${{ input.GITHUB_TOKEN }}
           update-comment: false
