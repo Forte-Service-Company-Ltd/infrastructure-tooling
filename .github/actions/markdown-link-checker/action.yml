@@ -7,8 +7,15 @@ inputs:
 runs:
   using: 'composite'
   steps:
-    - uses: gaurav-nelson/github-action-markdown-link-check@1.0.17
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
       with:
-        config-file: "infrastructure-tooling/.github/config/mlc_config.json"
-        #folder-path: "docs"
-        file-path: ${{ inputs.file-path }}
+        node-version: '18'
+    - name: Check markdown links
+      shell: bash
+      env:
+        INPUT_CONFIG-FILE: "infrastructure-tooling/.github/configs/mlc_config.json"
+        INPUT_FILE-PATH: ${{ inputs.file-path }}
+      run: |
+        chmod +x infrastructure-tooling/.github/actions/markdown-link-checker/check-links.sh
+        infrastructure-tooling/.github/actions/markdown-link-checker/check-links.sh
