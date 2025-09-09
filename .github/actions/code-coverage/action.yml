@@ -18,9 +18,6 @@ runs:
       # Install LCOV so we can leverage lcov and genhtml commands
       # uses: hrishikesh-kadam/setup-lcov@v1 # This only brings an older incompatible version so we're manually installing
       working-directory: ${{github.workspace}}
-      env:
-        ETHEREUM_RPC_KEY: ${{ inputs.alchemy_eth_api }}
-        POLYGON_RPC_KEY: ${{ inputs.alchemy_polygon_api }}
       run: |
         VERSION="2.0"
         mkdir lcov
@@ -35,6 +32,9 @@ runs:
 
     - name: Run tests with coverage option
       shell: bash
+      env:
+        ETHEREUM_RPC_KEY: ${{ inputs.alchemy_eth_api }}
+        POLYGON_RPC_KEY: ${{ inputs.alchemy_polygon_api }}
       run: |
         FOUNDRY_PROFILE=coverage forge coverage --ffi --report lcov --no-match-path "*invariant*" --fuzz-runs 1
 
