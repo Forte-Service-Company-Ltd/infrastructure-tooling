@@ -76,9 +76,9 @@ jobs:
           alchemy_eth_api: ${{ secrets.ALCHEMY_KEY }}
           alchemy_polygon_api: ${{ secrets.POLYGON_ALCHEMY_KEY }}
 #          github_pr_comment_token: ${{ secrets.GITHUB_PR_COMMENT_TOKEN }}
-      - name: Slither Analysis
-        id: slither-analysis
-        uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/slither-analysis@staging
       - name: Medusa Fuzz
         id: medusa-fuzz
         uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/medusa-fuzz@staging
+      - name: Slither Analysis
+        id: slither-analysis
+        uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/slither-analysis@staging
