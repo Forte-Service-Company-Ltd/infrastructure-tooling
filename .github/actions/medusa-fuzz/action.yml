@@ -13,7 +13,7 @@ inputs:
   timeout:
     description: "Timeout for fuzzing in seconds"
     required: false
-    default: "300"
+    default: "600"
 runs:
   using: "composite"
   steps:
