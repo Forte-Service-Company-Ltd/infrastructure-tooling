@@ -6,13 +6,6 @@ name: Remote GitOps Deployments
 on:
   # Triggered from app repo's workflows
   workflow_call:
-    inputs:
-      # Define any inputs needed from the calling workflow
-      markdown-file-path:
-        description: Comma-separated list of markdown files to check
-        type: string
-        required: false
-        default: "./README.md, ./CHANGELOG.md, ./CODE_OF_CONDUCT.md, ./CONTRIBUTING.md, ./SECURITY.md"
     outputs:
       status:
         description: The status of the deployment job, either 'success', 'failure', or 'skipped'
@@ -49,30 +42,15 @@ jobs:
           repository: Forte-Service-Company-Ltd/infrastructure-tooling
           ref: staging
           path: infrastructure-tooling
-      - name: Markdown Link Check
-        id: markdown-link-check
-        uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/markdown-link-checker@staging
-        with:
-          file-path: ${{ inputs.markdown-file-path }}
       - name: Install Foundry
         id: install-foundry
         uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/install-foundry@staging
       - name: Build
         id: build
         uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/onchain-build@staging
-      - name: Contract Size
-        id: contract-size
-        uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/contract-size@staging
-      - name: Test
-        id: test
-        uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/onchain-test@staging
-        with:
-          alchemy_eth_api: ${{ secrets.ALCHEMY_KEY }}
-          alchemy_polygon_api: ${{ secrets.POLYGON_ALCHEMY_KEY }}
-      - name: Code Coverage
-        id: code-coverage
-        uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/code-coverage@staging
-        with:
-          alchemy_eth_api: ${{ secrets.ALCHEMY_KEY }}
-          alchemy_polygon_api: ${{ secrets.POLYGON_ALCHEMY_KEY }}
-#          github_pr_comment_token: ${{ secrets.GITHUB_PR_COMMENT_TOKEN }}
+      - name: Medusa Fuzz
+        id: medusa-fuzz
+        uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/medusa-fuzz@staging
+      - name: Slither Analysis
+        id: slither-analysis
+        uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/slither-analysis@staging
