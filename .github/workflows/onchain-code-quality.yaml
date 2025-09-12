@@ -1,18 +1,15 @@
-# GitOps On-chain Build Test and Report Workflow - Callable from remote repositories
-# Builds, tests, and runs report jobs for on-chain projects.
+# GitOps On-chain Code Quality Workflow - Callable from remote repositories
+# Builds and runs code quality jobs for on-chain projects.
 # This workflow is designed to be called from other repositories via 'workflow_call' event.
 
-name: Remote GitOps Deployments
+name: On-chain Code Quality
 on:
   # Triggered from app repo's workflows
   workflow_call:
     outputs:
       status:
         description: The status of the deployment job, either 'success', 'failure', or 'skipped'
-        value: ${{ jobs.deploy.result }}
-      pr-url:
-        description: The URL of the pull request created by this workflow
-        value: '${{ github.event.repository.html_url }}/pull/${{ jobs.validate.outputs.pr-branch }}'
+        value: ${{ jobs.check.result }}
     secrets:
       # Secrets are passed from the calling repository
       ALCHEMY_KEY: # optional, only if needed for tests requiring mainnet fork
