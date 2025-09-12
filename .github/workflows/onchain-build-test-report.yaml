@@ -62,13 +62,13 @@ jobs:
       #   uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/contract-size@staging
       - name: Test
         id: test
-        uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/onchain-test@staging
+        uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/onchain-test@staging-forte-token
         with:
           alchemy_eth_api: ${{ secrets.ALCHEMY_KEY }}
           alchemy_polygon_api: ${{ secrets.POLYGON_ALCHEMY_KEY }}
       - name: Code Coverage
         id: code-coverage
-        uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/code-coverage@staging
+        uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/code-coverage@staging-forte-token
         with:
           alchemy_eth_api: ${{ secrets.ALCHEMY_KEY }}
           alchemy_polygon_api: ${{ secrets.POLYGON_ALCHEMY_KEY }}
