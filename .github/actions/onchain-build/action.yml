@@ -17,6 +17,10 @@ runs:
         fi
     - name: Build the repository
       shell: bash
+      env:
+        FORK_TEST: false
+        SALT_STRING: "SMELLING_SALTS"
+        SKIP_FORTE_TOKEN_TESTS: true
       run: |
         forge clean && forge build --optimize
       id: build
