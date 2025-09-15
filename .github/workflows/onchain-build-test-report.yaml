@@ -41,10 +41,10 @@ on:
       # Secrets are passed from the calling repository
       ALCHEMY_KEY: # optional, only if needed for tests requiring mainnet fork
         required: false
-        description: Alchemy API key for Ethereum mainnet (for tests requiring mainnet fork)
+        description: Alchemy API URI for Ethereum mainnet (for tests requiring mainnet fork)
       POLYGON_ALCHEMY_KEY: # optional, only if needed for tests requiring polygon fork
         required: false
-        description: Alchemy API key for Polygon mainnet (for tests requiring polygon fork)
+        description: Alchemy API URI for Polygon mainnet (for tests requiring polygon fork)
       # GITHUB_PR_COMMENT_TOKEN:
       #   required: true
       #   description: Token to authenticate on GitHub API, typically provided by the calling workflow

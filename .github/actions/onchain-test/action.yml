@@ -2,10 +2,10 @@ name: On-chain Test
 description: Runs forge build and test commands for on-chain microservices.
 inputs:
   alchemy_eth_api:
-    description: The Alchemy API key to use for Ethereum RPC calls.
+    description: The Alchemy API URI to use for Ethereum RPC calls.
     required: false
   alchemy_polygon_api:
-    description: The Alchemy API key to use for Polygon RPC calls.
+    description: The Alchemy API URI to use for Polygon RPC calls.
     required: false
   fork-test:
     description: Whether to run tests that require forking mainnet.
