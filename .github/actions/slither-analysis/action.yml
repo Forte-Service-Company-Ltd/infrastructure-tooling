@@ -34,6 +34,7 @@ runs:
         fail-on: pedantic
         slither-args: --checklist --checklist-limit 50 --skip-assembly --markdown-root ${{ github.server_url }}/${{ github.repository }}/blob/${{ github.sha }}/
 
+    # Pending decision on whether to re-enable PR comments and manage tokens to permit that
     # - name: Create/update checklist as PR comment
     #   uses: actions/github-script@v7
     #   if: always() && (github.event_name == 'pull_request')
