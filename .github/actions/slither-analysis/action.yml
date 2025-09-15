@@ -9,9 +9,9 @@ runs:
   using: "composite"
   steps:
     - name: Slither Analyze
+      id: slither
       uses: crytic/slither-action@v0.4.1
       if: github.event_name != 'pull_request'
-      id: slither
       continue-on-error: true
       with:
         slither-config: ${{ inputs.CONFIG }}
@@ -27,9 +27,9 @@ runs:
         retention-days: 5
 
     - name: Slither Analyze Pull Request
+      id: slither-pull
       uses: crytic/slither-action@v0.4.1
       if: always() && (github.event_name == 'pull_request')
-      id: slither-pull
       with:
         fail-on: pedantic
         slither-args: --checklist --checklist-limit 50 --skip-assembly --markdown-root ${{ github.server_url }}/${{ github.repository }}/blob/${{ github.sha }}/

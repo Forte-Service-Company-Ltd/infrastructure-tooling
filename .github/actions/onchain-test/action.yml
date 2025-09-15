@@ -27,6 +27,7 @@ runs:
   using: "composite"
   steps:
     - name: Run Foundry tests
+      id: forge-test
       shell: bash
       env:
         ETHEREUM_RPC_KEY: ${{ inputs.alchemy_eth_api }}
@@ -36,4 +37,3 @@ runs:
         SKIP_FORTE_TOKEN_TESTS: ${{ inputs['is-forte-token-project'] == 'true' && inputs['skip-forte-token-tests'] || 'true' }}
       run: |
         forge test --ffi
-      id: forge-test

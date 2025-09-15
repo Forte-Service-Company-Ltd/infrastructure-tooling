@@ -16,7 +16,7 @@ runs:
           forge soldeer install || echo "Warning: Soldeer install failed, continuing without soldeer dependencies"
         fi
     - name: Build the repository
+      id: build
       shell: bash
       run: |
         forge clean && forge build --optimize
-      id: build
