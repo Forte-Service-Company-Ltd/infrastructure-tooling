@@ -23,6 +23,7 @@ inputs:
     description: Whether this is the Forte Token project.
     required: false
     default: "false"
+# Pending decision on whether to re-enable PR comments and manage tokens to permit that
 #   github_pr_comment_token:
 #     description: 'GitHub token to post comments on PRs'
 #     required: true
@@ -62,6 +63,7 @@ runs:
         lcov --extract lcov.info 'src/*' -o lcov.info
       #  lcov -r lcov.info 'example' --rc lcov_branch_coverage=1 --rc derive_function_end_line=0 -o lcov.info
 
+    # Pending decision on whether to re-enable PR comments and manage tokens to permit that
     # - name: Report the code coverage if pull request
     #   if: ${{github.event_name}} == 'pull_request'
     #   uses: zgosalvez/github-actions-report-lcov@v3
