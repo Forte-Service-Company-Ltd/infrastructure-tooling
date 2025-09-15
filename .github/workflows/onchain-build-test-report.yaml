@@ -13,6 +13,26 @@ on:
         type: string
         required: false
         default: "./README.md, ./CHANGELOG.md, ./CODE_OF_CONDUCT.md, ./CONTRIBUTING.md, ./SECURITY.md"
+      fork-test:
+        description: Whether to run tests that require forking mainnet (true/false)
+        type: boolean
+        required: false
+        default: false
+      salt-string:
+        description: Salt string for generating unique addresses in tests
+        type: string
+        required: false
+        default: "SMELLING_SALTS"
+      skip-forte-token-tests:
+        description: Whether to skip tests related to Forte Token (true/false)
+        type: boolean
+        required: false
+        default: true
+      is-forte-token-project:
+        description: Whether this is the Forte Token project (enables Forte-specific env vars)
+        type: boolean
+        required: false
+        default: false
     outputs:
       status:
         description: The status of the deployment job, either 'success', 'failure', or 'skipped'
@@ -28,7 +48,6 @@ on:
       # GITHUB_PR_COMMENT_TOKEN:
       #   required: true
       #   description: Token to authenticate on GitHub API, typically provided by the calling workflow
-
 
 jobs:
   check:
@@ -57,19 +76,27 @@ jobs:
       - name: Build
         id: build
         uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/onchain-build@staging
-      - name: Contract Size
-        id: contract-size
-        uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/contract-size@staging
+      # - name: Contract Size
+      #   id: contract-size
+      #   uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/contract-size@staging
       - name: Test
         id: test
-        uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/onchain-test@staging
+        uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/onchain-test@staging-forte-token
         with:
           alchemy_eth_api: ${{ secrets.ALCHEMY_KEY }}
           alchemy_polygon_api: ${{ secrets.POLYGON_ALCHEMY_KEY }}
+          fork-test: ${{ inputs.fork-test }}
+          salt-string: ${{ inputs.salt-string }}
+          skip-forte-token-tests: ${{ inputs.skip-forte-token-tests }}
+          is-forte-token-project: ${{ inputs.is-forte-token-project }}
       - name: Code Coverage
         id: code-coverage
-        uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/code-coverage@staging
+        uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/code-coverage@staging-forte-token
         with:
           alchemy_eth_api: ${{ secrets.ALCHEMY_KEY }}
           alchemy_polygon_api: ${{ secrets.POLYGON_ALCHEMY_KEY }}
+          fork-test: ${{ inputs.fork-test }}
+          salt-string: ${{ inputs.salt-string }}
+          skip-forte-token-tests: ${{ inputs.skip-forte-token-tests }}
+          is-forte-token-project: ${{ inputs.is-forte-token-project }}
 #          github_pr_comment_token: ${{ secrets.GITHUB_PR_COMMENT_TOKEN }}
