@@ -7,6 +7,22 @@ inputs:
   alchemy_polygon_api:
     description: The Alchemy API key to use for Polygon RPC calls.
     required: false
+  fork-test:
+    description: Whether to run tests that require forking mainnet.
+    required: false
+    default: "false"
+  salt-string:
+    description: Salt string for generating unique addresses in tests.
+    required: false
+    default: "SMELLING_SALTS"
+  skip-forte-token-tests:
+    description: Whether to skip tests related to Forte Token.
+    required: false
+    default: "true"
+  is-forte-token-project:
+    description: Whether this is the Forte Token project.
+    required: false
+    default: "false"
 #   github_pr_comment_token:
 #     description: 'GitHub token to post comments on PRs'
 #     required: true
@@ -34,6 +50,9 @@ runs:
       env:
         ETHEREUM_RPC_KEY: ${{ inputs.alchemy_eth_api }}
         POLYGON_RPC_KEY: ${{ inputs.alchemy_polygon_api }}
+        FORK_TEST: ${{ inputs['is-forte-token-project'] == 'true' && inputs['fork-test'] || 'false' }}
+        SALT_STRING: ${{ inputs['is-forte-token-project'] == 'true' && inputs['salt-string'] || 'SMELLING_SALTS' }}
+        SKIP_FORTE_TOKEN_TESTS: ${{ inputs['is-forte-token-project'] == 'true' && inputs['skip-forte-token-tests'] || 'true' }}
       run: |
         FOUNDRY_PROFILE=coverage forge coverage --ffi --report lcov --no-match-path "*invariant*" --fuzz-runs 1
 
