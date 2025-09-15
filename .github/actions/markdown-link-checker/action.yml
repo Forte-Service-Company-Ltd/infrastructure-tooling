@@ -17,4 +17,4 @@ runs:
         INPUT_CONFIG_FILE: "infrastructure-tooling/.github/configs/mlc_config.json"
         INPUT_FILE_PATH: ${{ inputs.file-path }}
       run: |
-        infrastructure-tooling/.github/actions/markdown-link-checker/check-links.sh
+        infrastructure-tooling/.github/scripts/check-links.sh
