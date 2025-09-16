@@ -33,6 +33,11 @@ on:
         type: boolean
         required: false
         default: false
+      repo-token:
+        description: Token to authenticate on GitHub API, typically provided by the calling workflow
+        type: string
+        required: false
+        default: ""
     outputs:
       status:
         description: The status of the deployment job, either 'success', 'failure', or 'skipped'
@@ -58,6 +63,7 @@ jobs:
       - name: Checkout local repository
         uses: actions/checkout@v4
         with:
+          token: ${{ inputs.repo-token }}
           submodules: recursive
       - name: Checkout infrastructure-tooling repository
         uses: actions/checkout@v4
