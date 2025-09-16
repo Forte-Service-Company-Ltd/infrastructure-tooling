@@ -33,11 +33,6 @@ on:
         type: boolean
         required: false
         default: false
-      repo-token:
-        description: Token to authenticate on GitHub API, typically provided by the calling workflow
-        type: string
-        required: false
-        default: ""
     outputs:
       status:
         description: The status of the deployment job, either 'success', 'failure', or 'skipped'
@@ -50,6 +45,9 @@ on:
       POLYGON_ALCHEMY_KEY: # optional, only if needed for tests requiring polygon fork
         required: false
         description: Alchemy API URI for Polygon mainnet (for tests requiring polygon fork)
+      REPO_TOKEN:
+        required: false
+        description: Token to authenticate on GitHub API, typically provided by the calling workflow
       # GITHUB_PR_COMMENT_TOKEN:
       #   required: true
       #   description: Token to authenticate on GitHub API, typically provided by the calling workflow
@@ -63,7 +61,7 @@ jobs:
       - name: Checkout local repository
         uses: actions/checkout@v4
         with:
-          token: ${{ inputs.repo-token }}
+          token: ${{ secrets.REPO_TOKEN || github.token}}
           submodules: recursive
       - name: Checkout infrastructure-tooling repository
         uses: actions/checkout@v4
