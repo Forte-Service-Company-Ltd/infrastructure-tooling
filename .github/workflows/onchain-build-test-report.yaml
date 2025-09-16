@@ -60,7 +60,7 @@ jobs:
     steps:
       - name: Generate GitHub App token
         id: get-token
-        if: ${{ github.event.repository.name == "liquidity-altbc" }}
+        if: github.event.repository.name == 'liquidity-altbc'
         uses: actions/create-github-app-token@v2
         with: # Liquidity Github App
           app-id: ${{ vars.LIQUIDITY_APP_ID }}
