@@ -58,10 +58,18 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 45
     steps:
+      - name: Generate GitHub App token
+        id: get-token
+        if: ${{ github.event.repository.name == "liquidity-altbc" }}
+        uses: actions/create-github-app-token@v2
+        with: # Liquidity Github App
+          app-id: ${{ vars.LIQUIDITY_APP_ID }}
+          private-key: ${{ secrets.LIQUIDITY_APP_PRIVATE_KEY }}
+          repositories: liquidity-base, liquidity-altbc
       - name: Checkout local repository
         uses: actions/checkout@v4
         with:
-          token: ${{ secrets.REPO_TOKEN || github.token}}
+          token: ${{ steps.get-token.outputs.token || github.token}}
           submodules: recursive
       - name: Checkout infrastructure-tooling repository
         uses: actions/checkout@v4
