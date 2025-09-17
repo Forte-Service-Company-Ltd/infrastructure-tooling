@@ -85,12 +85,15 @@ jobs:
       - name: Install Foundry
         id: install-foundry
         uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/install-foundry@staging
+      - name: Install Dependencies
+        id: install-dependencies
+        uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/install-dependencies@staging
+      - name: Contract Size
+        id: contract-size
+        uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/contract-size@staging
       - name: Build
         id: build
         uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/onchain-build@staging
-      # - name: Contract Size
-      #   id: contract-size
-      #   uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/contract-size@staging
       - name: Test
         id: test
         uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/onchain-test@staging

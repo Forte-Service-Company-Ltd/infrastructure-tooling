@@ -3,19 +3,6 @@ description: Runs forge build and test commands for on-chain microservices.
 runs:
   using: 'composite'
   steps:
-    - name: Install dependencies for build and tests
-      shell: bash
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y python3-pip
-        if [ -f requirements.txt ]; then
-          pip3 install -r requirements.txt
-        fi
-        forge soldeer update
-        # forge install dapphub/ds-test
-        if [ -f soldeer.toml ] || [ -f forge.toml ] || [ -f foundry.toml ]; then
-          forge soldeer install || echo "Warning: Soldeer install failed, continuing without soldeer dependencies"
-        fi
     - name: Build the repository
       id: build
       shell: bash
