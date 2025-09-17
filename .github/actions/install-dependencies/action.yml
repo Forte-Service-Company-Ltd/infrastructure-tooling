@@ -11,8 +11,8 @@ runs:
         if [ -f requirements.txt ]; then
           pip3 install -r requirements.txt
         fi
+        forge install dapphub/ds-test
         forge soldeer update
-        # forge install dapphub/ds-test
         if [ -f soldeer.toml ] || [ -f forge.toml ] || [ -f foundry.toml ]; then
           forge soldeer install || echo "Warning: Soldeer install failed, continuing without soldeer dependencies"
         fi
