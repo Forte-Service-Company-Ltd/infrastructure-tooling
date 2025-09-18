@@ -17,7 +17,7 @@ on:
         description: Comma-separated list of project repositories to run the workflow on
         type: string
         required: false
-        default: "liquidity-altbc, liquidity-base"
+        default: ""
       markdown-file-path:
         description: Comma-separated list of markdown files to check
         type: string
