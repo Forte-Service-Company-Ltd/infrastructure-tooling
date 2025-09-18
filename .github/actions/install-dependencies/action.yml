@@ -1,4 +1,4 @@
-name: On-chain Depencency Installation
+name: On-chain Dependency Installation
 description: Runs forge build and test commands for on-chain microservices.
 runs:
   using: "composite"
