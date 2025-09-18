@@ -8,6 +8,16 @@ on:
   workflow_call:
     inputs:
       # Define any inputs needed from the calling workflow
+      gh-app-id:
+        description: GitHub App ID for generating tokens (only needed if calling repo is 'liquidity-altbc')
+        type: string
+        required: false
+        default: ""
+      project-repositories:
+        description: Comma-separated list of project repositories to run the workflow on
+        type: string
+        required: false
+        default: "liquidity-altbc, liquidity-base"
       markdown-file-path:
         description: Comma-separated list of markdown files to check
         type: string
@@ -57,8 +67,9 @@ jobs:
         if: github.event.repository.name == 'liquidity-altbc'
         uses: actions/create-github-app-token@v2
         with: # Liquidity Github App
-          app-id: ${{ vars.LIQUIDITY_APP_ID }}
-          private-key: ${{ secrets.LIQUIDITY_APP_PRIVATE_KEY }}
+          app-id: ${{ inputs.gh-app-id }}
+          private-key: ${{ secrets.GH_APP_PRIVATE_KEY }}
+          repositories: ${{ inputs.project-repositories }}
       - name: Checkout local repository
         uses: actions/checkout@v4
         with:
