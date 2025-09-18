@@ -1,5 +1,5 @@
-name: On-chain Build + Test
-description: Runs forge build and contract size checks for on-chain microservices.
+name: On-chain Contract Size Check
+description: Check the size of on-chain contracts using Forge
 runs:
   using: "composite"
   steps:
