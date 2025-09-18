@@ -10,19 +10,12 @@ inputs:
   fork-test:
     description: Whether to run tests that require forking mainnet.
     required: false
-    default: "false"
   salt-string:
     description: Salt string for generating unique addresses in tests.
     required: false
-    default: "SMELLING_SALTS"
   skip-forte-token-tests:
     description: Whether to skip tests related to Forte Token.
     required: false
-    default: "true"
-  is-forte-token-project:
-    description: Whether this is the Forte Token project.
-    required: false
-    default: "false"
 runs:
   using: "composite"
   steps:
@@ -30,10 +23,11 @@ runs:
       id: forge-test
       shell: bash
       env:
+        FOUNDRY_PROFILE: ci
         ETHEREUM_RPC_KEY: ${{ inputs.alchemy_eth_api }}
         POLYGON_RPC_KEY: ${{ inputs.alchemy_polygon_api }}
-        FORK_TEST: ${{ inputs['is-forte-token-project'] == 'true' && inputs['fork-test'] || 'false' }}
-        SALT_STRING: ${{ inputs['is-forte-token-project'] == 'true' && inputs['salt-string'] || 'SMELLING_SALTS' }}
-        SKIP_FORTE_TOKEN_TESTS: ${{ inputs['is-forte-token-project'] == 'true' && inputs['skip-forte-token-tests'] || 'true' }}
+        FORK_TEST: ${{ inputs['fork-test'] }}
+        SALT_STRING: ${{ inputs['salt-string'] }}
+        SKIP_FORTE_TOKEN_TESTS: ${{ inputs['skip-forte-token-tests'] }}
       run: |
         forge test --ffi
