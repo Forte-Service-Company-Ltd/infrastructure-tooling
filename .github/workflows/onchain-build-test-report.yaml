@@ -9,7 +9,7 @@ on:
     inputs:
       # Define any inputs needed from the calling workflow
       gh-app-id:
-        description: GitHub App ID for generating tokens (only needed if calling repo is 'liquidity-altbc')
+        description: GitHub App ID for generating tokens
         type: string
         required: false
         default: ""
@@ -64,7 +64,7 @@ jobs:
     steps:
       - name: Generate GitHub App token
         id: get-token
-        if: github.event.repository.name == 'liquidity-altbc'
+        if: inputs.gh-app-id != ''
         uses: actions/create-github-app-token@v2
         with: # Liquidity Github App
           app-id: ${{ inputs.gh-app-id }}
