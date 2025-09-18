@@ -6,9 +6,9 @@ runs:
     - name: Install dependencies for build and tests
       shell: bash
       run: |
-        sudo apt-get update
-        sudo apt-get install -y python3-pip curl
         if [ -f requirements.txt ]; then
+          sudo apt-get update
+          sudo apt-get install -y python3-pip curl
           pip3 install -r requirements.txt
         fi
         forge install dapphub/ds-test
