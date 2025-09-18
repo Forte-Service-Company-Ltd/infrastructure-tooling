@@ -107,7 +107,6 @@ jobs:
           fork-test: ${{ inputs.fork-test }}
           salt-string: ${{ inputs.salt-string }}
           skip-forte-token-tests: ${{ inputs.skip-forte-token-tests }}
-          is-forte-token-project: ${{ inputs.is-forte-token-project }}
       - name: Code Coverage
         id: code-coverage
         uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/code-coverage@staging
@@ -117,5 +116,4 @@ jobs:
           fork-test: ${{ inputs.fork-test }}
           salt-string: ${{ inputs.salt-string }}
           skip-forte-token-tests: ${{ inputs.skip-forte-token-tests }}
-          is-forte-token-project: ${{ inputs.is-forte-token-project }}
 #          github_pr_comment_token: ${{ secrets.GITHUB_PR_COMMENT_TOKEN }}
