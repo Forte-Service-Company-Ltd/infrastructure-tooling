@@ -1,5 +1,5 @@
 name: On-chain Test
-description: Runs forge build and test commands for on-chain microservices.
+description: Runs forge test for on-chain microservices.
 inputs:
   alchemy_eth_api:
     description: The Alchemy API URI to use for Ethereum RPC calls.

@@ -1,4 +1,4 @@
-name: On-chain Build + Test
+name: On-chain Foundry Installer
 description: Installs foundry toolchain.
 inputs:
   version:
