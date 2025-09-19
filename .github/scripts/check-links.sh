@@ -41,5 +41,5 @@ if [ -n "$FILE_PATH" ]; then
     done
 else
     echo "No specific files provided, falling back to find all .md files"
-    find . -name '*.md' -not -path './node_modules/*' -exec markdown-link-check $CONFIG_ARGS '{}' ';'
+    find . -name '*.md' -not -path './node_modules/*' -not -path './lib/*' -exec markdown-link-check $CONFIG_ARGS '{}' ';'
 fi
