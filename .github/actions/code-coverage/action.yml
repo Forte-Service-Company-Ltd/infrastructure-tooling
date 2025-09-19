@@ -62,5 +62,5 @@ runs:
       with:
         coverage-files: lcov.info
         minimum-coverage: 0
-        github-token: ${{ secrets.GITHUB_TOKEN }}
+        github-token: ${{ inputs.repo-token }}
         update-comment: false

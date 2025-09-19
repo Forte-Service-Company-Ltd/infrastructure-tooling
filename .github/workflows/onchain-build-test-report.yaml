@@ -116,3 +116,4 @@ jobs:
           fork-test: ${{ inputs.fork-test }}
           salt-string: ${{ inputs.salt-string }}
           skip-forte-token-tests: ${{ inputs.skip-forte-token-tests }}
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
