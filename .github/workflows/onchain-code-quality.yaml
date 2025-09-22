@@ -18,10 +18,6 @@ on:
       POLYGON_ALCHEMY_KEY: # optional, only if needed for tests requiring polygon fork
         required: false
         description: Alchemy API URI for Polygon mainnet (for tests requiring polygon fork)
-      # GITHUB_PR_COMMENT_TOKEN:
-      #   required: true
-      #   description: Token to authenticate on GitHub API, typically provided by the calling workflow
-
 
 jobs:
   check:
