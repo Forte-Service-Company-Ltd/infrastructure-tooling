@@ -16,10 +16,9 @@ inputs:
   skip-forte-token-tests:
     description: Whether to skip tests related to Forte Token.
     required: false
-# Pending decision on whether to re-enable PR comments and manage tokens to permit that
-#   github_pr_comment_token:
-#     description: 'GitHub token to post comments on PRs'
-#     required: true
+  repo-token:
+    description: Token to authenticate on GitHub API, typically provided by the calling workflow
+    required: true
 runs:
   using: "composite"
   steps:
