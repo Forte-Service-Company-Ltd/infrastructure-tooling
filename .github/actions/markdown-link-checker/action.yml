@@ -1,0 +1,20 @@
+name: Markdown Link Checker
+description: Checks markdown files for broken links.
+inputs:
+  file-path:
+    description: Comma-separated list of markdown files to check
+    required: true
+runs:
+  using: "composite"
+  steps:
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: "20"
+    - name: Check markdown links
+      shell: bash
+      env:
+        INPUT_CONFIG_FILE: "mlc_config.json"
+        INPUT_FILE_PATH: ${{ inputs.file-path }}
+      run: |
+        infrastructure-tooling/.github/scripts/check-links.sh

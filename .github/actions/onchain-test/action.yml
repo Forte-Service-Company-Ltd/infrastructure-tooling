@@ -1,0 +1,33 @@
+name: On-chain Test
+description: Runs forge test for on-chain microservices.
+inputs:
+  alchemy_eth_api:
+    description: The Alchemy API URI to use for Ethereum RPC calls.
+    required: false
+  alchemy_polygon_api:
+    description: The Alchemy API URI to use for Polygon RPC calls.
+    required: false
+  fork-test:
+    description: Whether to run tests that require forking mainnet.
+    required: false
+  salt-string:
+    description: Salt string for generating unique addresses in tests.
+    required: false
+  skip-forte-token-tests:
+    description: Whether to skip tests related to Forte Token.
+    required: false
+runs:
+  using: "composite"
+  steps:
+    - name: Run Foundry tests
+      id: forge-test
+      shell: bash
+      env:
+        FOUNDRY_PROFILE: ci
+        ETHEREUM_RPC_KEY: ${{ inputs.alchemy_eth_api }}
+        POLYGON_RPC_KEY: ${{ inputs.alchemy_polygon_api }}
+        FORK_TEST: ${{ inputs['fork-test'] }}
+        SALT_STRING: ${{ inputs['salt-string'] }}
+        SKIP_FORTE_TOKEN_TESTS: ${{ inputs['skip-forte-token-tests'] }}
+      run: |
+        forge test --ffi

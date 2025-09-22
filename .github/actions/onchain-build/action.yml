@@ -1,0 +1,10 @@
+name: On-chain Build
+description: Runs forge build for on-chain microservices.
+runs:
+  using: 'composite'
+  steps:
+    - name: Build the repository
+      id: build
+      shell: bash
+      run: |
+        forge clean && forge build --optimize

@@ -1,0 +1,119 @@
+# GitOps On-chain Build Test and Report Workflow - Callable from remote repositories
+# Builds and tests for on-chain projects.
+# This workflow is designed to be called from other repositories via 'workflow_call' event.
+
+name: On-Chain Build and Test
+on:
+  # Triggered from app repo's workflows
+  workflow_call:
+    inputs:
+      # Define any inputs needed from the calling workflow
+      gh-app-id:
+        description: GitHub App ID for generating tokens
+        type: string
+        required: false
+        default: ""
+      project-repositories:
+        description: Comma-separated list of project repositories to run the workflow on
+        type: string
+        required: false
+        default: ""
+      markdown-file-path:
+        description: Comma-separated list of markdown files to check
+        type: string
+        required: false
+        default: "./README.md, ./CHANGELOG.md, ./CODE_OF_CONDUCT.md, ./CONTRIBUTING.md, ./SECURITY.md"
+      fork-test:
+        description: Whether to run tests that require forking mainnet (true/false)
+        type: boolean
+        required: false
+        default: false
+      salt-string:
+        description: Salt string for generating unique addresses in tests
+        type: string
+        required: false
+        default: "SMELLING_SALTS"
+      skip-forte-token-tests:
+        description: Whether to skip tests related to Forte Token (true/false)
+        type: boolean
+        required: false
+        default: true
+      is-forte-token-project:
+        description: Whether this is the Forte Token project (enables Forte-specific env vars)
+        type: boolean
+        required: false
+        default: false
+    outputs:
+      status:
+        description: The status of the deployment job, either 'success', 'failure', or 'skipped'
+        value: ${{ jobs.check.result }}
+    secrets:
+      # Secrets are passed from the calling repository
+      ALCHEMY_KEY: # optional, only if needed for tests requiring mainnet fork
+        required: false
+        description: Alchemy API URI for Ethereum mainnet (for tests requiring mainnet fork)
+      POLYGON_ALCHEMY_KEY: # optional, only if needed for tests requiring polygon fork
+        required: false
+        description: Alchemy API URI for Polygon mainnet (for tests requiring polygon fork)
+
+jobs:
+  check:
+    name: Build and Test
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Generate GitHub App token
+        id: get-token
+        if: inputs.gh-app-id != ''
+        uses: actions/create-github-app-token@v2
+        with: # Liquidity Github App
+          app-id: ${{ inputs.gh-app-id }}
+          private-key: ${{ secrets.GH_APP_PRIVATE_KEY }}
+          repositories: ${{ inputs.project-repositories }}
+      - name: Checkout local repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ steps.get-token.outputs.token || github.token}}
+          submodules: recursive
+      - name: Checkout infrastructure-tooling repository
+        uses: actions/checkout@v4
+        with:
+          repository: Forte-Service-Company-Ltd/infrastructure-tooling
+          ref: v0.0.1
+          path: infrastructure-tooling
+      - name: Markdown Link Check
+        id: markdown-link-check
+        uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/markdown-link-checker@v0.0.1
+        with:
+          file-path: ${{ inputs.markdown-file-path }}
+      - name: Install Foundry
+        id: install-foundry
+        uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/install-foundry@v0.0.1
+      - name: Install Dependencies
+        id: install-dependencies
+        uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/install-dependencies@v0.0.1
+      - name: Contract Size
+        id: contract-size
+        uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/contract-size@v0.0.1
+      - name: Build
+        id: build
+        uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/onchain-build@v0.0.1
+      - name: Test
+        id: test
+        uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/onchain-test@v0.0.1
+        with:
+          alchemy_eth_api: ${{ secrets.ALCHEMY_KEY }}
+          alchemy_polygon_api: ${{ secrets.POLYGON_ALCHEMY_KEY }}
+          fork-test: ${{ inputs.fork-test }}
+          salt-string: ${{ inputs.salt-string }}
+          skip-forte-token-tests: ${{ inputs.skip-forte-token-tests }}
+      - name: Code Coverage
+        id: code-coverage
+        uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/code-coverage@v0.0.1
+        with:
+          alchemy_eth_api: ${{ secrets.ALCHEMY_KEY }}
+          alchemy_polygon_api: ${{ secrets.POLYGON_ALCHEMY_KEY }}
+          fork-test: ${{ inputs.fork-test }}
+          salt-string: ${{ inputs.salt-string }}
+          skip-forte-token-tests: ${{ inputs.skip-forte-token-tests }}
+          repo-token: ${{ secrets.GITHUB_TOKEN }}

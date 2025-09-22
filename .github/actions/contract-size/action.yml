@@ -1,0 +1,9 @@
+name: On-chain Contract Size Check
+description: Check the size of on-chain contracts using Forge
+runs:
+  using: "composite"
+  steps:
+    - name: Check Contract Size
+      shell: bash
+      run: |
+        bash infrastructure-tooling/.github/scripts/contract-size.sh

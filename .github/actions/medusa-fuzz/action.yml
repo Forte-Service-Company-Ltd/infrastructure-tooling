@@ -1,0 +1,82 @@
+name: On-chain Medusa Fuzz
+description: Runs forge build and medusa fuzzing for on-chain microservices.
+# Troubleshooting:
+# 1. Ensure medusa.json exists and targetContracts are correctly specified
+# 2. Verify test contracts have property_ or optimize_ prefixed functions
+# 3. Check that contracts compile successfully with forge/crytic-compile
+# 4. Enable assertion testing if using assert() statements
+inputs:
+  config:
+    description: "Path to medusa configuration file"
+    required: false
+    default: "medusa.json"
+  timeout:
+    description: "Timeout for fuzzing in seconds"
+    required: false
+    default: "1000"
+runs:
+  using: "composite"
+  steps:
+    - name: Setup Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.x"
+
+    - name: Go setup
+      uses: actions/setup-go@v4
+      with:
+        go-version: "1.18.1"
+
+    - name: Install Python dependencies
+      id: install-python-deps
+      shell: bash
+      run: |
+        pip install crytic-compile slither-analyzer
+
+    - name: Install medusa
+      id: install-medusa
+      shell: bash
+      run: |
+        git clone https://github.com/crytic/medusa.git
+        cd medusa
+        go build -o medusa -v .
+        go install -v .
+        sudo cp medusa /usr/bin
+
+    - name: Verify installations
+      id: verify-installs
+      shell: bash
+      run: |
+        echo "Checking medusa installation..."
+        medusa --version
+        echo "Checking slither installation..."
+        slither --version
+        echo "Checking crytic-compile installation..."
+        crytic-compile --version
+
+    - name: Run Medusa tests
+      id: medusa-test
+      shell: bash
+      run: |
+        CONFIG_FILE="${{ inputs.config }}"
+        if [ ! -f "$CONFIG_FILE" ]; then
+            echo "Error: Configuration file $CONFIG_FILE not found"
+            echo "Available files in current directory:"
+            ls -la
+            exit 1
+        fi
+        echo "Starting Medusa fuzzing with config: $CONFIG_FILE"
+        echo "Working directory: $(pwd)"
+        echo "Medusa version: $(medusa --version)"
+
+        # Run with timeout
+        timeout ${{ inputs.timeout }} medusa fuzz --config "$CONFIG_FILE" || {
+            exit_code=$?
+            if [ $exit_code -eq 124 ]; then
+                echo "Medusa fuzzing timed out after ${{ inputs.timeout }} seconds"
+                exit 0
+            else
+                echo "Medusa fuzzing failed with exit code: $exit_code"
+                exit $exit_code
+            fi
+        }
