@@ -50,7 +50,7 @@ jobs:
         uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/onchain-build@v0.0.1
       - name: Medusa Fuzz
         id: medusa-fuzz
-        uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/medusa-fuzz@v0.0.1
+        uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/medusa-fuzz@INF-294-Code-Quality-Workflow
       - name: Slither Analysis
         id: slither-analysis
         uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/slither-analysis@v0.0.1
