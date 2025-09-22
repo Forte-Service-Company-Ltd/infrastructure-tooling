@@ -41,7 +41,7 @@ runs:
         REPORT: ${{ steps.slither-pull.outputs.stdout }}
       with:
         script: |
-          const script = require('infrastructure-tooling/.github/scripts/slither-comment.js')
+          const script = require('../../scripts/slither-comment.js')
           const header = '<details><summary>Slither report</summary>\n'
           const body = process.env.REPORT + '</details>'
           await script({ github, context, header, body })
