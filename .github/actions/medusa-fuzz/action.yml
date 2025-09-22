@@ -23,9 +23,9 @@ runs:
         python-version: "3.x"
 
     - name: Go setup
-      uses: actions/setup-go@v4
+      uses: actions/setup-go@v6
       with:
-        go-version: "1.18.1"
+        go-version: "1.25.0"
 
     - name: Install Python dependencies
       id: install-python-deps
