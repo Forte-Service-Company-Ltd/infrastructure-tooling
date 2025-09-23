@@ -69,7 +69,7 @@ runs:
     - name: Slither Analyze
       id: slither
       uses: crytic/slither-action@v0.4.1
-      continue-on-error: true
+      working-directory: ${{ github.workspace }}
       with:
         slither-config: ${{ inputs.CONFIG }}
         target: ${{ env.SLITHER_TARGET }}
