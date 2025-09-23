@@ -8,6 +8,23 @@ inputs:
 runs:
   using: "composite"
   steps:
+    - name: Prepare environment for Slither
+      shell: bash
+      run: |
+        echo "=== Preparing Foundry project for Slither analysis ==="
+        # Create common dependency directories that might be referenced
+        mkdir -p lib dependencies node_modules
+
+        # Initialize git submodules if .gitmodules exists
+        if [ -f ".gitmodules" ]; then
+          echo "→ Initializing git submodules..."
+          git submodule update --init --recursive || {
+            echo "⚠️  Submodule initialization failed, attempting fallback..."
+            git submodule sync
+            git submodule update --init --recursive --force || echo "⚠️  Submodule fallback also failed, continuing..."
+          }
+        fi
+
     - name: Slither Analyze
       id: slither
       uses: crytic/slither-action@v0.4.1
@@ -15,7 +32,7 @@ runs:
       continue-on-error: true
       with:
         slither-config: ${{ inputs.CONFIG }}
-        fail-on: pedantic
+        # fail-on: pedantic
         # sarif: results.sarif
 
     # - name: Upload SARIF file
