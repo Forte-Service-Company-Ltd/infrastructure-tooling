@@ -41,10 +41,27 @@ runs:
           fi
         done
 
+        # Determine the correct target directory for Slither
+        SLITHER_TARGET="."
+        if [ -d "src" ] && [ "$(find src -name "*.sol" -type f | wc -l)" -gt 0 ]; then
+          SLITHER_TARGET="./src"
+          echo "→ Using src directory as target"
+        elif [ -d "contracts" ] && [ "$(find contracts -name "*.sol" -type f | wc -l)" -gt 0 ]; then
+          SLITHER_TARGET="./contracts"
+          echo "→ Using contracts directory as target"
+        else
+          SLITHER_TARGET="."
+          echo "→ Using root directory as target"
+        fi
+        echo "SLITHER_TARGET=$SLITHER_TARGET" >> $GITHUB_ENV
+
         # Check if out directory exists (Foundry's default build output)
         if [ -d "out" ]; then
           echo "✓ Found compiled artifacts in 'out' directory"
           find out -name "*.json" | wc -l | xargs echo "  - Compiled contracts:"
+          # Clean out directory to prevent JSON parsing conflicts
+          echo "→ Cleaning out directory to prevent parsing conflicts..."
+          rm -rf out
         else
           echo "⚠️  No 'out' directory found - ensure forge build was run previously"
         fi
@@ -55,8 +72,7 @@ runs:
       continue-on-error: true
       with:
         slither-config: ${{ inputs.CONFIG }}
-        target: "."
-        ignore-compile: true
+        target: ${{ env.SLITHER_TARGET }}
         # fail-on: pedantic
         # sarif: results.sarif
 
