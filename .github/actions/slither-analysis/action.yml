@@ -10,10 +10,13 @@ runs:
   steps:
     - name: Slither Analyze
       id: slither
-      uses: crytic/slither-action@v0.4.1
-      with:
-        slither-config: ${{ inputs.CONFIG }}
-        target: 'src/'
+      shell: bash
+      run: |
+        pip install slither-analyzer
+        slither --config-file ${{ inputs.CONFIG }} .
+      # with:
+      #   slither-config: ${{ inputs.CONFIG }}
+      #   target: 'src/'
         # fail-on: pedantic
         # sarif: results.sarif
 
