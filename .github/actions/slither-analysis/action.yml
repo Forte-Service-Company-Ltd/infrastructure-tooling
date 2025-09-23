@@ -12,6 +12,7 @@ runs:
       shell: bash
       run: |
         echo "=== Preparing Foundry project for Slither analysis ==="
+
         # Create common dependency directories that might be referenced
         mkdir -p lib dependencies node_modules
 
@@ -25,6 +26,19 @@ runs:
           }
         fi
 
+        # Temporarily rename foundry.toml to prevent Slither from trying to handle dependencies
+        if [ -f "foundry.toml" ]; then
+          echo "→ Temporarily renaming foundry.toml to prevent dependency conflicts..."
+          mv foundry.toml foundry.toml.backup
+        fi
+
+        # Check if out directory exists (Foundry's default build output)
+        if [ -d "out" ]; then
+          echo "✓ Found compiled artifacts in 'out' directory"
+        else
+          echo "⚠️  No 'out' directory found - ensure forge build was run previously"
+        fi
+
     - name: Slither Analyze
       id: slither
       uses: crytic/slither-action@v0.4.1
@@ -32,6 +46,8 @@ runs:
       continue-on-error: true
       with:
         slither-config: ${{ inputs.CONFIG }}
+        target: "./src"
+        ignore-compile: true
         # fail-on: pedantic
         # sarif: results.sarif
 
