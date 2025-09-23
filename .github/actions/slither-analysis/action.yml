@@ -42,12 +42,9 @@ runs:
     - name: Slither Analyze
       id: slither
       uses: crytic/slither-action@v0.4.1
-      # if: github.event_name != 'pull_request'
       continue-on-error: true
       with:
         slither-config: ${{ inputs.CONFIG }}
-        target: "./src"
-        ignore-compile: true
         # fail-on: pedantic
         # sarif: results.sarif
 
