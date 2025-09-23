@@ -26,15 +26,25 @@ runs:
           }
         fi
 
-        # Temporarily rename foundry.toml to prevent Slither from trying to handle dependencies
-        if [ -f "foundry.toml" ]; then
-          echo "→ Temporarily renaming foundry.toml to prevent dependency conflicts..."
-          mv foundry.toml foundry.toml.backup
-        fi
+        # Debug: Show directory structure
+        echo "=== Current directory structure ==="
+        ls -la
+        echo "=== Looking for Solidity files ==="
+        find . -name "*.sol" -type f | head -10 || echo "No .sol files found"
+        echo "=== Checking common directories ==="
+        for dir in src contracts lib out; do
+          if [ -d "$dir" ]; then
+            echo "✓ Found directory: $dir"
+            find "$dir" -name "*.sol" -type f | wc -l | xargs echo "  - .sol files:"
+          else
+            echo "✗ Missing directory: $dir"
+          fi
+        done
 
         # Check if out directory exists (Foundry's default build output)
         if [ -d "out" ]; then
           echo "✓ Found compiled artifacts in 'out' directory"
+          find out -name "*.json" | wc -l | xargs echo "  - Compiled contracts:"
         else
           echo "⚠️  No 'out' directory found - ensure forge build was run previously"
         fi
@@ -45,6 +55,8 @@ runs:
       continue-on-error: true
       with:
         slither-config: ${{ inputs.CONFIG }}
+        target: "."
+        ignore-compile: true
         # fail-on: pedantic
         # sarif: results.sarif
 
