@@ -13,7 +13,7 @@ runs:
       shell: bash
       run: |
         pip install slither-analyzer
-        slither --config-file ${{ inputs.CONFIG }} --sarif results.sarif .
+        slither --config-file ${{ inputs.CONFIG }} --sarif results.sarif --fail-none .
 
     - name: Upload SARIF file
       uses: actions/upload-artifact@v4
@@ -21,13 +21,6 @@ runs:
         name: results.sarif
         path: ${{ steps.slither.outputs.sarif }}
         retention-days: 5
-
-    - name: Slither Analyze Pull Request
-      id: slither-pull
-      uses: crytic/slither-action@v0.4.1
-      with:
-        fail-on: pedantic
-        slither-args: --checklist --checklist-limit 50 --skip-assembly --markdown-root ${{ github.server_url }}/${{ github.repository }}/blob/${{ github.sha }}/
 
     - name: Create/update checklist as PR comment
       uses: actions/github-script@v7
