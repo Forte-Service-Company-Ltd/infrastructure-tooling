@@ -19,7 +19,7 @@ runs:
       uses: actions/upload-artifact@v4
       with:
         name: results.sarif
-        path: ${{ steps.slither.outputs.sarif }}
+        path: ./results.sarif
         retention-days: 5
 
     - name: Create/update checklist as PR comment
