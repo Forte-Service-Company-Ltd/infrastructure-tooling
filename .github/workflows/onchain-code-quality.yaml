@@ -49,6 +49,15 @@ jobs:
         uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/slither-analysis@INF-294-Code-Quality-Workflow
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Check for medusa.conf
+        id: check-medusa-conf
+        run: |
+          if [ -f "medusa.conf" ]; then
+            echo "medusa-conf-exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "medusa-conf-exists=false" >> $GITHUB_OUTPUT
+          fi
       - name: Medusa Fuzz
         id: medusa-fuzz
+        if: steps.check-medusa-conf.outputs.medusa-conf-exists == 'true'
         uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/medusa-fuzz@INF-294-Code-Quality-Workflow
