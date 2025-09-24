@@ -52,7 +52,7 @@ jobs:
       - name: Check for medusa.conf
         id: check-medusa-conf
         run: |
-          if [ -f "medusa.conf" ]; then
+          if [ -f "medusa.json" ]; then
             echo "medusa-conf-exists=true" >> $GITHUB_OUTPUT
           else
             echo "medusa-conf-exists=false" >> $GITHUB_OUTPUT
