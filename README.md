@@ -84,14 +84,6 @@ Contract size validation script:
 - Fails for contracts >24KB (exceeds Ethereum limit)
 - Color-coded terminal output for easy identification
 
-#### `slither-comment.js`
-
-GitHub API utility for managing PR comments:
-
-- Creates or updates Slither analysis comments
-- Prevents comment spam by updating existing comments
-- Integrates with GitHub Actions bot user
-
 ## 🔧 Usage
 
 ### As a Callable Workflow
@@ -120,7 +112,6 @@ Reference specific actions in your workflows:
 steps:
   - uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/install-foundry@main
   - uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/onchain-build@main
-  - uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/slither-analysis@main
 ```
 
 ## 🛠 Supported Technologies
