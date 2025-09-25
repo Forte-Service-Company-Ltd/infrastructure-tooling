@@ -7,6 +7,16 @@ on:
   # Triggered from app repo's workflows
   workflow_call:
     inputs:
+      gh-app-id:
+        description: GitHub App ID for generating tokens
+        type: string
+        required: false
+        default: ""
+      project-repositories:
+        description: Comma-separated list of project repositories to run the workflow on
+        type: string
+        required: false
+        default: ""
       slither-target:
         description: Target directory or file for slither analysis
         type: string
@@ -31,9 +41,18 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 45
     steps:
+      - name: Generate GitHub App token
+        id: get-token
+        if: inputs.gh-app-id != ''
+        uses: actions/create-github-app-token@v2
+        with: # Liquidity Github App
+          app-id: ${{ inputs.gh-app-id }}
+          private-key: ${{ secrets.GH_APP_PRIVATE_KEY }}
+          repositories: ${{ inputs.project-repositories }}
       - name: Checkout local repository
         uses: actions/checkout@v4
         with:
+          token: ${{ steps.get-token.outputs.token || github.token}}
           submodules: recursive
       - name: Checkout infrastructure-tooling repository
         uses: actions/checkout@v4
