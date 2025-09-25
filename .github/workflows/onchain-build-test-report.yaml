@@ -79,28 +79,28 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: Forte-Service-Company-Ltd/infrastructure-tooling
-          ref: inf-294-code-quality-workflow
+          ref: INF-294-Code-Quality-Workflow
           path: infrastructure-tooling
       - name: Markdown Link Check
         id: markdown-link-check
-        uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/markdown-link-checker@inf-294-code-quality-workflow
+        uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/markdown-link-checker@INF-294-Code-Quality-Workflow
         with:
           file-path: ${{ inputs.markdown-file-path }}
       - name: Install Foundry
         id: install-foundry
-        uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/install-foundry@inf-294-code-quality-workflow
+        uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/install-foundry@INF-294-Code-Quality-Workflow
       - name: Install Dependencies
         id: install-dependencies
-        uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/install-dependencies@inf-294-code-quality-workflow
+        uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/install-dependencies@INF-294-Code-Quality-Workflow
       - name: Contract Size
         id: contract-size
-        uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/contract-size@inf-294-code-quality-workflow
+        uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/contract-size@INF-294-Code-Quality-Workflow
       - name: Build
         id: build
-        uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/onchain-build@inf-294-code-quality-workflow
+        uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/onchain-build@INF-294-Code-Quality-Workflow
       - name: Test
         id: test
-        uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/onchain-test@inf-294-code-quality-workflow
+        uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/onchain-test@INF-294-Code-Quality-Workflow
         with:
           alchemy_eth_api: ${{ secrets.ALCHEMY_KEY }}
           alchemy_polygon_api: ${{ secrets.POLYGON_ALCHEMY_KEY }}
@@ -109,7 +109,7 @@ jobs:
           skip-forte-token-tests: ${{ inputs.skip-forte-token-tests }}
       - name: Code Coverage
         id: code-coverage
-        uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/code-coverage@inf-294-code-quality-workflow
+        uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/code-coverage@INF-294-Code-Quality-Workflow
         with:
           alchemy_eth_api: ${{ secrets.ALCHEMY_KEY }}
           alchemy_polygon_api: ${{ secrets.POLYGON_ALCHEMY_KEY }}

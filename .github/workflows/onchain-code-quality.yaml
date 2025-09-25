@@ -55,6 +55,7 @@ jobs:
         uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/slither-analysis@INF-294-Code-Quality-Workflow
         with:
           target: ${{ inputs.slither-target }}
+
       - name: Check for medusa.conf
         id: check-medusa-conf
         run: |
