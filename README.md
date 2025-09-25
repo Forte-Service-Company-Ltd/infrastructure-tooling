@@ -91,17 +91,21 @@ Contract size validation script:
 Add to your repository's `.github/workflows/` directory:
 
 ```yaml
-name: Build and Test
-on: [push, pull_request]
+name: Composite Code Quality
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, edited, ready_for_review]
+
+permissions:
+  contents: read
+  pull-requests: write
+
 jobs:
-  build-test:
-    uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/workflows/onchain-build-test-report.yaml@main
-    secrets:
-      ALCHEMY_KEY: ${{ secrets.ALCHEMY_KEY }}
-      POLYGON_ALCHEMY_KEY: ${{ secrets.POLYGON_ALCHEMY_KEY }}
-    with:
-      fork-test: true
-      salt-string: "CUSTOM_SALT"
+  code-quality:
+    uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/workflows/onchain-code-quality.yaml@v0.0.2
+    secrets: inherit
+
 ```
 
 ### As Individual Actions
