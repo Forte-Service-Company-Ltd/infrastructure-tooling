@@ -105,7 +105,6 @@ jobs:
   code-quality:
     uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/workflows/onchain-code-quality.yaml@v0.0.2
     secrets: inherit
-
 ```
 
 ### As Individual Actions
