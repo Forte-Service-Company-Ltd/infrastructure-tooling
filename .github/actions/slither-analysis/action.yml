@@ -12,8 +12,6 @@ runs:
       id: slither
       shell: bash
       run: |
-        forge install dapphub/ds-test
-        forge install OpenZeppelin/openzeppelin-contracts
         pip install slither-analyzer
         slither --config-file ${{ inputs.CONFIG }} --sarif results.sarif --fail-none .
 
