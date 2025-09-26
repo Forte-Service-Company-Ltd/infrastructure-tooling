@@ -12,9 +12,18 @@ should_fail="false"
 while IFS= read -r line; do
     clean_line=$(echo "$line" | tr -d ',' | cut -c1-69)
 
-    # Extract all numbers from the line
-    for num in $(echo "$clean_line" | grep -oE '[0-9]+'); do
-        # Load variable with position 3 to 46 (inclusive)
+    # Skip header lines and separators
+    if [[ "$line" =~ ^[╭╰+\|=\-] ]] || [[ "$line" =~ "Contract.*Runtime Size" ]]; then
+        continue
+    fi
+
+    # Extract the Runtime Size (second column) specifically
+    # Use awk to split by | and get the second field (Runtime Size)
+    runtime_size=$(echo "$line" | awk -F'|' '{gsub(/[^0-9]/, "", $2); print $2}' | grep -oE '[0-9]+' | head -1)
+
+    if [[ -n "$runtime_size" ]]; then
+        num=$runtime_size
+        # Load variable with position 3 to 46 (inclusive) for contract name
         contract=${clean_line:2:44}
         contract="${contract%"${contract##*[![:space:]]}"}"
         # echo $contract
@@ -26,7 +35,7 @@ while IFS= read -r line; do
             printf "${YELLOW} WARNING ${NC} Contract found that is near the max size of 24Kb. ${YELLOW} $contract ${NC} \n"
             printf "          Its size is: ${YELLOW} $num ${NC} \n"
         fi
-    done    
+    fi
 done <<< "$output"
 if [ "$should_fail" = "true" ]; then
   printf "${RED} ERROR: Failed to pass all checks. See individual results for details.  \n"
