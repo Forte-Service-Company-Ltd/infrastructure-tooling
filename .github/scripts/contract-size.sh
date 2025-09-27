@@ -19,7 +19,7 @@ while IFS= read -r line; do
         # Load variable with position 3 to 46 (inclusive)
         contract=${clean_line:2:44}
         contract="${contract%"${contract##*[![:space:]]}"}"
-        # echo $contract
+        echo $contract
         if (( num > 24576 )); then
             printf "${RED} FAIL ${NC} Contract found that exceeds the max size of 24Kb! ${RED} $contract ${NC} \n"
             printf "       Its size is: ${RED} $num ${NC} \n"
