@@ -13,7 +13,7 @@ inputs:
   timeout:
     description: "Timeout for fuzzing in seconds"
     required: false
-    default: "1000"
+    default: "1800"  # Default to 30 minutes
 runs:
   using: "composite"
   steps:
@@ -25,7 +25,7 @@ runs:
     - name: Go setup
       uses: actions/setup-go@v4
       with:
-        go-version: "1.18.1"
+        go-version: "^1.18.1"
 
     - name: Install Python dependencies
       id: install-python-deps
