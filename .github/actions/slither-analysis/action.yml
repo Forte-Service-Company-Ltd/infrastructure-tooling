@@ -23,7 +23,7 @@ runs:
 
         # Try to run slither with error handling
         set +e  # Don't exit on error
-        slither --config-file ${{ inputs.CONFIG }} --sarif results.sarif --fail-none ${{ inputs.target }}
+        slither --config-file ${{ inputs.config }} --sarif results.sarif --fail-none ${{ inputs.target }}
 
     - name: Upload SARIF file
       uses: actions/upload-artifact@v4
