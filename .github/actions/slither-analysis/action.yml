@@ -1,7 +1,7 @@
 name: On-chain Slither Analysis
 description: Runs forge build and slither analysis for on-chain microservices.
 inputs:
-  CONFIG:
+  config:
     description: Path to slither config file
     required: false
     default: ./slither.config.json
@@ -19,7 +19,7 @@ runs:
         pip install slither-analyzer
         echo "Running slither analysis..."
         echo "Target: ${{ inputs.target }}"
-        echo "Config: ${{ inputs.CONFIG }}"
+        echo "Config: ${{ inputs.config }}"
 
         # Try to run slither with error handling
         set +e  # Don't exit on error
