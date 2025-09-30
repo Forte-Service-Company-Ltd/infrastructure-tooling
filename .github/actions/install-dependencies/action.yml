@@ -1,5 +1,5 @@
 name: On-chain Dependency Installation
-description: Runs forge build and test commands for on-chain microservices.
+description: Installs Python dependencies if requirements.txt is present.
 runs:
   using: "composite"
   steps:
