@@ -45,7 +45,7 @@ jobs:
         id: get-token
         if: inputs.gh-app-id != ''
         uses: actions/create-github-app-token@v2
-        with:
+        with: # The app-id needs to be set and private-key should be configured in the calling repository's secrets to access private repos.
           app-id: ${{ inputs.gh-app-id }}
           private-key: ${{ secrets.GH_APP_PRIVATE_KEY }}
           repositories: ${{ inputs.project-repositories }}
