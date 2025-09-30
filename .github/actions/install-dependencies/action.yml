@@ -1,19 +1,13 @@
 name: On-chain Dependency Installation
-description: Runs forge build and test commands for on-chain microservices.
+description: Install dependencies
 runs:
   using: "composite"
   steps:
-    - name: Install dependencies for build and tests
+    - name: Installs Python dependencies if requirements.txt is present.
       shell: bash
       run: |
         if [ -f requirements.txt ]; then
           sudo apt-get update
           sudo apt-get install -y python3-pip curl
           pip3 install -r requirements.txt
-        fi
-        if [ -f soldeer.toml ] || [ -f forge.toml ] || [ -f foundry.toml ]; then
-          echo "Checking network connectivity..."
-          curl -s --connect-timeout 10 https://soldeer.xyz > /dev/null && echo "Network connectivity OK" || echo "Warning: Network connectivity issues detected"
-          forge soldeer update || echo "Warning: Soldeer update failed, continuing without registry update"
-          forge soldeer install || echo "Warning: Soldeer install failed, continuing without soldeer dependencies"
         fi

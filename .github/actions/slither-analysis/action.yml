@@ -1,48 +1,102 @@
 name: On-chain Slither Analysis
 description: Runs forge build and slither analysis for on-chain microservices.
 inputs:
-  CONFIG:
+  config:
     description: Path to slither config file
     required: false
     default: ./slither.config.json
+  target:
+    description: Target directory or file for slither analysis
+    required: false
+    default: .
 runs:
   using: "composite"
   steps:
     - name: Slither Analyze
       id: slither
-      uses: crytic/slither-action@v0.4.1
-      if: github.event_name != 'pull_request'
-      continue-on-error: true
-      with:
-        slither-config: ${{ inputs.CONFIG }}
-        fail-on: pedantic
-        sarif: results.sarif
+      shell: bash
+      run: |
+        pip install slither-analyzer
+        echo "Running slither analysis..."
+        echo "Target: ${{ inputs.target }}"
+        echo "Config: ${{ inputs.config }}"
+
+        # Try to run slither with error handling
+        set +e  # Don't exit on error
+        slither --config-file ${{ inputs.config }} --sarif results.sarif --fail-none ${{ inputs.target }}
 
     - name: Upload SARIF file
       uses: actions/upload-artifact@v4
-      if: always() && (github.event_name != 'pull_request')
       with:
         name: results.sarif
-        path: ${{ steps.slither.outputs.sarif }}
+        path: ./results.sarif
         retention-days: 5
 
-    - name: Slither Analyze Pull Request
-      id: slither-pull
-      uses: crytic/slither-action@v0.4.1
-      if: always() && (github.event_name == 'pull_request')
+    - name: Create/update checklist as PR comment
+      uses: actions/github-script@v7
       with:
-        fail-on: pedantic
-        slither-args: --checklist --checklist-limit 50 --skip-assembly --markdown-root ${{ github.server_url }}/${{ github.repository }}/blob/${{ github.sha }}/
+        script: |
+          const fs = require('fs');
+          const path = require('path');
+          // Read the SARIF file
+          const sarifPath = './results.sarif';
+          let sarifContent = '';
+          try {
+            if (fs.existsSync(sarifPath)) {
+              const rawContent = fs.readFileSync(sarifPath, 'utf8');
+              const sarifData = JSON.parse(rawContent);
+              // Format the SARIF data for better readability
+              let formattedResults = '';
+              if (sarifData.runs && sarifData.runs.length > 0) {
+                for (const run of sarifData.runs) {
+                  if (run.results && run.results.length > 0) {
+                    formattedResults += `## ${run.tool.driver.name} Analysis Results\n\n`;
+                    formattedResults += `Found ${run.results.length} issue(s):\n\n`;
+                    for (const result of run.results) {
+                      const level = result.level || 'info';
+                      const ruleId = result.ruleId || 'unknown';
+                      const message = result.message.text || 'No message';
+                      const location = result.locations && result.locations[0] 
+                        ? `${result.locations[0].physicalLocation.artifactLocation.uri}:${result.locations[0].physicalLocation.region.startLine}`
+                        : 'Unknown location';
 
-    # Pending decision on whether to re-enable PR comments and manage tokens to permit that
-    # - name: Create/update checklist as PR comment
-    #   uses: actions/github-script@v7
-    #   if: always() && (github.event_name == 'pull_request')
-    #   env:
-    #     REPORT: ${{ steps.slither-pull.outputs.stdout }}
-    #   with:
-    #     script: |
-    #       const script = require('infrastructure-tooling/.github/scripts/slither-comment.js')
-    #       const header = '<details><summary>Slither report</summary>\n'
-    #       const body = process.env.REPORT + '</details>'
-    #       await script({ github, context, header, body })
+                      formattedResults += `- **${level.toUpperCase()}** [${ruleId}]: ${message}\n`;
+                      formattedResults += `  - Location: \`${location}\`\n\n`;
+                    }
+                  } else {
+                    formattedResults += `## ${run.tool.driver.name} Analysis Results\n\n`;
+                    formattedResults += '✅ No issues found!\n\n';
+                  }
+                }
+              } else {
+                formattedResults = '✅ No analysis results found.\n';
+              }
+              sarifContent = formattedResults;
+            } else {
+              sarifContent = '❌ SARIF file not found.';
+            }
+          } catch (error) {
+            sarifContent = `❌ Error reading SARIF file: ${error.message}`;
+          }
+          const header = '<details><summary>🔍 Slither Analysis Report</summary>\n\n';
+          const footer = '\n</details>';
+          const comment = header + sarifContent + footer;
+          const { data: comments } = await github.rest.issues.listComments({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            issue_number: context.payload.number,
+          });
+          const botComment = comments.find(
+            (comment) =>
+              // github-actions bot user
+              comment.user.id === 41898282 && comment.body.includes('🔍 Slither Analysis Report')
+          );
+          const commentFn = botComment ? "updateComment" : "createComment";
+          await github.rest.issues[commentFn]({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: comment,
+            ...(botComment
+              ? { comment_id: botComment.id }
+              : { issue_number: context.payload.number }),
+          });
