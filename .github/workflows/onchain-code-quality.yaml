@@ -45,7 +45,7 @@ jobs:
         id: get-token
         if: inputs.gh-app-id != ''
         uses: actions/create-github-app-token@v2
-        with: # Liquidity Github App
+        with:
           app-id: ${{ inputs.gh-app-id }}
           private-key: ${{ secrets.GH_APP_PRIVATE_KEY }}
           repositories: ${{ inputs.project-repositories }}
