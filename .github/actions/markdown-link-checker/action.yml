@@ -4,6 +4,10 @@ inputs:
   file-path:
     description: Comma-separated list of markdown files to check
     required: true
+  config_file:
+    description: Path to the markdown-link-checker config file
+    required: false
+    default: mlc_config.json
 runs:
   using: "composite"
   steps:
@@ -14,7 +18,7 @@ runs:
     - name: Check markdown links
       shell: bash
       env:
-        INPUT_CONFIG_FILE: "mlc_config.json"
+        INPUT_CONFIG_FILE: ${{ inputs.config_file }}
         INPUT_FILE_PATH: ${{ inputs.file-path }}
       run: |
         infrastructure-tooling/.github/scripts/check-links.sh
