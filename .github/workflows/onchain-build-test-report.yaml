@@ -70,11 +70,11 @@ jobs:
           app-id: ${{ inputs.gh-app-id }}
           private-key: ${{ secrets.GH_APP_PRIVATE_KEY }}
           repositories: ${{ inputs.project-repositories }}
-      - name: Checkout local repository
-        uses: actions/checkout@v4
-        with:
-          token: ${{ steps.get-token.outputs.token || github.token}}
-          submodules: recursive
+      # - name: Checkout local repository
+      #   uses: actions/checkout@v4
+      #   with:
+      #     token: ${{ steps.get-token.outputs.token || github.token}}
+      #     submodules: recursive
       - name: Checkout infrastructure-tooling repository
         uses: actions/checkout@v4
         with:
