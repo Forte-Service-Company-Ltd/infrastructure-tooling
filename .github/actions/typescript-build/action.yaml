@@ -57,18 +57,6 @@ runs:
         echo "::endgroup::"
       working-directory: ${{ inputs.working-directory }}
 
-    - name: Build project
-      if: ${{ ! inputs.components }}
-      shell: bash
-      run: |
-        echo "::group::Building project"
-        pman=${{ inputs.package-manager }}
-        pman=${pman//npm/npm run} # npm needs `run` subcommand
-        echo "Running ${pman} build"
-        ${pman} build
-        echo "::endgroup::"
-      working-directory: ${{ inputs.working-directory }}
-
     # We'll assume that each component has a script defined, such that we can run `yarn <component> build` instead of `yarn workspace <component> build`
     - name: Build components
       shell: bash
