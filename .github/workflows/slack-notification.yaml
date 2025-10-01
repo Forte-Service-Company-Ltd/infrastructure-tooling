@@ -1,0 +1,53 @@
+# Notify to the Appropriate Slack Channel based on Environment
+# This uses Webhook secrets defined in the Organization.
+
+name: Notify to Slack
+
+on:
+  workflow_call:
+    inputs:
+      env:
+        required: true
+        type: string
+      status:
+        description: The status of the job being monitored. Pass `job.status` typically.
+        required: true
+        type: string
+      title:
+        description: The title of the notification.
+        required: true
+        type: string
+      notify_when:
+        description: Statuses when notifications are sent. One/Many of 'always', 'failure', 'success', 'skipped', 'cancelled'. Defaults to 'failure'.
+        required: false
+        default: 'failure'
+        type: string
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Set Slack Webhook URL
+        id: slack-webhook
+        shell: bash
+        run: |
+          if [[ "${{ inputs.env }}" == "staging" || "${{ inputs.env }}" == "onchain" ]]; then
+            echo "slack-webhook-url=${{ secrets.SLACK_ALERTS_STAGING_WEBHOOK_URL }}" >> $GITHUB_OUTPUT
+          elif [[ "${{ inputs.env }}" == "production" || "${{ inputs.env }}" == "demo" ]]; then
+            echo "slack-webhook-url=${{ secrets.SLACK_ALERTS_PROD_WEBHOOK_URL }}" >> $GITHUB_OUTPUT
+          else
+            echo "slack-webhook-url=${{ secrets.SLACK_ALERTS_DEV_WEBHOOK_URL }}" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Notify to Slack
+        uses: ravsamhq/notify-slack-action@2.3.0
+        with:
+          status: ${{ inputs.status || 'failure' }}
+          notify_when: ${{ inputs.notify_when }}
+          notification_title: ${{ inputs.title }}
+          message_format: '{emoji} Check the <{run_url}|GitHub Actions run> for more details.'
+          footer: '${{ inputs.env }} | {repo} | {branch}'
+          token: ${{ secrets.GITHUB_TOKEN }}
+        env:
+          SLACK_WEBHOOK_URL: ${{ steps.slack-webhook.outputs.slack-webhook-url }}

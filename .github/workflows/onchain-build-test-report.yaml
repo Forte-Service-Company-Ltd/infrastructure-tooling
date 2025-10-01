@@ -117,3 +117,15 @@ jobs:
           salt-string: ${{ inputs.salt-string }}
           skip-forte-token-tests: ${{ inputs.skip-forte-token-tests }}
           repo-token: ${{ secrets.GITHUB_TOKEN }}
+
+  notify:
+    name: Notify Slack on Deployment Failure
+    needs: [check]
+    if: always() && (needs.check.result != 'success')
+    uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/workflows/slack-notification.yaml@INF-272-Slack-Notifications
+    with:
+      env: "onchain"
+      status: ${{ needs.check.result }}
+      title: "On-Chain Build and Test of *${{ github.repository }}* failed."
+      notify_when: "failure,skipped"
+    secrets: inherit
