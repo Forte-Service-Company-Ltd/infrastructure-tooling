@@ -11,6 +11,10 @@ inputs:
 runs:
   using: "composite"
   steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+        working-directory: infrastructure-tooling
     - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
