@@ -2,7 +2,7 @@ name: TypeScript Build
 description: Build Typescript projects with support for multiple workspaces
 inputs:
   components:
-    description: Optional components to test (e.g. "server", "client"). Corresponds to a "script" defined in package.json.
+    description: Optional components to build (e.g. "server", "client"). Corresponds to a "script" defined in package.json.
     required: false
   node-version:
     description: The version of Node.js to use. (e.g. "20", "22", "lts/*", "current", etc.) Defaults to "20.x".
