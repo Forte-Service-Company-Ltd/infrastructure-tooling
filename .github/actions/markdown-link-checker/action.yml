@@ -4,7 +4,7 @@ inputs:
   file-path:
     description: Comma-separated list of markdown files to check
     required: true
-  config_file:
+  config-file:
     description: Path to the markdown-link-checker config file
     required: false
     default: mlc_config.json
