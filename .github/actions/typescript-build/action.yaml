@@ -34,7 +34,7 @@ runs:
       uses: actions/setup-node@v4
       with:
         node-version: ${{ inputs.node-version }}
-        cache: 'npm'
+        cache: ${{ inputs.package-manager }}
 
     - name: Validate package manager
       shell: bash
