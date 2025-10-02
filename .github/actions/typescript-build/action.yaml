@@ -1,0 +1,81 @@
+name: TypeScript Build
+description: Build Typescript projects with support for multiple workspaces
+inputs:
+  components:
+    description: Optional components to build (e.g. "server", "client"). Corresponds to a "script" defined in package.json.
+    required: false
+  node-version:
+    description: The version of Node.js to use. (e.g. "20", "22", "lts/*", "current", etc.) Defaults to "20.x".
+    required: false
+    default: '20.x'
+  package-manager:
+    description: The package manager to use (e.g. "yarn" or "npm"). Defaults to "yarn".
+    required: false
+    default: yarn
+  working-directory:
+    description: The working directory to run the build in. Defaults to the repository root.
+    required: false
+    default: .
+  submodules:
+    description: Whether to checkout git submodules. Values may be 'recursive', 'true', or 'false'. Defaults to 'false'.
+    required: false
+    default: 'false'
+runs:
+  using: 'composite'
+  steps:
+    - uses: actions/checkout@v4
+      with:
+        path: ${{ inputs.working-directory }}
+        fetch-depth: '0'
+        fetch-tags: true
+        submodules: ${{ inputs.submodules }}
+
+    - name: Use Node.js ${{ inputs.node-version }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ inputs.node-version }}
+        cache: ${{ inputs.package-manager }}
+
+    - name: Validate package manager
+      shell: bash
+      run: |
+        if [[ "${{ inputs.package-manager }}" != "yarn" && "${{ inputs.package-manager }}" != "npm" ]]; then
+          echo "Error: package-manager must be 'yarn' or 'npm'"
+          exit 1
+        fi
+      working-directory: ${{ inputs.working-directory }}
+
+    - name: Install dependencies
+      shell: bash
+      run: |
+        echo "::group::Installing dependencies"
+        if [[ "${{ inputs.package-manager }}" == "yarn" ]]; then
+          yarn install --frozen-lockfile
+        else
+          npm ci
+        fi
+        echo "::endgroup::"
+      working-directory: ${{ inputs.working-directory }}
+
+    # We'll assume that each component has a script defined, such that we can run `yarn <component> build` instead of `yarn workspace <component> build`
+    - name: Build components
+      shell: bash
+      run: |
+        echo "::group::Building Project/Components"
+        pman=${{ inputs.package-manager }}
+        pman=${pman//npm/npm run} # npm needs `run` subcommand
+
+        # Build whole project if no components specified
+        if [[ -z "${{ inputs.components }}" ]]; then
+          echo "Running ${pman} build"
+          ${pman} build
+        else
+          IFS=',' read -ra COMPONENTS <<< "${{ inputs.components }}"
+          for component in "${COMPONENTS[@]}"; do
+            component=$(echo "$component" | xargs) # Trim whitespace
+            echo "Running ${pman} $component build"
+            ${pman} $component build
+          done
+        fi
+        echo "::endgroup::"
+      working-directory: ${{ inputs.working-directory }}

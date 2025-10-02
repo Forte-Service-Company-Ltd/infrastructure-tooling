@@ -1,0 +1,50 @@
+name: TypeScript Tests
+description: Run TypeScript tests, with support for multiple workspaces
+inputs:
+  components:
+    description: Optional components to test (e.g. "server", "client"). Corresponds to a "script" defined in package.json.
+    required: false
+  package-manager:
+    description: The package manager to use (e.g. "yarn" or "npm"). Defaults to "yarn".
+    required: false
+    default: yarn
+  test-command:
+    description: The test command to run (e.g. "test:ci", "storybook:build", etc.). Defaults to "test".
+    required: false
+    default: test
+  arguments:
+    description: The arguments to pass to the test subcommand (e.g. test directory).
+    required: false
+runs:
+  using: 'composite'
+  steps:
+    - name: Validate package manager
+      shell: bash
+      run: |
+        if [[ "${{ inputs.package-manager }}" != "yarn" && "${{ inputs.package-manager }}" != "npm" ]]; then
+          echo "Error: package-manager must be 'yarn' or 'npm'"
+          exit 1
+        fi
+
+    # We'll assume that each component has a script defined, such that we can run `yarn <component> test <arguments>`.
+    - name: Run Tests
+      shell: bash
+      run: |
+        echo "::group::Running Tests"
+        pman=${{ inputs.package-manager }}
+        pman=${pman//npm/npm run} # npm needs `run` subcommand
+
+        # Test whole project if no components specified
+        if [[ -z "${{ inputs.components }}" ]]; then
+          echo "Running ${pman} ${{ inputs.test-command }} ${{ inputs.arguments }}"
+          ${pman} ${{ inputs.test-command }} ${{ inputs.arguments }}
+        else
+          IFS=',' read -ra COMPONENTS <<< "${{ inputs.components }}"
+          for component in "${COMPONENTS[@]}"; do
+            component=$(echo "$component" | xargs)  # Trim whitespace
+            echo "::group:: Running ${{ inputs.package-manager }} $component ${{ inputs.test-command }} ${{ inputs.arguments }}"
+            ${pman} $component ${{ inputs.test-command }} ${{ inputs.arguments }}
+            echo "::endgroup::"
+          done
+        fi
+        echo "::endgroup::"
