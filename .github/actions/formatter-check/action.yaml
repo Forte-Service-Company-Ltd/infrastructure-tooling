@@ -101,7 +101,7 @@ runs:
           "${{ inputs.config-file }}" \
           "${{ steps.changed-files.outputs.changed_files }}")
         echo unformatted_files="$unformatted_files" >> $GITHUB_OUTPUT
-        echo "::notice::Unformatted files: \n$unformatted_files"
+        echo -e "::notice::Unformatted files: \n$unformatted_files"
 
     - name: Find existing comment
       if: failure() && github.event_name == 'pull_request'
@@ -127,7 +127,7 @@ runs:
           
           ${{ steps.format-check.outputs.unformatted_files }}
           
-          **Total files:** $(echo -e "${{ steps.format-check.outputs.unformatted_files }}" | grep -v '^$' | wc -l)
+          **Total files:** $(echo -e "${{ steps.format-check.outputs.unformatted_files }}" | grep -v '^$' | wc -l) 
           
           Please run the formatter locally to fix these issues.
 
