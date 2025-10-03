@@ -26,32 +26,34 @@ runs:
         echo "::group::Determining formatter"
         # Autodetect
         if [ "${{ inputs.formatter }}" != "auto" ]; then
-          echo "formatter=${{ inputs.formatter }}" >> $GITHUB_OUTPUT
+          formatter="${{ inputs.formatter }}"
         # Prettier
         elif [ -f ".prettierrc" ] || [ -f ".prettierrc.json" ] || [ -f "prettier.config.js" ] || [ -f "package.json" ]; then
-          echo "formatter=prettier" >> $GITHUB_OUTPUT
+          formatter="prettier"
         # Foundry
         elif [ -f "foundry.toml" ]; then
-          echo "formatter=forge" >> $GITHUB_OUTPUT
+          formatter=forge"
         # Python (Black)
         elif [ -f "requirements.txt" ] || [ -f "pyproject.toml" ] || [ -f "pyproject.toml" ]; then
-          echo "formatter=black" >> $GITHUB_OUTPUT
+          formatter=black"
         # Go (gofmt)
         elif [ -f "go.mod" ]; then
-          echo "formatter=gofmt" >> $GITHUB_OUTPUT
+          formatter=gofmt"
         else
-          echo "formatter=none" >> $GITHUB_OUTPUT
+          formatter="none"
           echo "::error::No formatter could be determined. Please specify a formatter using the 'formatter' input."
           exit 1
         fi
         echo "::endgroup::"
+        echo "formatter=$formatter" >> $GITHUB_OUTPUT
+        echo "Using formatter: $formatter"
 
     - name: Install Prettier
       if: ${{ steps.determine-formatter.outputs.formatter == 'prettier' }}
       shell: bash
       run: |
         echo "Installing Prettier"
-        npm install -g prettier"
+        npm install -g prettier
 
     - name: Install Black
       if: ${{ steps.determine-formatter.outputs.formatter == 'black' }}
@@ -60,6 +62,12 @@ runs:
         echo "Installing Black"
         python3 -m pip install --upgrade pip
         pip install black 
+
+    - name: Install Golang
+      if: ${{ steps.determine-formatter.outputs.formatter == 'gofmt' }}
+      uses: actions/setup-go@v4
+      with:
+        go-version: '1.22'
 
     # TODO: Add support for foundry/forge later if not a separate action
 
