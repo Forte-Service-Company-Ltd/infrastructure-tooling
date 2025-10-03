@@ -94,7 +94,6 @@ runs:
       continue-on-error: true
       shell: bash
       run: |
-        set +o pipefail
         chmod +x ${{ github.action_path }}/../../scripts/check-format.sh
         unformatted_files=$(${{ github.action_path }}/../../scripts/check-format.sh \
           "${{ inputs.formatter }}" \
@@ -104,9 +103,8 @@ runs:
         echo unformatted_files="$unformatted_files" >> $GITHUB_OUTPUT
         echo "::notice::Unformatted files: $unformatted_files"
         if [ -n "$unformatted_files" ]; then
-          exit 1
+          exit 1 # Inform the next steps that formatting checks did not pass
         fi
-        set -o pipefail
 
     - name: Find existing comment
       if: failure() && github.event_name == 'pull_request'
