@@ -28,16 +28,16 @@ runs:
         if [ "${{ inputs.formatter }}" != "auto" ]; then
           echo "formatter=${{ inputs.formatter }}" >> $GITHUB_OUTPUT
         # Prettier
-        elsif [ -f ".prettierrc" ] || [ -f ".prettierrc.json" ] || [ -f "prettier.config.js" ] || [ -f "package.json" ]; then
+        elif [ -f ".prettierrc" ] || [ -f ".prettierrc.json" ] || [ -f "prettier.config.js" ] || [ -f "package.json" ]; then
           echo "formatter=prettier" >> $GITHUB_OUTPUT
         # Foundry
-        elsif [ -f "foundry.toml" ]; then
+        elif [ -f "foundry.toml" ]; then
           echo "formatter=forge" >> $GITHUB_OUTPUT
         # Python (Black)
-        elsif [ -f "requirements.txt" ] || [ -f "pyproject.toml" ] || [ -f "pyproject.toml" ]; then
+        elif [ -f "requirements.txt" ] || [ -f "pyproject.toml" ] || [ -f "pyproject.toml" ]; then
           echo "formatter=black" >> $GITHUB_OUTPUT
         # Go (gofmt)
-        elsif [ -f "go.mod" ]; then
+        elif [ -f "go.mod" ]; then
           echo "formatter=gofmt" >> $GITHUB_OUTPUT
         else
           echo "formatter=none" >> $GITHUB_OUTPUT
