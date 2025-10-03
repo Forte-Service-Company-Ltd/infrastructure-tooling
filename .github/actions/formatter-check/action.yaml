@@ -94,7 +94,7 @@ runs:
       shell: bash
       continue-on-error: true
       run: |
-        chmod +x ${{ github.action_path }}/../scripts/format-check.sh
+        chmod +x ${{ github.action_path }}/../../../scripts/format-check.sh
         ${{ github.action_path }}/format-check.sh \
           "${{ inputs.formatter }}" \
           "${{ inputs.path }}" \
