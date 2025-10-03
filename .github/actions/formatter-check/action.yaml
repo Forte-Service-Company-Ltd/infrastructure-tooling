@@ -32,13 +32,13 @@ runs:
           formatter="prettier"
         # Foundry
         elif [ -f "foundry.toml" ]; then
-          formatter=forge"
+          formatter="forge"
         # Python (Black)
-        elif [ -f "requirements.txt" ] || [ -f "pyproject.toml" ] || [ -f "pyproject.toml" ]; then
-          formatter=black"
+        elif [ -f "requirements.txt" ] || [ -f "pyproject.toml" ]; then
+          formatter="black"
         # Go (gofmt)
         elif [ -f "go.mod" ]; then
-          formatter=gofmt"
+          formatter="gofmt"
         else
           formatter="none"
           echo "::error::No formatter could be determined. Please specify a formatter using the 'formatter' input."
