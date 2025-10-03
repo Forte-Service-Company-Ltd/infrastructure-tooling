@@ -19,6 +19,12 @@ runs:
       uses: actions/checkout@v4
       with:
         fetch-depth: 0
+
+    - name: Debug Github Event
+      shell: bash
+      run: |
+        echo "Github Context:"
+        echo "${{ toJson(github) }}"   
     - name: Determine formatter tool
       id: determine-formatter
       shell: bash
