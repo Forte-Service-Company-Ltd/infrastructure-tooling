@@ -100,7 +100,7 @@ runs:
           "${{ inputs.config-file }}" \
           "${{ steps.changed-files.outputs.changed_files }}")
         echo unformatted_files="$unformatted_files" >> $GITHUB_OUTPUT
-        echo -e "::notice::Unformatted files: \n$unformatted_files"
+        echo "::notice::Unformatted files: %0A$unformatted_files"
 
     - name: Find existing comment
       if: failure() && github.event_name == 'pull_request'
