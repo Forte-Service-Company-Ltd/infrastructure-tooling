@@ -92,7 +92,6 @@ runs:
     - name: Run formatter check
       id: format-check
       shell: bash
-      continue-on-error: true
       run: |
         chmod +x ${{ github.action_path }}/../../scripts/check-format.sh
         unformatted_files=$(${{ github.action_path }}/../../scripts/check-format.sh \
