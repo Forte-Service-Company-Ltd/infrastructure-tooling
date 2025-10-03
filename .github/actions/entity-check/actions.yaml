@@ -1,0 +1,49 @@
+name: Check for Entity Changes
+description: Determine whether database entity changes exist in the current branch, which may require running migrations.
+inputs:
+  entity-path:
+    description: The path to the directory containing the entity files. Defaults to 'modules/server/src/entities/'.
+    required: false
+    default: modules/server/src/entities/
+runs:
+  using: 'composite'
+  steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    - name: Check for entity changes
+      id: entity_changes
+      shell: bash
+      run: |
+        git fetch origin ${{ github.base_ref }}
+        CHANGED=$(git diff --name-only origin/${{ github.base_ref }}...HEAD -- modules/server/src/entities/)
+        echo "changed_files<<EOF" >> $GITHUB_OUTPUT
+        echo "$CHANGED" >> $GITHUB_OUTPUT
+        echo "EOF" >> $GITHUB_OUTPUT
+        if [ -n "$CHANGED" ]; then
+          echo "entities_changed=true" >> $GITHUB_OUTPUT
+        else
+          echo "entities_changed=false" >> $GITHUB_OUTPUT
+        fi
+    - name: Show entity diff
+      if: steps.entity_changes.outputs.entities_changed == 'true'
+      id: entity_diff
+      shell: bash
+      run: |
+        DIFF=$(git diff origin/${{ github.base_ref }}...HEAD -- modules/server/src/entities/)
+        echo "diff<<EOF" >> $GITHUB_OUTPUT
+        echo "$DIFF" >> $GITHUB_OUTPUT
+        echo "EOF" >> $GITHUB_OUTPUT
+    - name: Comment on PR if entities changed
+      if: steps.entity_changes.outputs.entities_changed == 'true'
+      uses: thollander/actions-comment-pull-request@v3
+      with:
+        message: |
+          ⚠️ **Database entities have changed in this PR.**
+          A migration will be required.
+          ### Entity changes:
+          ```diff
+          ${{ steps.entity_diff.outputs.diff }}
+          ```
+        comment-tag: entity-migration-check
