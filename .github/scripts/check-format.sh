@@ -51,5 +51,10 @@ while IFS= read -r file; do
   esac
 done <<< "$CHANGED_FILES"
 
-# Output results, new line separated
+# Output results, newline-separated
 echo -e $UNFORMATTED_FILES
+if [ -n "$UNFORMATTED_FILES" ]; then
+  exit 1
+else
+  exit 0
+fi
