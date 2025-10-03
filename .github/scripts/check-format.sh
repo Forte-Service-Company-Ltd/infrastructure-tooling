@@ -35,12 +35,12 @@ while IFS= read -r file; do
   
   case "$FORMATTER" in
     prettier)
-      if ! prettier --check $CONFIG_ARG "$file" 2>/dev/null; then
+      if ! prettier --log-level=silent --check $CONFIG_ARG "$file" 2>/dev/null; then
         UNFORMATTED_FILES="${UNFORMATTED_FILES}${file}\n"
       fi
       ;;
     black)
-      if ! black --check $CONFIG_ARG "$file" 2>/dev/null; then
+      if ! black --quiet --check $CONFIG_ARG "$file" 2>/dev/null; then
         UNFORMATTED_FILES="${UNFORMATTED_FILES}${file}\n"
       fi
       ;;
@@ -52,7 +52,7 @@ while IFS= read -r file; do
 done <<< "$CHANGED_FILES"
 
 # Output results
-echo $UNFORMATTED_FILES
+echo -e $UNFORMATTED_FILES
 if [ -n "$UNFORMATTED_FILES" ]; then
   exit 1
 else

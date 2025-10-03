@@ -95,11 +95,13 @@ runs:
       continue-on-error: true
       run: |
         chmod +x ${{ github.action_path }}/../../scripts/check-format.sh
-        ${{ github.action_path }}/../../scripts/check-format.sh \
+        unformatted_files=$(${{ github.action_path }}/../../scripts/check-format.sh \
           "${{ inputs.formatter }}" \
           "${{ inputs.path }}" \
           "${{ inputs.config-file }}" \
-          "${{ steps.changed-files.outputs.changed_files }}" >> $GITHUB_OUTPUT
+          "${{ steps.changed-files.outputs.changed_files }}")
+        echo unformatted_files="$unformatted_files" >> $GITHUB_OUTPUT
+        echo "::notice::Unformatted files: \n$unformatted_files"
 
     - name: Find existing comment
       if: failure() && github.event_name == 'pull_request'
