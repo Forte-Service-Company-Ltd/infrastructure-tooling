@@ -17,7 +17,7 @@ runs:
       shell: bash
       run: |
         git fetch origin ${{ github.base_ref }}
-        CHANGED=$(git diff --name-only origin/${{ github.base_ref }}...HEAD -- modules/server/src/entities/)
+        CHANGED=$(git diff --name-only origin/${{ github.base_ref }}...HEAD -- ${{ inputs.entity-path }})
         echo "changed_files<<EOF" >> $GITHUB_OUTPUT
         echo "$CHANGED" >> $GITHUB_OUTPUT
         echo "EOF" >> $GITHUB_OUTPUT
@@ -31,7 +31,7 @@ runs:
       id: entity_diff
       shell: bash
       run: |
-        DIFF=$(git diff origin/${{ github.base_ref }}...HEAD -- modules/server/src/entities/)
+        DIFF=$(git diff origin/${{ github.base_ref }}...HEAD -- ${{ inputs.entity-path }})
         echo "diff<<EOF" >> $GITHUB_OUTPUT
         echo "$DIFF" >> $GITHUB_OUTPUT
         echo "EOF" >> $GITHUB_OUTPUT
