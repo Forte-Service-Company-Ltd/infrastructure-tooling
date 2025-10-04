@@ -97,11 +97,11 @@ runs:
 
     - name: Run formatter check
       id: format-check
-      shell: bash
       continue-on-error: true
+      shell: bash
       run: |
-        chmod +x ${{ github.action_path }}/format-check.sh
-        ${{ github.action_path }}/format-check.sh \
+        chmod +x ${{ github.action_path }}/../../scripts/check-format.sh
+        ${{ github.action_path }}/../../scripts/check-format.sh \
           "${{ inputs.formatter }}" \
           "${{ inputs.path }}" \
           "${{ inputs.config-file }}" \
