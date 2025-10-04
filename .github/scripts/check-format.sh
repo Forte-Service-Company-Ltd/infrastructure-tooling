@@ -51,5 +51,19 @@ while IFS= read -r file; do
   esac
 done <<< "$CHANGED_FILES"
 
-# Output results, newline-separated
-echo -e $UNFORMATTED_FILES
+# Output results
+if [ -n "$UNFORMATTED_FILES" ]; then
+  # GitHub Actions workflow commands require URL-encoded newlines (%0A) in annotations
+  # The sed command replaces all literal newlines with %0A for proper display
+  echo "::notice::Files needing formatting with ${FORMATTER}:%0A$(echo -e "$UNFORMATTED_FILES" | sed ':a;N;$!ba;s/\n/%0A/g')"
+  
+  echo "unformatted_files<<EOF"
+  echo -e "$UNFORMATTED_FILES"
+  echo "EOF"
+  exit 1
+else
+  echo "unformatted_files<<EOF"
+  echo ""
+  echo "EOF"
+  exit 0
+fi
