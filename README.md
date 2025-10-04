@@ -2,21 +2,24 @@
 
 Common Build, Test, and Analysis Github Actions
 
-This repository provides a comprehensive suite of reusable GitHub Actions and workflows for building, testing, and analyzing on-chain (smart contract) projects. It serves as a centralized tooling solution that can be shared across multiple blockchain development repositories.
+This repository provides a comprehensive suite of reusable GitHub Actions and workflows for building, testing, and analyzing on-chain (smart contract) or web-service projects. It serves as a centralized tooling solution that can be shared across multiple blockchain development repositories.
 
 ## 🚀 Overview
 
-The infrastructure-tooling repository contains standardized CI/CD components specifically designed for Ethereum/EVM-based smart contract development workflows. It includes actions for building contracts, running tests, security analysis, code coverage reporting, and quality assurance checks.
+The infrastructure-tooling repository contains standardized CI/CD components specifically designed for Ethereum/EVM-based smart contract development workflows. It includes actions for building contracts, running tests, security analysis, code coverage reporting, and quality assurance checks. Additionally composite actions provide shared actions used by web-service projects, such as building yarn/npm projects or running tests.
 
 ## 📁 Repository Structure
 
 ### GitHub Actions (`.github/actions/`)
 
 #### Build & Test Actions
+
 - **`install-foundry/`** - Installs and configures the Foundry toolchain (default: v1.2.1)
 - **`install-dependencies/`** - Handles dependency installation for Python and Soldeer packages
 - **`onchain-build/`** - Compiles smart contracts using Forge with optimization
 - **`onchain-test/`** - Runs comprehensive test suites with support for mainnet forking
+- **`typescript-build/`** - Builds TypeScript projects with support for multiple workspaces and components
+- **`typescript-test/`** - Runs TypeScript test suites with configurable script commands and arguments
 
 #### Code Quality & Analysis Actions
 
@@ -115,6 +118,15 @@ Reference specific actions in your workflows:
 steps:
   - uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/install-foundry@main
   - uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/onchain-build@main
+
+  # For TypeScript projects
+  - uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/typescript-build@main
+    with: # All parameters are optional
+      components: "server,client"
+      node-version: "20.x"
+      package-manager: "yarn" # or npm
+
+  - uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/typescript-test@main
 ```
 
 ## 🛠 Supported Technologies
@@ -124,7 +136,9 @@ steps:
 - **Medusa** - Property-based fuzzing framework
 - **LCOV** - Code coverage reporting
 - **Python/Pip** - For analysis tool dependencies
-- **Node.js** - For markdown link checking
+- **Node.js** - For markdown link checking and TypeScript projects
+- **TypeScript** - Type-safe JavaScript development
+- **Yarn/NPM** - JavaScript package managers
 - **Soldeer** - Solidity package manager
 
 ## 📋 Requirements
