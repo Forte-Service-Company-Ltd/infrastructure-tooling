@@ -97,20 +97,15 @@ runs:
 
     - name: Run formatter check
       id: format-check
-      continue-on-error: true
       shell: bash
+      continue-on-error: true
       run: |
-        chmod +x ${{ github.action_path }}/../../scripts/check-format.sh
-        unformatted_files=$(${{ github.action_path }}/../../scripts/check-format.sh \
+        chmod +x ${{ github.action_path }}/format-check.sh
+        ${{ github.action_path }}/format-check.sh \
           "${{ inputs.formatter }}" \
           "${{ inputs.path }}" \
           "${{ inputs.config-file }}" \
-          "${{ steps.changed-files.outputs.changed_files }}")
-        echo unformatted_files="$unformatted_files" >> $GITHUB_OUTPUT
-        echo "::notice::Unformatted files: $unformatted_files"
-        if [ -n "$unformatted_files" ]; then
-          exit 1 # Inform the next steps that formatting checks did not pass
-        fi
+          "${{ steps.changed-files.outputs.changed_files }}" >> $GITHUB_OUTPUT
 
     - name: Find existing comment
       if: steps.format-check.outcome == 'failure' && github.event_name == 'pull_request'
@@ -125,6 +120,7 @@ runs:
       if: steps.format-check.outcome == 'failure' && github.event_name == 'pull_request'
       uses: peter-evans/create-or-update-comment@v4
       with:
+        token: ${{ github.token }}
         comment-id: ${{ steps.find-comment.outputs.comment-id }}
         issue-number: ${{ github.event.pull_request.number }}
         edit-mode: replace
@@ -136,12 +132,10 @@ runs:
           
           ${{ steps.format-check.outputs.unformatted_files }}
           
-          **Total files:** $(echo -e "${{ steps.format-check.outputs.unformatted_files }}" | grep -v '^$' | wc -l) 
-          
           Please run the formatter locally to fix these issues.
 
     - name: Exit with error if formatting needed
-      if: failure()
+      if: steps.format-check.outcome == 'failure'
       shell: bash
       run: |
         echo "Formatting check failed. Files need formatting."
