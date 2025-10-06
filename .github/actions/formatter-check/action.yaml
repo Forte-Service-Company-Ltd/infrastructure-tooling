@@ -132,8 +132,10 @@ runs:
           
           The following files need formatting with `${{ inputs.formatter }}`:
           
+          ```
           ${{ steps.format-check.outputs.unformatted_files }}
-          
+          ```
+
           Please run the formatter locally to fix these issues.
 
     - name: Exit with error if formatting needed
