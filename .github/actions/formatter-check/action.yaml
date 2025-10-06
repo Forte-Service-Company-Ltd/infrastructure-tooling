@@ -19,12 +19,7 @@ runs:
       uses: actions/checkout@v4
       with:
         fetch-depth: 0
-
-    - name: Debug Github Event
-      shell: bash
-      run: |
-        echo "Github Context:"
-        echo "${{ toJson(github) }}"   
+    
     - name: Determine formatter tool
       id: determine-formatter
       shell: bash
@@ -106,6 +101,13 @@ runs:
           "${{ inputs.path }}" \
           "${{ inputs.config-file }}" \
           "${{ steps.changed-files.outputs.changed_files }}" >> $GITHUB_OUTPUT
+
+    - name: Debug - Print format-check outputs
+      if: always()
+      shell: bash
+      run: |
+        echo "Format check outputs:"
+        echo "Unformatted files: ${{ steps.format-check.outputs.unformatted_files }}"
 
     - name: Find existing comment
       if: steps.format-check.outcome == 'failure' && github.event_name == 'pull_request'
