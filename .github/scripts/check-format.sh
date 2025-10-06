@@ -56,6 +56,8 @@ if [ -n "$UNFORMATTED_FILES" ]; then
   # GitHub Actions workflow commands require URL-encoded newlines (%0A) in annotations
   # The sed command replaces all literal newlines with %0A for proper display
   echo "::notice::Files needing formatting with ${FORMATTER}:%0A$(echo -e "$UNFORMATTED_FILES" | sed ':a;N;$!ba;s/\n/%0A/g')" >&2
+  echo "::notice::Files needing formatting with ${FORMATTER}: $UNFORMATTED_FILES" >&2
+  echo -e "::notice::Files needing formatting with ${FORMATTER}: $UNFORMATTED_FILES" >&2
 
   echo "unformatted_files<<EOF"
   echo -e "$UNFORMATTED_FILES"
