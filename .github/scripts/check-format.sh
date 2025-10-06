@@ -36,13 +36,19 @@ while IFS= read -r file; do
       fi
       ;;
     black)
-      if ! black --quiet --check $CONFIG_ARG "$file" 2>/dev/null; then
-        UNFORMATTED_FILES="${UNFORMATTED_FILES}${file}\n"
+      # Restrict to .py files
+      if [[ "$file" == *.py ]]; then
+        if ! black --quiet --check $CONFIG_ARG "$file" 2>/dev/null; then
+          UNFORMATTED_FILES="${UNFORMATTED_FILES}${file}\n"
+        fi
       fi
       ;;
     gofmt)
-      if ! gofmt -l "$file" | grep -q .; then
-        UNFORMATTED_FILES="${UNFORMATTED_FILES}${file}\n"
+      # Restrict to .go files
+      if [[ "$file" == *.go ]]; then
+        if ! gofmt -l "$file" | grep -q .; then
+          UNFORMATTED_FILES="${UNFORMATTED_FILES}${file}\n"
+        fi
       fi
       ;;
     *)
