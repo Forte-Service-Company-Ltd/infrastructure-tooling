@@ -47,7 +47,7 @@ on:
       status:
         description: The status of the deployment job, either 'success', 'failure', or 'skipped'
         value: ${{ jobs.check.result }}
-  secrets:
+    secrets:
       # Secrets are passed from the calling repository
       ALCHEMY_KEY: # optional, only if needed for tests requiring mainnet fork
         required: false
