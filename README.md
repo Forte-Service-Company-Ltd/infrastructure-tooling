@@ -31,6 +31,7 @@ The infrastructure-tooling repository contains standardized CI/CD components spe
 #### Documentation & Validation Actions
 
 - **`markdown-link-checker/`** - Validates links in markdown files (README, CHANGELOG, etc.)
+- **`formatter-check/`** - Checks formatting using language-appropriate tooling (prettier, black, gofmt), posting a comment on PRs when not passing.
 
 ### Workflows (`.github/workflows/`)
 
@@ -68,6 +69,15 @@ Focused workflow for code quality and security analysis:
 - Automated PR comments with analysis results
 
 ### Utility Scripts (`.github/scripts/`)
+
+#### `check-format.sh`
+
+Runs format-checking using language specific tools:
+
+- Checks only the files passed (files modified in a PR).
+- Can be requested to use `prettier`, `black`, or `gofmt`.
+- Returns a list of files failing the formatter checks.
+- Prints an annotation showing in GitHub Actions summary.
 
 #### `check-links.sh`
 
@@ -162,6 +172,7 @@ steps:
 - **Contract Size Validation**: Ensures contracts fit within Ethereum limits
 - **Link Validation**: Prevents broken documentation links
 - **Dependency Management**: Automated installation and updates
+- **Format Validation**: Ensures code formatting conforms to accepted conventions
 
 ## 🤝 Contributing
 
