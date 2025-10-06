@@ -28,9 +28,6 @@ runs:
         # Autodetect
         if [ "${{ inputs.formatter }}" != "auto" ]; then
           formatter="${{ inputs.formatter }}"
-        # Prettier
-        elif [ -f ".prettierrc" ] || [ -f ".prettierrc.json" ] || [ -f "prettier.config.js" ] || [ -f "package.json" ]; then
-          formatter="prettier"
         # Foundry
         elif [ -f "foundry.toml" ]; then
           formatter="forge"
@@ -40,6 +37,9 @@ runs:
         # Go (gofmt)
         elif [ -f "go.mod" ]; then
           formatter="gofmt"
+        # Prettier (keep this last, as non-nodejs projects may have a package.json)
+        elif [ -f ".prettierrc" ] || [ -f ".prettierrc.json" ] || [ -f "prettier.config.js" ] || [ -f "package.json" ]; then
+          formatter="prettier"
         else
           formatter="none"
           echo "::error::No formatter could be determined. Please specify a formatter using the 'formatter' input."
