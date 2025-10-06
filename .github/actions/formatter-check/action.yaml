@@ -97,7 +97,7 @@ runs:
       run: |
         chmod +x ${{ github.action_path }}/../../scripts/check-format.sh
         ${{ github.action_path }}/../../scripts/check-format.sh \
-          "${{ inputs.formatter }}" \
+          "${{ steps.determine-formatter.outputs.formatter }}" \
           "${{ inputs.path }}" \
           "${{ inputs.config-file }}" \
           "${{ steps.changed-files.outputs.changed_files }}" >> $GITHUB_OUTPUT
@@ -130,7 +130,7 @@ runs:
           <!-- format-check-comment -->
           ## ⚠️ Formatting Issues Detected
           
-          The following files need formatting with `${{ inputs.formatter }}`:
+          The following files need formatting with `${{ steps.determine-formatter.outputs.formatter }}`:
           
           ```
           ${{ steps.format-check.outputs.unformatted_files }}
