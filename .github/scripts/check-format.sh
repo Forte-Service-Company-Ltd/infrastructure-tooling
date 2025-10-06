@@ -2,7 +2,7 @@
 set -e
 
 # Script to check formatting on changed files
-# Usage: ./format-check.sh <formatter> <path> <config-file> <changed-files>
+# Usage: ./check-format.sh <formatter> <path> <config-file> <changed-files>
 
 FORMATTER="$1"
 PATH_TO_CHECK="$2"
@@ -46,6 +46,7 @@ while IFS= read -r file; do
     gofmt)
       # Restrict to .go files
       if [[ "$file" == *.go ]]; then
+        # gofmt always returns 0, so we check if there's any output (no output: passing)
         if ! gofmt -l "$file" | grep -q .; then
           UNFORMATTED_FILES="${UNFORMATTED_FILES}${file}\n"
         fi

@@ -10,7 +10,7 @@ inputs:
     required: false
     default: .
   config-file:
-    description: Path to the Prettier configuration file. If not provided, Prettier's default settings will be used.
+    description: Path to the configuration file for the selected formatter (e.g., Prettier, Black). If not provided, the formatter's default settings will be used.
     required: false
 runs:
   using: 'composite'
