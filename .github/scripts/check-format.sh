@@ -60,7 +60,7 @@ if [ -n "$UNFORMATTED_FILES" ]; then
   echo "unformatted_files<<EOF"
   echo -e "$UNFORMATTED_FILES"
   echo "EOF"
-  exit 1
+  exit 5
 else
   echo "unformatted_files<<EOF"
   echo ""
