@@ -1,0 +1,146 @@
+name: Checks formatting using language-appropriate tooling
+description: If formatting changes are needed, this action will fail and provide a diff of the required changes. This can be used as a PR check.
+inputs:
+  formatter:
+    description: The formatter to use. If not provided, the action will attempt to auto-detect based on the presence of configuration files.
+    required: false
+    default: auto
+  path:
+    description: Comma-separated list of files or directories to format (e.g. "src,tests,docs"). If not provided, defaults to the entire repository.
+    required: false
+    default: .
+  config-file:
+    description: Path to the configuration file for the selected formatter (e.g., Prettier, Black). If not provided, the formatter's default settings will be used.
+    required: false
+runs:
+  using: 'composite'
+  steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    
+    - name: Determine formatter tool
+      id: determine-formatter
+      shell: bash
+      run: |
+        echo "::group::Determining formatter"
+        # Autodetect
+        if [ "${{ inputs.formatter }}" != "auto" ]; then
+          formatter="${{ inputs.formatter }}"
+        # Foundry
+        elif [ -f "foundry.toml" ]; then
+          formatter="forge"
+        # Python (Black)
+        elif [ -f "requirements.txt" ] || [ -f "pyproject.toml" ]; then
+          formatter="black"
+        # Go (gofmt)
+        elif [ -f "go.mod" ]; then
+          formatter="gofmt"
+        # Prettier (keep this last, as non-nodejs projects may have a package.json)
+        elif [ -f ".prettierrc" ] || [ -f ".prettierrc.json" ] || [ -f "prettier.config.js" ] || [ -f "package.json" ]; then
+          formatter="prettier"
+        else
+          formatter="none"
+          echo "::error::No formatter could be determined. Please specify a formatter using the 'formatter' input."
+          exit 1
+        fi
+        echo "::endgroup::"
+        echo "formatter=$formatter" >> $GITHUB_OUTPUT
+        echo "Using formatter: $formatter"
+
+    - name: Install Prettier
+      if: ${{ steps.determine-formatter.outputs.formatter == 'prettier' }}
+      shell: bash
+      run: |
+        echo "Installing Prettier"
+        npm install -g prettier
+
+    - name: Install Black
+      if: ${{ steps.determine-formatter.outputs.formatter == 'black' }}
+      shell: bash
+      run: |      
+        echo "Installing Black"
+        python3 -m pip install --upgrade pip
+        pip install black 
+
+    - name: Install Golang
+      if: ${{ steps.determine-formatter.outputs.formatter == 'gofmt' }}
+      uses: actions/setup-go@v4
+      with:
+        go-version: '1.22'
+
+    # TODO: Add support for foundry/forge later if not a separate action
+
+    - name: Get changed files
+      id: changed-files
+      shell: bash
+      run: |
+        if [ "${{ github.event_name }}" == "pull_request" ]; then
+          # Get files changed in PR
+          git fetch origin ${{ github.base_ref }}
+          CHANGED_FILES=$(git diff --name-only origin/${{ github.base_ref }}...HEAD)
+        else
+          # Get files changed in branch compared to default branch
+          git fetch origin ${{ github.event.repository.default_branch }}
+          CHANGED_FILES=$(git diff --name-only origin/${{ github.event.repository.default_branch }}...HEAD)
+        fi
+        
+        echo "changed_files<<EOF" >> $GITHUB_OUTPUT
+        echo "$CHANGED_FILES" >> $GITHUB_OUTPUT
+        echo "EOF" >> $GITHUB_OUTPUT
+
+    - name: Run formatter check
+      id: format-check
+      continue-on-error: true
+      shell: bash
+      run: |
+        chmod +x ${{ github.action_path }}/../../scripts/check-format.sh
+        ${{ github.action_path }}/../../scripts/check-format.sh \
+          "${{ steps.determine-formatter.outputs.formatter }}" \
+          "${{ inputs.path }}" \
+          "${{ inputs.config-file }}" \
+          "${{ steps.changed-files.outputs.changed_files }}" >> $GITHUB_OUTPUT
+
+    - name: Debug - Print format-check outputs
+      if: always()
+      shell: bash
+      run: |
+        echo "Format check outputs:"
+        echo "Unformatted files: ${{ steps.format-check.outputs.unformatted_files }}"
+
+    - name: Find existing comment
+      if: steps.format-check.outcome == 'failure' && github.event_name == 'pull_request'
+      id: find-comment
+      uses: peter-evans/find-comment@v3
+      with:
+        issue-number: ${{ github.event.pull_request.number }}
+        comment-author: 'github-actions[bot]'
+        body-includes: '<!-- format-check-comment -->'
+
+    - name: Create or update PR comment
+      if: steps.format-check.outcome == 'failure' && github.event_name == 'pull_request'
+      uses: peter-evans/create-or-update-comment@v4
+      with:
+        token: ${{ github.token }}
+        comment-id: ${{ steps.find-comment.outputs.comment-id }}
+        issue-number: ${{ github.event.pull_request.number }}
+        edit-mode: replace
+        body: |
+          <!-- format-check-comment -->
+          ## ⚠️ Formatting Issues Detected
+          
+          The following files need formatting with `${{ steps.determine-formatter.outputs.formatter }}`:
+          
+          ```
+          ${{ steps.format-check.outputs.unformatted_files }}
+          ```
+
+          Please run the formatter locally to fix these issues.
+
+    - name: Exit with error if formatting needed
+      if: steps.format-check.outcome == 'failure'
+      shell: bash
+      run: |
+        echo "Formatting check failed. Files need formatting."
+        exit 1
