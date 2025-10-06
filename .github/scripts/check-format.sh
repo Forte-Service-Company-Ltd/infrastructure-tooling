@@ -24,10 +24,6 @@ fi
 # Run formatter on changed files
 UNFORMATTED_FILES=""
 while IFS= read -r file; do
-  if [ -z "$file" ]; then
-    continue
-  fi
-  
   # Check if file exists (might have been deleted)
   if [ ! -f "$file" ]; then
     continue
@@ -41,6 +37,11 @@ while IFS= read -r file; do
       ;;
     black)
       if ! black --quiet --check $CONFIG_ARG "$file" 2>/dev/null; then
+        UNFORMATTED_FILES="${UNFORMATTED_FILES}${file}\n"
+      fi
+      ;;
+    gofmt)
+      if ! gofmt -l "$file" | grep -q .; then
         UNFORMATTED_FILES="${UNFORMATTED_FILES}${file}\n"
       fi
       ;;
