@@ -16,13 +16,16 @@ runs:
           echo "status=pass" >> $GITHUB_OUTPUT
         else
           echo "status=failure" >> $GITHUB_OUTPUT
-          echo "comment<<EOF" >> $GITHUB_OUTPUT
-          echo "$result" >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
         fi
 
+        ## Write text for a PR comment, using the result of the version check script
+        echo "comment<<EOF" >> $GITHUB_OUTPUT
+        echo "<!-- version-check-comment -->" >> $GITHUB_OUTPUT
+        echo "$result" >> $GITHUB_OUTPUT
+        echo "EOF" >> $GITHUB_OUTPUT
+
     - name: Find existing comment
-      if: steps.check.outputs.status == 'failure' && github.event_name == 'pull_request'
+      # if: steps.check.outputs.status == 'failure' && github.event_name == 'pull_request'
       id: find-comment
       uses: peter-evans/find-comment@v3
       with:
@@ -30,11 +33,21 @@ runs:
         comment-author: 'github-actions[bot]'
         body-includes: '<!-- version-check-comment -->'
 
+    # - name: Create or update PR comment on success
+    #   # if: steps.check.outputs.status == 'success' && github.event_name == 'pull_request'
+    #   uses: peter-evans/create-or-update-comment@v4
+    #   with:
+    #     comment-id: ${{ steps.find-comment.outputs.comment-id }}
+    #     issue-number: ${{ github.event.pull_request.number }}
+    #     edit-mode: replace
+    #     body: |
+    #       <!-- version-check-comment -->
+    #       ## ✅ Version checks passed
+
     - name: Create or update PR comment
-      if: steps.check.outputs.status == 'failure' && github.event_name == 'pull_request'
+      # if: steps.check.outputs.status == 'failure' && github.event_name == 'pull_request'
       uses: peter-evans/create-or-update-comment@v4
       with:
-        token: ${{ github.token }}
         comment-id: ${{ steps.find-comment.outputs.comment-id }}
         issue-number: ${{ github.event.pull_request.number }}
         edit-mode: replace
