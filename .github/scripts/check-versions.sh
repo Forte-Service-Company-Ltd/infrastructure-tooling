@@ -5,7 +5,7 @@
 #
 # Usage: ./check-versions.sh [default-branch]
 #
-set -e
+set -ex
 
 DEFAULT_BRANCH=${1:-main}
 
