@@ -44,7 +44,7 @@ default_version=$(git show "origin/$DEFAULT_BRANCH:package.json" 2>/dev/null | j
 
 echo "Comparing $current against $default_version" >&2
 
-version_warning<<EOF
+version_warning=$(cat <<EOF
   ## ⚠️ Version Not Incremented
   
   Current version: **$current**
