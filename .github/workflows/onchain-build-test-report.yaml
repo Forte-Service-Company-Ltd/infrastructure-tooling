@@ -126,7 +126,7 @@ jobs:
         uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/install-foundry@v0.0.3
       - name: Install Python Dependencies
         id: install-python-dependencies
-        uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/install-dependencies@v0.0.3
+        uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/install-dependencies@INF-298-Optimizing-On-Chain-Build-and-Test
       - name: Cache setup state
         uses: actions/cache/save@v4
         with:
