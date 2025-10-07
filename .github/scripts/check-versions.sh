@@ -67,6 +67,9 @@ default_base="${default_version%%-*}"
 IFS='.' read -r -a curr <<< "$current_base"
 IFS='.' read -r -a def <<< "$default_base"
 
+echo "Current version: $curr" >&2
+echo "Default version: $def" >&2
+
 i=0
 for i in major minor patch; do
   [ "${curr[$i]}" -gt "${def[$i]}" ] && echo "## ✅ Version Checks Passed" && exit 0
