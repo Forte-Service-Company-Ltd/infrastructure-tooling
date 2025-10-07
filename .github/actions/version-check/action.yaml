@@ -22,7 +22,7 @@ runs:
         fi
 
     - name: Find existing comment
-      if: steps.format-check.outcome == 'failure' && github.event_name == 'pull_request'
+      if: steps.check.outputs.status == 'failure' && github.event_name == 'pull_request'
       id: find-comment
       uses: peter-evans/find-comment@v3
       with:
@@ -31,7 +31,7 @@ runs:
         body-includes: '<!-- version-check-comment -->'
 
     - name: Create or update PR comment
-      if: steps.format-check.outcome == 'failure' && github.event_name == 'pull_request'
+      if: steps.check.outputs.status == 'failure' && github.event_name == 'pull_request'
       uses: peter-evans/create-or-update-comment@v4
       with:
         token: ${{ github.token }}
@@ -41,7 +41,7 @@ runs:
         body: ${{ steps.check.outputs.comment }}
 
     - name: Exit with error if formatting needed
-      if: steps.format-check.outcome == 'failure'
+      if: steps.check.outputs.status == 'failure'
       shell: bash
       run: |
         echo "Version check failed. Please update `package.json` versions."
