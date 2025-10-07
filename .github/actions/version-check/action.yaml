@@ -1,5 +1,5 @@
 name: Package Version Check
-description: Validates package.json versions are consistent and advanced
+description: Validates package.json versions are consistent and incremented
 
 runs:
   using: composite
@@ -31,7 +31,7 @@ runs:
       if: steps.check.outputs.status == 'pass'
       uses: thollander/actions-comment-pull-request@v3
       with:
-        message: ""
+        message: ''
         comment_tag: version-check
         mode: delete
 
