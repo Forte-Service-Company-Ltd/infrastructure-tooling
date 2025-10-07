@@ -102,25 +102,6 @@ jobs:
           CACHE_KEY="setup-v1-${WORKFLOW_HASH}-${PACKAGE_HASH}-${FOUNDRY_HASH}"
           echo "key=${CACHE_KEY}" >> $GITHUB_OUTPUT
           echo "Cache key: ${CACHE_KEY}"
-      - name: Cache Foundry installation
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.foundry
-            ~/.svm
-          key: foundry-${{ runner.os }}-${{ steps.cache-key.outputs.key }}
-          restore-keys: |
-            foundry-${{ runner.os }}-
-      - name: Cache node modules
-        if: hashFiles('package.json') != ''
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.npm
-            node_modules
-          key: npm-${{ runner.os }}-${{ hashFiles('package.json', 'package-lock.json') }}
-          restore-keys: |
-            npm-${{ runner.os }}-
       - name: Install Foundry
         id: install-foundry
         uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/install-foundry@v0.0.3
@@ -129,53 +110,38 @@ jobs:
         uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/install-python-dependencies@INF-298-Optimizing-On-Chain-Build-and-Test
       - name: Locate and cache Foundry binaries
         run: |
-          # Find forge binary and create symlinks in workspace bin directory
           mkdir -p bin
 
-          # Check common Foundry installation locations
+          # Simple search for forge binary
           FORGE_PATH=""
           if command -v forge >/dev/null 2>&1; then
             FORGE_PATH=$(which forge)
-            echo "Found forge at: $FORGE_PATH"
           elif [ -f ~/.foundry/bin/forge ]; then
             FORGE_PATH=~/.foundry/bin/forge
-            echo "Found forge at: $FORGE_PATH"
           else
-            # Search in temp directories if installed there
-            TEMP_FORGE=$(find /home/runner/work/_temp -name "forge" 2>/dev/null | head -1)
-            if [ -n "$TEMP_FORGE" ]; then
-              FORGE_PATH="$TEMP_FORGE"
-              echo "Found forge in temp location: $FORGE_PATH"
-            fi
+            # Search temp directories as fallback
+            FORGE_PATH=$(find /home/runner/work -name "forge" -type f 2>/dev/null | head -1)
           fi
 
-          if [ -n "$FORGE_PATH" ]; then
-            # Copy the binary to workspace bin directory for caching
-            cp "$FORGE_PATH" bin/forge
-            chmod +x bin/forge
-            
-            # Also try to find other Foundry binaries in the same directory
+          if [ -n "$FORGE_PATH" ] && [ -f "$FORGE_PATH" ]; then
+            # Copy all Foundry binaries to workspace bin
             FORGE_DIR=$(dirname "$FORGE_PATH")
-            for binary in cast anvil chisel; do
+            for binary in forge cast anvil chisel; do
               if [ -f "$FORGE_DIR/$binary" ]; then
                 cp "$FORGE_DIR/$binary" bin/
                 chmod +x "bin/$binary"
-                echo "Copied $binary to bin/"
               fi
             done
-            
-            echo "Foundry binaries cached to workspace bin directory"
-            ls -la bin/
+            echo "Foundry binaries cached to workspace bin/"
           else
-            echo "Warning: Could not locate forge binary"
+            echo "ERROR: Could not locate forge binary"
+            exit 1
           fi
       - name: Cache setup state
         uses: actions/cache/save@v4
         with:
           path: |
-            .
             ~/.foundry
-            ~/.svm
             ~/.npm
             node_modules
             bin
@@ -186,18 +152,11 @@ jobs:
     needs: [setup]
     timeout-minutes: 15
     steps:
-      - name: Restore setup state
-        uses: actions/cache/restore@v4
+      - name: Checkout local repository
+        uses: actions/checkout@v4
         with:
-          path: |
-            .
-            ~/.foundry
-            ~/.svm
-            ~/.npm
-            node_modules
-            bin
-          key: setup-state-${{ needs.setup.outputs.cache-key }}
-          fail-on-cache-miss: true
+          token: ${{ needs.setup.outputs.token || github.token }}
+          submodules: recursive
       - name: Markdown Link Check
         id: markdown-link-check
         uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/markdown-link-checker@v0.0.3
@@ -209,45 +168,34 @@ jobs:
     needs: [setup]
     timeout-minutes: 30
     steps:
-      - name: Restore setup state
+      - name: Checkout local repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ needs.setup.outputs.token || github.token }}
+          submodules: recursive
+      - name: Restore cached dependencies
         uses: actions/cache/restore@v4
         with:
           path: |
-            .
             ~/.foundry
-            ~/.svm
             ~/.npm
             node_modules
             bin
           key: setup-state-${{ needs.setup.outputs.cache-key }}
           fail-on-cache-miss: true
-      - name: Setup Foundry PATH and verify installation
+      - name: Setup Foundry PATH
         run: |
-          # Add workspace bin to PATH
           echo "${{ github.workspace }}/bin" >> $GITHUB_PATH
-
-          # Also add common Foundry locations to PATH as fallback
           echo "$HOME/.foundry/bin" >> $GITHUB_PATH
 
-          # Verify forge is accessible
-          export PATH="${{ github.workspace }}/bin:$HOME/.foundry/bin:$PATH"
-
-          echo "=== PATH after setup ==="
-          echo $PATH
-
-          echo "=== Checking for forge binary ==="
-          if command -v forge >/dev/null 2>&1; then
-            echo "✓ forge found at: $(which forge)"
-            forge --version
+          # Verify forge is available
+          if command -v forge >/dev/null 2>&1 || [ -f "${{ github.workspace }}/bin/forge" ]; then
+            echo "✓ Foundry tools are available"
+            (command -v forge && forge --version) || "${{ github.workspace }}/bin/forge" --version
           else
-            echo "✗ forge not found in PATH"
-            echo "Searching for forge in common locations..."
-            find $HOME -name "forge" -type f 2>/dev/null || echo "No forge binary found"
-            find /home/runner/work -name "forge" -type f 2>/dev/null || echo "No forge binary found in work directory"
+            echo "✗ Foundry tools not found"
+            exit 1
           fi
-
-          echo "=== Contents of workspace bin directory ==="
-          ls -la "${{ github.workspace }}/bin" || echo "bin directory not found"
       - name: Contract Size
         id: contract-size
         uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/contract-size@v0.0.3
@@ -270,36 +218,25 @@ jobs:
     needs: [setup]
     timeout-minutes: 30
     steps:
-      - name: Restore setup state
+      - name: Checkout local repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ needs.setup.outputs.token || github.token }}
+          submodules: recursive
+      - name: Restore cached dependencies
         uses: actions/cache/restore@v4
         with:
           path: |
-            .
             ~/.foundry
-            ~/.svm
             ~/.npm
             node_modules
             bin
           key: setup-state-${{ needs.setup.outputs.cache-key }}
           fail-on-cache-miss: true
-      - name: Setup Foundry PATH and verify installation
+      - name: Setup Foundry PATH
         run: |
-          # Add workspace bin to PATH
           echo "${{ github.workspace }}/bin" >> $GITHUB_PATH
-
-          # Also add common Foundry locations to PATH as fallback
           echo "$HOME/.foundry/bin" >> $GITHUB_PATH
-
-          # Verify forge is accessible
-          export PATH="${{ github.workspace }}/bin:$HOME/.foundry/bin:$PATH"
-
-          echo "=== Checking for forge binary ==="
-          if command -v forge >/dev/null 2>&1; then
-            echo "✓ forge found at: $(which forge)"
-            forge --version
-          else
-            echo "✗ forge not found in PATH"
-          fi
       - name: Code Coverage
         id: code-coverage
         uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/code-coverage@v0.0.3
