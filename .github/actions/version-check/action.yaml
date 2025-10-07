@@ -1,0 +1,48 @@
+name: Package Version Check
+description: Validates package.json versions are consistent and incremented
+
+runs:
+  using: composite
+  steps:
+    - name: Check versions
+      id: check
+      shell: bash
+      run: |
+        set +e # Allow the script to exit non-zero and continue the workflow
+        result=$("${{ github.action_path }}/../../scripts/check-versions.sh" "${{ github.event.repository.default_branch }}")
+        exit_code=$?
+        
+        if [ $exit_code -eq 0 ]; then
+          echo "status=pass" >> $GITHUB_OUTPUT
+        else
+          echo "status=failure" >> $GITHUB_OUTPUT
+        fi
+
+        ## Write text for a PR comment, using the result of the version check script
+        echo "comment<<EOF" >> $GITHUB_OUTPUT
+        echo "<!-- version-check-comment -->" >> $GITHUB_OUTPUT
+        echo "$result" >> $GITHUB_OUTPUT
+        echo "EOF" >> $GITHUB_OUTPUT
+
+    - name: Find existing comment
+      id: find-comment
+      uses: peter-evans/find-comment@v3
+      with:
+        issue-number: ${{ github.event.pull_request.number }}
+        comment-author: 'github-actions[bot]'
+        body-includes: '<!-- version-check-comment -->'
+
+    - name: Create or update PR comment
+      uses: peter-evans/create-or-update-comment@v4
+      with:
+        comment-id: ${{ steps.find-comment.outputs.comment-id }}
+        issue-number: ${{ github.event.pull_request.number }}
+        edit-mode: replace
+        body: ${{ steps.check.outputs.comment }}
+
+    - name: Exit with error if version-increment needed
+      if: steps.check.outputs.status == 'failure'
+      shell: bash
+      run: |
+        echo "Version check failed. Please update package.json versions."
+        exit 1
