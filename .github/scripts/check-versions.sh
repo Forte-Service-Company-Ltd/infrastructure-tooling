@@ -53,6 +53,7 @@ version_warning=$(cat <<EOF
   The version must be incremented beyond the default branch.
   ::error file=package.json::Version not incremented: $current (was $default_version)"
 EOF
+)
 
 # If versions are exactly the same, fail
 [ "$current" = "$default_version" ] && {
