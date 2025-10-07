@@ -45,8 +45,8 @@ on:
         default: false
     outputs:
       status:
-        description: The status of the deployment job, either 'success', 'failure', or 'skipped'
-        value: ${{ jobs.check.result }}
+        description: The overall status of the workflow, either 'success', 'failure', or 'skipped'
+        value: ${{ jobs.build-and-test.result == 'success' && jobs.markdown-link-check.result == 'success' && jobs.code-coverage-report.result == 'success' && 'success' || 'failure' }}
     secrets:
       # Secrets are passed from the calling repository
       ALCHEMY_KEY: # optional, only if needed for tests requiring mainnet fork
@@ -196,17 +196,7 @@ jobs:
           fork-test: ${{ inputs.fork-test }}
           salt-string: ${{ inputs.salt-string }}
           skip-forte-token-tests: ${{ inputs.skip-forte-token-tests }}
-  notify:
-    name: Notify Slack on Deployment Failure
-    needs: [check]
-    if: always() && (needs.check.result != 'success')
-    uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/workflows/slack-notification.yaml@v0.0.3
-    with:
-      env: "onchain"
-      status: ${{ needs.check.result }}
-      title: "On-Chain Build and Test of *${{ github.repository }}* failed."
-      notify_when: "failure,skipped"
-    secrets: inherit
+
   code-coverage-report:
     name: Code Coverage
     runs-on: ubuntu-latest
@@ -237,3 +227,14 @@ jobs:
           salt-string: ${{ inputs.salt-string }}
           skip-forte-token-tests: ${{ inputs.skip-forte-token-tests }}
           repo-token: ${{ secrets.GITHUB_TOKEN }}
+  notify:
+    name: Notify Slack on Deployment Failure
+    needs: [build-and-test, markdown-link-check, code-coverage-report]
+    if: always() && (needs.build-and-test.result != 'success' || needs.markdown-link-check.result != 'success' || needs.code-coverage-report.result != 'success')
+    uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/workflows/slack-notification.yaml@v0.0.3
+    with:
+      env: "onchain"
+      status: ${{ needs.build-and-test.result != 'success' && needs.build-and-test.result || needs.markdown-link-check.result != 'success' && needs.markdown-link-check.result || needs.code-coverage-report.result != 'success' && needs.code-coverage-report.result || 'failure' }}
+      title: "On-Chain Build and Test of *${{ github.repository }}* failed. Jobs: ${{ needs.build-and-test.result != 'success' && format('Build and Test ({0})', needs.build-and-test.result) || '' }}${{ needs.build-and-test.result != 'success' && needs.markdown-link-check.result != 'success' && ', ' || '' }}${{ needs.markdown-link-check.result != 'success' && format('Markdown Link Check ({0})', needs.markdown-link-check.result) || '' }}${{ (needs.build-and-test.result != 'success' || needs.markdown-link-check.result != 'success') && needs.code-coverage-report.result != 'success' && ', ' || '' }}${{ needs.code-coverage-report.result != 'success' && format('Code Coverage ({0})', needs.code-coverage-report.result) || '' }}"
+      notify_when: "failure,skipped"
+    secrets: inherit
