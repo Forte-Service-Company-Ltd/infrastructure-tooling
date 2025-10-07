@@ -141,6 +141,7 @@ jobs:
         uses: actions/cache/save@v4
         with:
           path: |
+            .
             ~/.foundry
             ~/.npm
             node_modules
@@ -152,11 +153,17 @@ jobs:
     needs: [setup]
     timeout-minutes: 15
     steps:
-      - name: Checkout local repository
-        uses: actions/checkout@v4
+      - name: Restore setup state
+        uses: actions/cache/restore@v4
         with:
-          token: ${{ needs.setup.outputs.token || github.token }}
-          submodules: recursive
+          path: |
+            .
+            ~/.foundry
+            ~/.npm
+            node_modules
+            bin
+          key: setup-state-${{ needs.setup.outputs.cache-key }}
+          fail-on-cache-miss: true
       - name: Markdown Link Check
         id: markdown-link-check
         uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/markdown-link-checker@v0.0.3
@@ -168,15 +175,11 @@ jobs:
     needs: [setup]
     timeout-minutes: 30
     steps:
-      - name: Checkout local repository
-        uses: actions/checkout@v4
-        with:
-          token: ${{ needs.setup.outputs.token || github.token }}
-          submodules: recursive
-      - name: Restore cached dependencies
+      - name: Restore setup state
         uses: actions/cache/restore@v4
         with:
           path: |
+            .
             ~/.foundry
             ~/.npm
             node_modules
@@ -218,15 +221,11 @@ jobs:
     needs: [setup]
     timeout-minutes: 30
     steps:
-      - name: Checkout local repository
-        uses: actions/checkout@v4
-        with:
-          token: ${{ needs.setup.outputs.token || github.token }}
-          submodules: recursive
-      - name: Restore cached dependencies
+      - name: Restore setup state
         uses: actions/cache/restore@v4
         with:
           path: |
+            .
             ~/.foundry
             ~/.npm
             node_modules
