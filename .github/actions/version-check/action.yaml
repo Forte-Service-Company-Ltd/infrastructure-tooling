@@ -8,9 +8,10 @@ runs:
       id: check
       shell: bash
       run: |
+        set +e # Allow the script to exit non-zero and continue the workflow
         result=$("${{ github.action_path }}/../../scripts/check-versions.sh" "${{ github.event.repository.default_branch }}")
         exit_code=$?
-
+        
         if [ $exit_code -eq 0 ]; then
           echo "status=pass" >> $GITHUB_OUTPUT
         else
@@ -19,7 +20,6 @@ runs:
           echo "$result" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
         fi
-
     - name: Comment on PR
       if: steps.check.outputs.status == 'fail'
       uses: thollander/actions-comment-pull-request@v3
