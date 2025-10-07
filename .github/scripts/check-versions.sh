@@ -44,22 +44,20 @@ default_version=$(git show "origin/$DEFAULT_BRANCH:package.json" 2>/dev/null | j
 
 echo "Comparing $current against $default_version" >&2
 
-version_warning=$(cat <<EOF
-  ## ⚠️ Version Not Incremented
-  
-  Current version: **$current**
-  Default branch version: **$default_version**
-  
-  The version must be incremented beyond the default branch.
-  ::error file=package.json::Version not incremented: $current (was $default_version)"
-EOF
-)
-
-# If versions are exactly the same, fail
-[ "$current" = "$default_version" ] && {
-  echo $version_warning >&2
+# Function to output message for use in the PR comment
+version_not_incremented() {
+  echo "## ⚠️ Version Not Incremented"
+  echo
+  echo "Current version: **$current**"
+  echo "Default branch version: **$default_version**"
+  echo
+  echo "The version must be incremented beyond the default branch."
+  echo "::error file=package.json::Version not incremented: $current (was $default_version)" >&2
   exit 1
 }
+
+# If versions are exactly the same, fail
+[ "$current" = "$default_version" ] && version_not_incremented
 
 # Strip any suffix (e.g., -rc.N) for semantic comparison
 current_base="${current%%-*}"
@@ -79,6 +77,4 @@ done
 # Base versions are equal but full versions differ (e.g., suffix changed) - that's ok
 [ "$current" != "$default_version" ] && exit 0
 
-# Version has not advanced
-echo $version_warning >&2
-exit 1
+version_not_incremented
