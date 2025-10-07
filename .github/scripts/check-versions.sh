@@ -68,13 +68,13 @@ IFS='.' read -r -a curr <<< "$current_base"
 IFS='.' read -r -a def <<< "$default_base"
 
 i=0
-for part in major minor patch; do
-  [ "${curr[$i]}" -gt "${def[$i]}" ] && echo "✅ Version checks passed" && exit 0
+for i in major minor patch; do
+  [ "${curr[$i]}" -gt "${def[$i]}" ] && echo "## ✅ Version Checks Passed" && exit 0
   [ "${curr[$i]}" -lt "${def[$i]}" ] && break
   ((i++))
 done
 
 # Base versions are equal but full versions differ (e.g., suffix changed) - that's ok
-[ "$current" != "$default_version" ] && exit 0
+[ "$current" != "$default_version" ] && echo "## ✅ Version Checks Passed" && exit 0
 
 version_not_incremented
