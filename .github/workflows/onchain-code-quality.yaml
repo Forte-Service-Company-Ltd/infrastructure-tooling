@@ -65,7 +65,7 @@ jobs:
         uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/install-foundry@v0.0.3
       - name: Install Python Dependencies
         id: install-python-dependencies
-        uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/install-dependencies@v0.0.3
+        uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/install-python-dependencies@INF-298-Optimizing-On-Chain-Build-and-Test
       - name: Build
         id: build
         uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/onchain-build@v0.0.3
@@ -88,14 +88,14 @@ jobs:
         if: steps.check-medusa-conf.outputs.medusa-conf-exists == 'true'
         uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/medusa-fuzz@v0.0.3
 
-  notify:
-    name: Notify Slack on Deployment Failure
-    needs: [check]
-    if: always() && (needs.check.result != 'success')
-    uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/workflows/slack-notification.yaml@v0.0.3
-    with:
-      env: "onchain"
-      status: ${{ needs.check.result }}
-      title: "On-Chain Code Quality Checks of *${{ github.repository }}* failed."
-      notify_when: "failure,skipped"
-    secrets: inherit
+  # notify:
+  #   name: Notify Slack on Deployment Failure
+  #   needs: [check]
+  #   if: always() && (needs.check.result != 'success')
+  #   uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/workflows/slack-notification.yaml@v0.0.3
+  #   with:
+  #     env: "onchain"
+  #     status: ${{ needs.check.result }}
+  #     title: "On-Chain Code Quality Checks of *${{ github.repository }}* failed."
+  #     notify_when: "failure,skipped"
+  #   secrets: inherit
