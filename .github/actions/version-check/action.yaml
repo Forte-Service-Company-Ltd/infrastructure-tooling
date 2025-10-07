@@ -24,12 +24,6 @@ runs:
         echo "$result" >> $GITHUB_OUTPUT
         echo "EOF" >> $GITHUB_OUTPUT
 
-    - name: DEBUG - Show outputs
-      shell: bash
-      run: |
-        echo "Status: ${{ steps.check.outputs.status }}"
-        echo "Comment: ${{ steps.check.outputs.comment }}"
-
     - name: Find existing comment
       id: find-comment
       uses: peter-evans/find-comment@v3

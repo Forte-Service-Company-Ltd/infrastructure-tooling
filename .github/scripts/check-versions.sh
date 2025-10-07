@@ -5,12 +5,12 @@
 #
 # Usage: ./check-versions.sh [default-branch]
 #
-set -ex
+set -e
 
 DEFAULT_BRANCH=${1:-main}
 
 # Find package.json files (excluding node_modules)
-files=$(find . -path "*/node_modules" -prune -o -name "package.json" \( -path "./package.json" -o -path "./modules/*/package.json" \) -print)
+files=$(find . -path "*/node_modules/*" -prune -o -name "package.json" -print)
 
 [ -z "$files" ] && echo "No package.json files found" && exit 0
 
