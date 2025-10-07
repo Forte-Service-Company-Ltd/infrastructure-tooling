@@ -251,8 +251,13 @@ jobs:
             infrastructure-tooling
             ~/.foundry
             ~/.npm
+            ~/.cache/pip
+            ~/.local
             node_modules
             bin
+            lib
+            include
+            share
           key: setup-state-${{ needs.setup.outputs.cache-key }}
           fail-on-cache-miss: true
       - name: Setup environment PATH
