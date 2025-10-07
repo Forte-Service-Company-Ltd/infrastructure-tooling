@@ -71,7 +71,7 @@ echo "Current version: $curr" >&2
 echo "Default version: $def" >&2
 
 i=0
-for i in major minor patch; do
+for part in major minor patch; do
   [ "${curr[$i]}" -gt "${def[$i]}" ] && echo "## ✅ Version Checks Passed" && exit 0
   [ "${curr[$i]}" -lt "${def[$i]}" ] && break
   ((i++))
