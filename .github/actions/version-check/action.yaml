@@ -1,0 +1,41 @@
+name: Package Version Check
+description: Validates package.json versions are consistent and advanced
+
+runs:
+  using: composite
+  steps:
+    - name: Check versions
+      id: check
+      shell: bash
+      run: |
+        result=$("${{ github.action_path }}/../../scripts/check-versions.sh" "${{ github.event.repository.default_branch }}")
+        exit_code=$?
+
+        if [ $exit_code -eq 0 ]; then
+          echo "status=pass" >> $GITHUB_OUTPUT
+        else
+          echo "status=fail" >> $GITHUB_OUTPUT
+          echo "comment<<EOF" >> $GITHUB_OUTPUT
+          echo "$result" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+        fi
+
+    - name: Comment on PR
+      if: steps.check.outputs.status == 'fail'
+      uses: thollander/actions-comment-pull-request@v3
+      with:
+        message: ${{ steps.check.outputs.comment }}
+        comment_tag: version-check
+
+    - name: Delete comment on success
+      if: steps.check.outputs.status == 'pass'
+      uses: thollander/actions-comment-pull-request@v3
+      with:
+        message: ""
+        comment_tag: version-check
+        mode: delete
+
+    - name: Fail if checks failed
+      if: steps.check.outputs.status == 'fail'
+      shell: bash
+      run: exit 1
