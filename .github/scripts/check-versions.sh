@@ -46,13 +46,13 @@ echo "Comparing $current against $default_version" >&2
 
 # If versions are exactly the same, fail
 [ "$current" = "$default_version" ] && {
-  echo "## ❌ Version Not Advanced"
+  echo "## ⚠️ Version Not Incremented"
   echo
   echo "Current version: **$current**"
   echo "Default branch version: **$default_version**"
   echo
-  echo "The version must be advanced beyond the default branch."
-  echo "::error file=package.json::Version not advanced: $current (was $default_version)" >&2
+  echo "The version must be incremented beyond the default branch."
+  echo "::error file=package.json::Version not incremented: $current (was $default_version)" >&2
   exit 1
 }
 

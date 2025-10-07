@@ -20,22 +20,53 @@ runs:
           echo "$result" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
         fi
-    - name: Comment on PR
-      if: steps.check.outputs.status == 'fail'
-      uses: thollander/actions-comment-pull-request@v3
-      with:
-        message: ${{ steps.check.outputs.comment }}
-        comment_tag: version-check
 
-    - name: Delete comment on success
-      if: steps.check.outputs.status == 'pass'
-      uses: thollander/actions-comment-pull-request@v3
+    - name: Find existing comment
+      if: steps.format-check.outcome == 'failure' && github.event_name == 'pull_request'
+      id: find-comment
+      uses: peter-evans/find-comment@v3
       with:
-        message: ''
-        comment_tag: version-check
-        mode: delete
+        issue-number: ${{ github.event.pull_request.number }}
+        comment-author: 'github-actions[bot]'
+        body-includes: '<!-- version-check-comment -->'
 
-    - name: Fail if checks failed
-      if: steps.check.outputs.status == 'fail'
+    - name: Create or update PR comment
+      if: steps.format-check.outcome == 'failure' && github.event_name == 'pull_request'
+      uses: peter-evans/create-or-update-comment@v4
+      with:
+        token: ${{ github.token }}
+        comment-id: ${{ steps.find-comment.outputs.comment-id }}
+        issue-number: ${{ github.event.pull_request.number }}
+        edit-mode: replace
+        body: ${{ steps.check.outputs.comment }}
+
+    - name: Exit with error if formatting needed
+      if: steps.format-check.outcome == 'failure'
       shell: bash
-      run: exit 1
+      run: |
+        echo "Version check failed. Please update `package.json` versions."
+        exit 1
+
+
+
+
+
+    # - name: Comment on PR
+    #   if: steps.check.outputs.status == 'fail'
+    #   uses: thollander/actions-comment-pull-request@v3
+    #   with:
+    #     message: ${{ steps.check.outputs.comment }}
+    #     comment_tag: version-check
+
+    # - name: Delete comment on success
+    #   if: steps.check.outputs.status == 'pass'
+    #   uses: thollander/actions-comment-pull-request@v3
+    #   with:
+    #     message: ''
+    #     comment_tag: version-check
+    #     mode: delete
+
+    # - name: Fail if checks failed
+    #   if: steps.check.outputs.status == 'fail'
+    #   shell: bash
+    #   run: exit 1
