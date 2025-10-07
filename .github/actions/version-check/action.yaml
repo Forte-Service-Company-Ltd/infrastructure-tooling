@@ -15,7 +15,7 @@ runs:
         if [ $exit_code -eq 0 ]; then
           echo "status=pass" >> $GITHUB_OUTPUT
         else
-          echo "status=fail" >> $GITHUB_OUTPUT
+          echo "status=failure" >> $GITHUB_OUTPUT
           echo "comment<<EOF" >> $GITHUB_OUTPUT
           echo "$result" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
