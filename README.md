@@ -32,6 +32,7 @@ The infrastructure-tooling repository contains standardized CI/CD components spe
 
 - **`markdown-link-checker/`** - Validates links in markdown files (README, CHANGELOG, etc.)
 - **`formatter-check/`** - Checks formatting using language-appropriate tooling (prettier, black, gofmt), posting a comment on PRs when not passing.
+- **`version-check/`** - Validates package.json versions are consistent across workspace and incremented from default branch
 
 ### Workflows (`.github/workflows/`)
 
@@ -97,6 +98,17 @@ Contract size validation script:
 - Fails for contracts >24KB (exceeds Ethereum limit)
 - Color-coded terminal output for easy identification
 
+#### `check-versions.sh`
+
+Package version validation script:
+
+- Finds all package.json files in workspace (excluding node_modules)
+- Validates version consistency across multiple package.json files
+- Ensures version has been advanced beyond the default branch
+- Supports semantic version comparison (major.minor.patch)
+- Handles version suffixes (e.g., -rc.N) appropriately
+- Posts GitHub Actions annotations for validation failures
+
 ## 🔧 Usage
 
 ### As a Callable Workflow
@@ -137,6 +149,9 @@ steps:
       package-manager: "yarn" # or npm
 
   - uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/typescript-test@main
+  
+  # For version validation (for projects having package.json) 
+  - uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/version-check@main
 ```
 
 ## 🛠 Supported Technologies
@@ -173,6 +188,7 @@ steps:
 - **Link Validation**: Prevents broken documentation links
 - **Dependency Management**: Automated installation and updates
 - **Format Validation**: Ensures code formatting conforms to accepted conventions
+- **Version Consistency**: Validates package.json versions are consistent and properly incremented
 
 ## 🤝 Contributing
 
