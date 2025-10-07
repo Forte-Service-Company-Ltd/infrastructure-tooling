@@ -57,10 +57,12 @@ on:
         description: Alchemy API URI for Polygon mainnet (for tests requiring polygon fork)
 
 jobs:
-  check:
-    name: Build and Test
+  setup:
+    name: Setup
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    outputs:
+      cache-key: ${{ steps.cache-key.outputs.key }}
+      token: ${{ steps.get-token.outputs.token }}
     steps:
       - name: Generate GitHub App token
         id: get-token
@@ -81,6 +83,44 @@ jobs:
           repository: Forte-Service-Company-Ltd/infrastructure-tooling
           ref: v0.0.3
           path: infrastructure-tooling
+      - name: Generate cache key
+        id: cache-key
+        run: |
+          # Create a cache key based on workflow inputs and file hashes
+          WORKFLOW_HASH=$(echo "${{ github.sha }}-${{ inputs.fork-test }}-${{ inputs.salt-string }}-${{ inputs.skip-forte-token-tests }}-${{ inputs.is-forte-token-project }}" | sha256sum | cut -d' ' -f1)
+          # Include package manager files in cache key if they exist
+          if [ -f "package.json" ]; then
+            PACKAGE_HASH=$(sha256sum package.json | cut -d' ' -f1)
+          else
+            PACKAGE_HASH="no-package"
+          fi
+          if [ -f "foundry.toml" ]; then
+            FOUNDRY_HASH=$(sha256sum foundry.toml | cut -d' ' -f1)
+          else
+            FOUNDRY_HASH="no-foundry"
+          fi
+          CACHE_KEY="setup-v1-${WORKFLOW_HASH}-${PACKAGE_HASH}-${FOUNDRY_HASH}"
+          echo "key=${CACHE_KEY}" >> $GITHUB_OUTPUT
+          echo "Cache key: ${CACHE_KEY}"
+      - name: Cache Foundry installation
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.foundry
+            ~/.svm
+          key: foundry-${{ runner.os }}-${{ steps.cache-key.outputs.key }}
+          restore-keys: |
+            foundry-${{ runner.os }}-
+      - name: Cache node modules
+        if: hashFiles('package.json') != ''
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.npm
+            node_modules
+          key: npm-${{ runner.os }}-${{ hashFiles('package.json', 'package-lock.json') }}
+          restore-keys: |
+            npm-${{ runner.os }}-
       - name: Markdown Link Check
         id: markdown-link-check
         uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/markdown-link-checker@v0.0.3
@@ -92,6 +132,33 @@ jobs:
       - name: Install Dependencies
         id: install-dependencies
         uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/install-dependencies@v0.0.3
+      - name: Cache setup state
+        uses: actions/cache/save@v4
+        with:
+          path: |
+            .
+            ~/.foundry
+            ~/.svm
+            ~/.npm
+            node_modules
+          key: setup-state-${{ steps.cache-key.outputs.key }}
+  check:
+    name: Build and Test
+    runs-on: ubuntu-latest
+    needs: [setup]
+    timeout-minutes: 30
+    steps:
+      - name: Restore setup state
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            .
+            ~/.foundry
+            ~/.svm
+            ~/.npm
+            node_modules
+          key: setup-state-${{ needs.setup.outputs.cache-key }}
+          fail-on-cache-miss: true
       - name: Contract Size
         id: contract-size
         uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/contract-size@v0.0.3
@@ -107,17 +174,6 @@ jobs:
           fork-test: ${{ inputs.fork-test }}
           salt-string: ${{ inputs.salt-string }}
           skip-forte-token-tests: ${{ inputs.skip-forte-token-tests }}
-      - name: Code Coverage
-        id: code-coverage
-        uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/code-coverage@v0.0.3
-        with:
-          alchemy_eth_api: ${{ secrets.ALCHEMY_KEY }}
-          alchemy_polygon_api: ${{ secrets.POLYGON_ALCHEMY_KEY }}
-          fork-test: ${{ inputs.fork-test }}
-          salt-string: ${{ inputs.salt-string }}
-          skip-forte-token-tests: ${{ inputs.skip-forte-token-tests }}
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
-
   notify:
     name: Notify Slack on Deployment Failure
     needs: [check]
@@ -129,3 +185,19 @@ jobs:
       title: "On-Chain Build and Test of *${{ github.repository }}* failed."
       notify_when: "failure,skipped"
     secrets: inherit
+  code-coverage-report:
+    name: Code Coverage
+    runs-on: ubuntu-latest
+    needs: [setup]
+    timeout-minutes: 30
+    steps:
+      - name: Code Coverage
+        id: code-coverage
+        uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/code-coverage@v0.0.3
+        with:
+          alchemy_eth_api: ${{ secrets.ALCHEMY_KEY }}
+          alchemy_polygon_api: ${{ secrets.POLYGON_ALCHEMY_KEY }}
+          fork-test: ${{ inputs.fork-test }}
+          salt-string: ${{ inputs.salt-string }}
+          skip-forte-token-tests: ${{ inputs.skip-forte-token-tests }}
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
