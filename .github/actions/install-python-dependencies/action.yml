@@ -10,4 +10,6 @@ runs:
           sudo apt-get update
           sudo apt-get install -y python3-pip curl
           pip3 install -r requirements.txt
+          # Debugging
+          which forge
         fi
