@@ -59,25 +59,18 @@ version_not_incremented() {
 # If versions are exactly the same, fail
 [ "$current" = "$default_version" ] && version_not_incremented
 
-# Strip any suffix (e.g., -rc.N) for semantic comparison
+# Strip any suffix (e.g., -rc.4) for semantic comparison
 current_base="${current%%-*}"
 default_base="${default_version%%-*}"
 
-# Compare semantic versions (major.minor.patch)
-IFS='.' read -r -a curr <<< "$current_base"
-IFS='.' read -r -a def <<< "$default_base"
+# Use sort -V to compare versions semantically
+oldest=$(printf "%s\n%s" "$current_base" "$default_base" | sort -V | head -1)
 
-echo "Current version: $curr" >&2
-echo "Default version: $def" >&2
-
-i=0
-for part in major minor patch; do
-  [ "${curr[$i]}" -gt "${def[$i]}" ] && echo "## ✅ Version Checks Passed" && exit 0
-  [ "${curr[$i]}" -lt "${def[$i]}" ] && break
-  ((i++))
-done
+# If current base is the oldest, it hasn't been incremented
+[ "$oldest" = "$current_base" ] && [ "$current_base" != "$default_base" ] && version_not_incremented
 
 # Base versions are equal but full versions differ (e.g., suffix changed) - that's ok
 [ "$current" != "$default_version" ] && echo "## ✅ Version Checks Passed" && exit 0
 
+# Version not incremented
 version_not_incremented
