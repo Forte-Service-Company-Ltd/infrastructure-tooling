@@ -17,6 +17,9 @@ runs:
         else
           echo "status=failure" >> $GITHUB_OUTPUT
         fi
+        echo "-------------------"
+        echo $result
+        echo "-------------------"
 
         ## Write text for a PR comment, using the result of the version check script
         echo "comment<<EOF" >> $GITHUB_OUTPUT
