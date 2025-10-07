@@ -142,6 +142,7 @@ jobs:
         with:
           path: |
             .
+            infrastructure-tooling
             ~/.foundry
             ~/.npm
             node_modules
@@ -158,6 +159,7 @@ jobs:
         with:
           path: |
             .
+            infrastructure-tooling
             ~/.foundry
             ~/.npm
             node_modules
@@ -180,6 +182,7 @@ jobs:
         with:
           path: |
             .
+            infrastructure-tooling
             ~/.foundry
             ~/.npm
             node_modules
@@ -226,6 +229,7 @@ jobs:
         with:
           path: |
             .
+            infrastructure-tooling
             ~/.foundry
             ~/.npm
             node_modules
