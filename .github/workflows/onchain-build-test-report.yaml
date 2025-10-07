@@ -127,6 +127,48 @@ jobs:
       - name: Install Python Dependencies
         id: install-python-dependencies
         uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/install-python-dependencies@INF-298-Optimizing-On-Chain-Build-and-Test
+      - name: Locate and cache Foundry binaries
+        run: |
+          # Find forge binary and create symlinks in workspace bin directory
+          mkdir -p bin
+
+          # Check common Foundry installation locations
+          FORGE_PATH=""
+          if command -v forge >/dev/null 2>&1; then
+            FORGE_PATH=$(which forge)
+            echo "Found forge at: $FORGE_PATH"
+          elif [ -f ~/.foundry/bin/forge ]; then
+            FORGE_PATH=~/.foundry/bin/forge
+            echo "Found forge at: $FORGE_PATH"
+          else
+            # Search in temp directories if installed there
+            TEMP_FORGE=$(find /home/runner/work/_temp -name "forge" 2>/dev/null | head -1)
+            if [ -n "$TEMP_FORGE" ]; then
+              FORGE_PATH="$TEMP_FORGE"
+              echo "Found forge in temp location: $FORGE_PATH"
+            fi
+          fi
+
+          if [ -n "$FORGE_PATH" ]; then
+            # Copy the binary to workspace bin directory for caching
+            cp "$FORGE_PATH" bin/forge
+            chmod +x bin/forge
+            
+            # Also try to find other Foundry binaries in the same directory
+            FORGE_DIR=$(dirname "$FORGE_PATH")
+            for binary in cast anvil chisel; do
+              if [ -f "$FORGE_DIR/$binary" ]; then
+                cp "$FORGE_DIR/$binary" bin/
+                chmod +x "bin/$binary"
+                echo "Copied $binary to bin/"
+              fi
+            done
+            
+            echo "Foundry binaries cached to workspace bin directory"
+            ls -la bin/
+          else
+            echo "Warning: Could not locate forge binary"
+          fi
       - name: Cache setup state
         uses: actions/cache/save@v4
         with:
@@ -179,8 +221,33 @@ jobs:
             bin
           key: setup-state-${{ needs.setup.outputs.cache-key }}
           fail-on-cache-miss: true
-      - name: Add bin to PATH
-        run: echo "${{ github.workspace }}/bin" >> $GITHUB_PATH
+      - name: Setup Foundry PATH and verify installation
+        run: |
+          # Add workspace bin to PATH
+          echo "${{ github.workspace }}/bin" >> $GITHUB_PATH
+
+          # Also add common Foundry locations to PATH as fallback
+          echo "$HOME/.foundry/bin" >> $GITHUB_PATH
+
+          # Verify forge is accessible
+          export PATH="${{ github.workspace }}/bin:$HOME/.foundry/bin:$PATH"
+
+          echo "=== PATH after setup ==="
+          echo $PATH
+
+          echo "=== Checking for forge binary ==="
+          if command -v forge >/dev/null 2>&1; then
+            echo "✓ forge found at: $(which forge)"
+            forge --version
+          else
+            echo "✗ forge not found in PATH"
+            echo "Searching for forge in common locations..."
+            find $HOME -name "forge" -type f 2>/dev/null || echo "No forge binary found"
+            find /home/runner/work -name "forge" -type f 2>/dev/null || echo "No forge binary found in work directory"
+          fi
+
+          echo "=== Contents of workspace bin directory ==="
+          ls -la "${{ github.workspace }}/bin" || echo "bin directory not found"
       - name: Contract Size
         id: contract-size
         uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/contract-size@v0.0.3
@@ -215,8 +282,24 @@ jobs:
             bin
           key: setup-state-${{ needs.setup.outputs.cache-key }}
           fail-on-cache-miss: true
-      - name: Add bin to PATH
-        run: echo "${{ github.workspace }}/bin" >> $GITHUB_PATH
+      - name: Setup Foundry PATH and verify installation
+        run: |
+          # Add workspace bin to PATH
+          echo "${{ github.workspace }}/bin" >> $GITHUB_PATH
+
+          # Also add common Foundry locations to PATH as fallback
+          echo "$HOME/.foundry/bin" >> $GITHUB_PATH
+
+          # Verify forge is accessible
+          export PATH="${{ github.workspace }}/bin:$HOME/.foundry/bin:$PATH"
+
+          echo "=== Checking for forge binary ==="
+          if command -v forge >/dev/null 2>&1; then
+            echo "✓ forge found at: $(which forge)"
+            forge --version
+          else
+            echo "✗ forge not found in PATH"
+          fi
       - name: Code Coverage
         id: code-coverage
         uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/code-coverage@v0.0.3
