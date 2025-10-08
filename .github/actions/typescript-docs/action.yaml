@@ -1,0 +1,19 @@
+name: Generate typedoc documentation
+description: Generates TypeScript documentation using TypeDoc
+inputs:
+
+  options-file:
+    description: The TypeDoc options file to use. Defaults to 'typedoc.json'.
+    required: false
+    default: 'typedoc.json'
+
+runs:
+  using: composite
+  steps:
+
+    - name: Generate documentation
+      shell: bash
+      run: |
+        echo "::group::Generating TypeScript documentation"
+        npx typedoc --options ${{ inputs.options-file }}
+        echo "::endgroup::"
