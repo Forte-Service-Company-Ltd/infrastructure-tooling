@@ -1,0 +1,51 @@
+name: Generate GHA Cache Key
+description: Generate a cache key for GitHub Actions caching
+inputs:
+  fork-test:
+    description: Whether to run tests that require forking mainnet
+    required: false
+    default: "false"
+  salt-string:
+    description: Salt string for generating unique addresses in tests
+    required: false
+    default: "SMELLING_SALTS"
+  skip-forte-token-tests:
+    description: Whether to skip tests related to Forte Token
+    required: false
+    default: "true"
+  is-forte-token-project:
+    description: Whether this is the Forte Token project
+    required: false
+    default: "false"
+outputs:
+  key:
+    description: The generated cache key
+    value: ${{ steps.generate-cache-key.outputs.key }}
+runs:
+  using: "composite"
+  steps:
+    - name: Generate Cache Key
+      id: generate-cache-key
+      shell: bash
+      env:
+        FORK_TEST: ${{ inputs.fork-test }}
+        SALT_STRING: ${{ inputs.salt-string }}
+        SKIP_FORTE_TOKEN_TESTS: ${{ inputs.skip-forte-token-tests }}
+        IS_FORTE_TOKEN_PROJECT: ${{ inputs.is-forte-token-project }}
+      run: |
+        # Create a cache key based on workflow inputs and file hashes
+        WORKFLOW_HASH=$(echo "${{ github.sha }}-${{ inputs.fork-test }}-${{ inputs.salt-string }}-${{ inputs.skip-forte-token-tests }}-${{ inputs.is-forte-token-project }}" | sha256sum | cut -d' ' -f1)
+        # Include package manager files in cache key if they exist
+        if [ -f "package.json" ]; then
+          PACKAGE_HASH=$(sha256sum package.json | cut -d' ' -f1)
+        else
+          PACKAGE_HASH="no-package"
+        fi
+        if [ -f "foundry.toml" ]; then
+          FOUNDRY_HASH=$(sha256sum foundry.toml | cut -d' ' -f1)
+        else
+          FOUNDRY_HASH="no-foundry"
+        fi
+        CACHE_KEY="setup-v1-${WORKFLOW_HASH}-${PACKAGE_HASH}-${FOUNDRY_HASH}"
+        echo "key=${CACHE_KEY}" >> $GITHUB_OUTPUT
+        echo "Cache key: ${CACHE_KEY}"

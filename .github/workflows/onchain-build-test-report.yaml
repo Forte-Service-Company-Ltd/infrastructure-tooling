@@ -85,23 +85,12 @@ jobs:
           path: infrastructure-tooling
       - name: Generate cache key
         id: cache-key
-        run: |
-          # Create a cache key based on workflow inputs and file hashes
-          WORKFLOW_HASH=$(echo "${{ github.sha }}-${{ inputs.fork-test }}-${{ inputs.salt-string }}-${{ inputs.skip-forte-token-tests }}-${{ inputs.is-forte-token-project }}" | sha256sum | cut -d' ' -f1)
-          # Include package manager files in cache key if they exist
-          if [ -f "package.json" ]; then
-            PACKAGE_HASH=$(sha256sum package.json | cut -d' ' -f1)
-          else
-            PACKAGE_HASH="no-package"
-          fi
-          if [ -f "foundry.toml" ]; then
-            FOUNDRY_HASH=$(sha256sum foundry.toml | cut -d' ' -f1)
-          else
-            FOUNDRY_HASH="no-foundry"
-          fi
-          CACHE_KEY="setup-v1-${WORKFLOW_HASH}-${PACKAGE_HASH}-${FOUNDRY_HASH}"
-          echo "key=${CACHE_KEY}" >> $GITHUB_OUTPUT
-          echo "Cache key: ${CACHE_KEY}"
+        uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/generate-gha-cache-key@INF-298-Optimizing-On-Chain-Build-and-Test
+        with:
+          fork-test: ${{ inputs.fork-test }}
+          salt-string: ${{ inputs.salt-string }}
+          skip-forte-token-tests: ${{ inputs.skip-forte-token-tests }}
+          is-forte-token-project: ${{ inputs.is-forte-token-project }}
       - name: Install Foundry
         id: install-foundry
         uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/install-foundry@v0.0.3
@@ -320,7 +309,8 @@ jobs:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
   notify:
     name: Notify Slack on Deployment Failure
-    needs: [build-and-test, markdown-link-check, code-coverage-report]
+    needs:
+      [build-and-test, markdown-link-check, code-coverage-report, contract-size]
     if: always() && (needs.contract-size.result != 'success' || needs.build-and-test.result != 'success' || needs.markdown-link-check.result != 'success' || needs.code-coverage-report.result != 'success')
     uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/workflows/slack-notification.yaml@v0.0.3
     with:
