@@ -1,5 +1,5 @@
 name: On-chain Dependency Installation
-description: Install dependencies
+description: Install Python Dependencies
 runs:
   using: "composite"
   steps:
