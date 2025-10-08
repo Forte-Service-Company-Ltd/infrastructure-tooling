@@ -1,0 +1,32 @@
+name: Generate typedoc documentation
+description: Generates TypeScript documentation using TypeDoc
+inputs:
+  node-version:
+    description: The version of Node.js to use. (e.g. "20", "22", "lts/*", "current", etc.) Defaults to "20.x".
+    required: false
+    default: '20.x'
+  command:
+    description: The command to run to generate the documentation. Defaults to "yarn docs".
+    required: false
+    default: 'npx typedoc --options typedoc.json'
+
+runs:
+  using: composite
+  steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: '0'
+        fetch-tags: true  
+
+    - name: Use Node.js ${{ inputs.node-version }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ inputs.node-version }}
+        cache: 'yarn'
+
+    - name: Generate documentation
+      shell: bash
+      run: |
+        echo "::group::Generating TypeScript documentation"
+        ${{ inputs.command }}
+        echo "::endgroup::"
