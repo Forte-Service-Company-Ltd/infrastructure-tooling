@@ -101,34 +101,8 @@ jobs:
         id: build
         uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/onchain-build@v0.0.3
       - name: Locate and cache Foundry binaries
-        run: |
-          mkdir -p bin
-
-          # Simple search for forge binary
-          FORGE_PATH=""
-          if command -v forge >/dev/null 2>&1; then
-            FORGE_PATH=$(which forge)
-          elif [ -f ~/.foundry/bin/forge ]; then
-            FORGE_PATH=~/.foundry/bin/forge
-          else
-            # Search temp directories as fallback
-            FORGE_PATH=$(find /home/runner/work -name "forge" -type f 2>/dev/null | head -1)
-          fi
-
-          if [ -n "$FORGE_PATH" ] && [ -f "$FORGE_PATH" ]; then
-            # Copy all Foundry binaries to workspace bin
-            FORGE_DIR=$(dirname "$FORGE_PATH")
-            for binary in forge cast anvil chisel; do
-              if [ -f "$FORGE_DIR/$binary" ]; then
-                cp "$FORGE_DIR/$binary" bin/
-                chmod +x "bin/$binary"
-              fi
-            done
-            echo "Foundry binaries cached to workspace bin/"
-          else
-            echo "ERROR: Could not locate forge binary"
-            exit 1
-          fi
+        id: locate-foundry-binaries
+        uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/locate-and-cache-foundry-binaries@INF-298-Optimizing-On-Chain-Build-and-Test
       - name: Cache setup state
         uses: actions/cache/save@v4
         with:
