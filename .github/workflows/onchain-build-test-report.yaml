@@ -85,7 +85,7 @@ jobs:
           path: infrastructure-tooling
       - name: Generate cache key
         id: cache-key
-        uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/generate-gha-cache-key@INF-298-Optimizing-On-Chain-Build-and-Test
+        uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/generate-gha-cache-key@v0.0.7
         with:
           fork-test: ${{ inputs.fork-test }}
           salt-string: ${{ inputs.salt-string }}
@@ -93,16 +93,16 @@ jobs:
           is-forte-token-project: ${{ inputs.is-forte-token-project }}
       - name: Install Foundry
         id: install-foundry
-        uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/install-foundry@v0.0.3
+        uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/install-foundry@v0.0.7
       - name: Install Python Dependencies
         id: install-python-dependencies
-        uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/install-python-dependencies@INF-298-Optimizing-On-Chain-Build-and-Test
+        uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/install-python-dependencies@v0.0.7
       - name: Build
         id: build
-        uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/onchain-build@v0.0.3
+        uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/onchain-build@v0.0.7
       - name: Locate and cache Foundry binaries
         id: locate-foundry-binaries
-        uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/locate-and-cache-foundry-binaries@INF-298-Optimizing-On-Chain-Build-and-Test
+        uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/locate-and-cache-foundry-binaries@v0.0.7
       - name: Cache setup state
         uses: actions/cache/save@v4
         with:
@@ -144,7 +144,7 @@ jobs:
           fail-on-cache-miss: true
       - name: Markdown Link Check
         id: markdown-link-check
-        uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/markdown-link-checker@v0.0.3
+        uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/markdown-link-checker@v0.0.7
         with:
           file-path: ${{ inputs.markdown-file-path }}
   contract-size:
@@ -172,10 +172,10 @@ jobs:
           fail-on-cache-miss: true
       - name: Set on-chain build PATH
         id: setup-path
-        uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/set-onchain-build-path@INF-298-Optimizing-On-Chain-Build-and-Test
+        uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/set-onchain-build-path@v0.0.7
       - name: Contract Size
         id: contract-size
-        uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/contract-size@v0.0.3
+        uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/contract-size@v0.0.7
   build-and-test:
     name: Build and Test
     runs-on: ubuntu-latest
@@ -201,10 +201,10 @@ jobs:
           fail-on-cache-miss: true
       - name: Set on-chain build PATH
         id: setup-path
-        uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/set-onchain-build-path@INF-298-Optimizing-On-Chain-Build-and-Test
+        uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/set-onchain-build-path@v0.0.7
       - name: Test
         id: test
-        uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/onchain-test@v0.0.3
+        uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/onchain-test@v0.0.7
         with:
           alchemy_eth_api: ${{ secrets.ALCHEMY_KEY }}
           alchemy_polygon_api: ${{ secrets.POLYGON_ALCHEMY_KEY }}
@@ -237,10 +237,10 @@ jobs:
           fail-on-cache-miss: true
       - name: Set on-chain build PATH
         id: setup-path
-        uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/set-onchain-build-path@INF-298-Optimizing-On-Chain-Build-and-Test
+        uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/set-onchain-build-path@v0.0.7
       - name: Code Coverage
         id: code-coverage
-        uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/code-coverage@v0.0.3
+        uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/code-coverage@v0.0.7
         with:
           alchemy_eth_api: ${{ secrets.ALCHEMY_KEY }}
           alchemy_polygon_api: ${{ secrets.POLYGON_ALCHEMY_KEY }}
@@ -253,7 +253,7 @@ jobs:
     needs:
       [build-and-test, markdown-link-check, code-coverage-report, contract-size]
     if: always() && (needs.contract-size.result != 'success' || needs.build-and-test.result != 'success' || needs.markdown-link-check.result != 'success' || needs.code-coverage-report.result != 'success')
-    uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/workflows/slack-notification.yaml@v0.0.3
+    uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/workflows/slack-notification.yaml@v0.0.7
     with:
       env: "onchain"
       status: "failure"
