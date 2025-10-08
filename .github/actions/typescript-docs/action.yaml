@@ -22,7 +22,7 @@ runs:
       uses: actions/setup-node@v4
       with:
         node-version: ${{ inputs.node-version }}
-        cache: 'yarn'
+        cache: 'npm'
 
     - name: Generate documentation
       shell: bash
