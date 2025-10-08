@@ -108,6 +108,9 @@ jobs:
       - name: Install Python Dependencies
         id: install-python-dependencies
         uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/install-python-dependencies@INF-298-Optimizing-On-Chain-Build-and-Test
+      - name: Build
+        id: build
+        uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/onchain-build@v0.0.3
       - name: Locate and cache Foundry binaries
         run: |
           mkdir -p bin
@@ -181,8 +184,8 @@ jobs:
         uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/markdown-link-checker@v0.0.3
         with:
           file-path: ${{ inputs.markdown-file-path }}
-  build-and-test:
-    name: Build and Test
+  contract-size:
+    name: Contract Size
     runs-on: ubuntu-latest
     needs: [setup]
     timeout-minutes: 30
@@ -224,9 +227,46 @@ jobs:
       - name: Contract Size
         id: contract-size
         uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/contract-size@v0.0.3
-      - name: Build
-        id: build
-        uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/onchain-build@v0.0.3
+  build-and-test:
+    name: Build and Test
+    runs-on: ubuntu-latest
+    needs: [setup]
+    timeout-minutes: 30
+    steps:
+      - name: Restore setup state
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            .
+            infrastructure-tooling
+            ~/.foundry
+            ~/.npm
+            ~/.cache/pip
+            ~/.local
+            node_modules
+            bin
+            lib
+            include
+            share
+          key: setup-state-${{ needs.setup.outputs.cache-key }}
+          fail-on-cache-miss: true
+      - name: Setup environment PATH
+        run: |
+          # Add Foundry binaries to PATH
+          echo "${{ github.workspace }}/bin" >> $GITHUB_PATH
+          echo "$HOME/.foundry/bin" >> $GITHUB_PATH
+
+          # Add Python binaries to PATH
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
+
+          # Verify forge is available
+          if command -v forge >/dev/null 2>&1 || [ -f "${{ github.workspace }}/bin/forge" ]; then
+            echo "✓ Foundry tools are available"
+            (command -v forge && forge --version) || "${{ github.workspace }}/bin/forge" --version
+          else
+            echo "✗ Foundry tools not found"
+            exit 1
+          fi
       - name: Test
         id: test
         uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/onchain-test@v0.0.3
@@ -281,7 +321,7 @@ jobs:
   notify:
     name: Notify Slack on Deployment Failure
     needs: [build-and-test, markdown-link-check, code-coverage-report]
-    if: always() && (needs.build-and-test.result != 'success' || needs.markdown-link-check.result != 'success' || needs.code-coverage-report.result != 'success')
+    if: always() && (needs.contract-size.result != 'success' || needs.build-and-test.result != 'success' || needs.markdown-link-check.result != 'success' || needs.code-coverage-report.result != 'success')
     uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/workflows/slack-notification.yaml@v0.0.3
     with:
       env: "onchain"
