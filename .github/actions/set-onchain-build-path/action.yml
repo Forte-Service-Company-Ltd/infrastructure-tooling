@@ -1,0 +1,23 @@
+name: Set On-Chain Build PATH
+description: Sets up the environment PATH for Foundry and Python binaries with verification
+runs:
+  using: "composite"
+  steps:
+    - name: Setup environment PATH
+      shell: bash
+      run: |
+        # Add Foundry binaries to PATH
+        echo "${{ github.workspace }}/bin" >> $GITHUB_PATH
+        echo "$HOME/.foundry/bin" >> $GITHUB_PATH
+
+        # Add Python binaries to PATH
+        echo "$HOME/.local/bin" >> $GITHUB_PATH
+
+        # Verify forge is available
+        if command -v forge >/dev/null 2>&1 || [ -f "${{ github.workspace }}/bin/forge" ]; then
+          echo "✓ Foundry tools are available"
+          (command -v forge && forge --version) || "${{ github.workspace }}/bin/forge" --version
+        else
+          echo "✗ Foundry tools not found"
+          exit 1
+        fi
