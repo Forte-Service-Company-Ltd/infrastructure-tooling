@@ -54,7 +54,7 @@ runs:
       shell: bash
       run: |
         echo "Installing Prettier"
-        npm install prettier
+        npm install prettier@3.6.2
         npm install prettier-plugin-sh
 
     - name: Install Black
