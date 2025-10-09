@@ -25,7 +25,7 @@ fi
 UNFORMATTED_FILES=""
 while IFS= read -r file; do
   # Ignore non-existfiles (deleted in PR), and these inelligible files
-  if [ ! -f "$file" || $file =~ "yarn.lock|package-lock.json" ]; then
+  if [[ ! -f "$file" || $file =~ "yarn.lock|package-lock.json" ]]; then
     continue
   fi
   
