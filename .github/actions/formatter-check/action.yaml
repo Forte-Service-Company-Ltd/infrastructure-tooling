@@ -56,6 +56,7 @@ runs:
         echo "Installing Prettier"
         ## If the project has a local version of prettier, use the local version and plugins if any
         if [[ -f "prettier.config.js" || -f "prettier.config.cjs" || -f "prettier.config.mjs" ]]; then
+          corepack enable
           yarn install
         else
           # Install globally (but can't use plugins: https://github.com/prettier/prettier/issues/15141)
