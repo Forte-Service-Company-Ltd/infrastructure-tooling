@@ -1,5 +1,5 @@
 #!/bin/bash
-set -e
+set -ex
 
 # Script to check formatting on changed files
 # Usage: ./check-format.sh <formatter> <path> <config-file> <changed-files>
@@ -25,7 +25,7 @@ fi
 UNFORMATTED_FILES=""
 while IFS= read -r file; do
   # Ignore non-existfiles (deleted in PR), and these inelligible files
-  if [[ ! -f "$file" || $file =~ "yarn.lock|package-lock.json" ]]; then
+  if [[ ! -f "$file" || $file =~ "yarn.lock|package-lock.json|Dockerfile" ]]; then
     continue
   fi
   
