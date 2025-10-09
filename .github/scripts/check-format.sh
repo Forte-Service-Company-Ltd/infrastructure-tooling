@@ -1,5 +1,5 @@
 #!/bin/bash
-set -ex
+set -e
 
 # Script to check formatting on changed files
 # Usage: ./check-format.sh <formatter> <path> <config-file> <changed-files>
@@ -31,14 +31,14 @@ while IFS= read -r file; do
   
   case "$FORMATTER" in
     prettier)
-      if ! prettier --check $CONFIG_ARG "$file"; then
+      if ! prettier --log-level=error --check $CONFIG_ARG "$file"; then
         UNFORMATTED_FILES="${UNFORMATTED_FILES}${file}\n"
       fi
       ;;
     black)
       # Restrict to .py files
       if [[ "$file" == *.py ]]; then
-        if ! black --quiet --check $CONFIG_ARG "$file" 2>/dev/null; then
+        if ! black --quiet --check $CONFIG_ARG "$file"; then
           UNFORMATTED_FILES="${UNFORMATTED_FILES}${file}\n"
         fi
       fi
