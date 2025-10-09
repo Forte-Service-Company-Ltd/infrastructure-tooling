@@ -55,6 +55,7 @@ runs:
       run: |
         echo "Installing Prettier"
         npm install -g prettier
+        npm install -g prettier-plugin-sh # For shell scripts, .gitignore, Dockerfile, etc.
 
     - name: Install Black
       if: ${{ steps.determine-formatter.outputs.formatter == 'black' }}

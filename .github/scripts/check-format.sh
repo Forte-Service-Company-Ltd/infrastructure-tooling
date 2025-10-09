@@ -24,8 +24,8 @@ fi
 # Run formatter on changed files
 UNFORMATTED_FILES=""
 while IFS= read -r file; do
-  # Check if file exists (might have been deleted)
-  if [ ! -f "$file" ]; then
+  # Ignore non-existfiles (deleted in PR), and these inelligible files
+  if [ ! -f "$file" || $file =~ "yarn.lock|package-lock.json" ]; then
     continue
   fi
   
