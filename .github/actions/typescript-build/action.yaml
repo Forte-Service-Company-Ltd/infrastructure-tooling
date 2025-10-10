@@ -12,6 +12,10 @@ inputs:
     description: The package manager to use (e.g. "yarn" or "npm"). Defaults to "yarn".
     required: false
     default: yarn
+  yarn-version:
+    description: The version of Yarn to use, if using Yarn as the package manager. Defaults to "classic" (Yarn 1).
+    required: false
+    default: classic
   working-directory:
     description: The working directory to run the build in. Defaults to the repository root.
     required: false
@@ -34,7 +38,6 @@ runs:
       uses: actions/setup-node@v4
       with:
         node-version: ${{ inputs.node-version }}
-        cache: ${{ inputs.package-manager }}
 
     - name: Validate package manager
       shell: bash
@@ -45,12 +48,29 @@ runs:
         fi
       working-directory: ${{ inputs.working-directory }}
 
+    - name: Setup Yarn Version
+      id: yarn-version
+      if: ${{ inputs.package-manager == 'yarn' }}
+      shell: bash
+      run: |
+        echo "::group::Setting up Yarn version"
+        if [[ "${{ inputs.yarn-version }}" != "classic" ]]; then
+          corepack enable
+          corepack prepare yarn@${{ inputs.yarn-version }} --activate
+          echo "yarn_install_args=--immutable" >> $GITHUB_OUTPUT
+        else
+          echo "Using Yarn classic (v1)"
+          echo "yarn_install_args=--frozen-lockfile" >> $GITHUB_OUTPUT
+        fi
+        echo "::endgroup::"
+      working-directory: ${{ inputs.working-directory }}
+
     - name: Install dependencies
       shell: bash
       run: |
         echo "::group::Installing dependencies"
         if [[ "${{ inputs.package-manager }}" == "yarn" ]]; then
-          yarn install --frozen-lockfile
+          yarn install ${{ steps.yarn-version.outputs.yarn_install_args }}
         else
           npm ci
         fi
@@ -63,18 +83,18 @@ runs:
       run: |
         echo "::group::Building Project/Components"
         pman=${{ inputs.package-manager }}
-        pman=${pman//npm/npm run} # npm needs `run` subcommand
 
         # Build whole project if no components specified
         if [[ -z "${{ inputs.components }}" ]]; then
           echo "Running ${pman} build"
-          ${pman} build
+          ${pman} run build
         else
+        # Build each component
           IFS=',' read -ra COMPONENTS <<< "${{ inputs.components }}"
           for component in "${COMPONENTS[@]}"; do
             component=$(echo "$component" | xargs) # Trim whitespace
             echo "Running ${pman} $component build"
-            ${pman} $component build
+            ${pman} run "$component" build
           done
         fi
         echo "::endgroup::"
