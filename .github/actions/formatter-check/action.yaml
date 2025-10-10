@@ -63,7 +63,7 @@ runs:
       shell: bash
       working-directory: ${{ github.action_path }}/prettier-tool
       run: |
-        echo "Installing Prettier"
+        echo "Installing Prettier at ${{ github.action_path }}/prettier-tool"
         npm install prettier
         npm install prettier-plugin-sh
 
