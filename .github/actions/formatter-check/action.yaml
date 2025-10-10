@@ -19,6 +19,7 @@ runs:
       uses: actions/checkout@v4
       with:
         fetch-depth: 0
+        path: project-files
     
     - name: Determine formatter tool
       id: determine-formatter
@@ -49,13 +50,14 @@ runs:
         echo "formatter=$formatter" >> $GITHUB_OUTPUT
         echo "Using formatter: $formatter"
 
-    # - name: Install Prettier
-    #   if: ${{ steps.determine-formatter.outputs.formatter == 'prettier' }}
-    #   shell: bash
-    #   run: |
-    #     echo "Installing Prettier"
-    #     npm install prettier
-    #     npm install prettier-plugin-sh
+    - name: Install Prettier
+      if: ${{ steps.determine-formatter.outputs.formatter == 'prettier' }}
+      shell: bash
+      run: |
+        # This can't share a directory with nodejs project, hence the `project-files` checkout above
+        echo "Installing Prettier"
+        npm install prettier
+        npm install prettier-plugin-sh
 
     - name: Install Black
       if: ${{ steps.determine-formatter.outputs.formatter == 'black' }}
@@ -77,6 +79,7 @@ runs:
       id: changed-files
       shell: bash
       run: |
+        cd repo-files
         if [ "${{ github.event_name }}" == "pull_request" ]; then
           # Get files changed in PR
           git fetch origin ${{ github.base_ref }}
@@ -91,27 +94,27 @@ runs:
         echo "$CHANGED_FILES" >> $GITHUB_OUTPUT
         echo "EOF" >> $GITHUB_OUTPUT
 
-    # - name: Run formatter check
-    #   id: format-check
-    #   continue-on-error: true
-    #   shell: bash
-    #   run: |
-    #     chmod +x ${{ github.action_path }}/../../scripts/check-format.sh
-    #     ${{ github.action_path }}/../../scripts/check-format.sh \
-    #       "${{ steps.determine-formatter.outputs.formatter }}" \
-    #       "${{ inputs.path }}" \
-    #       "${{ inputs.config-file }}" \
-    #       "${{ steps.changed-files.outputs.changed_files }}" >> $GITHUB_OUTPUT
+    - name: Run formatter check
+      id: format-check
+      continue-on-error: true
+      shell: bash
+      working-directory: project-files
+      run: |
+        # projects need to be in a separate directory, as prettier plugins use node_modules
+        ${{ github.action_path }}/../../scripts/check-format.sh \
+          "${{ steps.determine-formatter.outputs.formatter }}" \
+          "${{ inputs.path }}" \
+          "${{ inputs.config-file }}" \
+          "${{ steps.changed-files.outputs.changed_files }}" >> $GITHUB_OUTPUT
 
-    - name: Use third-party Prettier action (avoids npm/yarn install issues)
-      if: ${{ steps.determine-formatter.outputs.formatter == 'prettier' }}
-      uses: creyD/prettier_action@v4.6
-      with:
-        dry: true
-        no_commit: true
-        prettier_options: '--check'
-        only_changed: true
-        prettier_plugins: 'prettier-plugin-sh'
+    # - name: Use third-party Prettier action (avoids npm/yarn install issues)
+    #   if: ${{ steps.determine-formatter.outputs.formatter == 'prettier' }}
+    #   uses: creyD/prettier_action@v4.6
+    #   with:
+    #     dry: true
+    #     no_commit: true
+    #     only_changed: true
+    #     prettier_plugins: 'prettier-plugin-sh'
 
     - name: Debug - Print format-check outputs
       if: always()

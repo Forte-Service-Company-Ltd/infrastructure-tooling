@@ -25,13 +25,13 @@ fi
 UNFORMATTED_FILES=""
 while IFS= read -r file; do
   # Ignore non-existfiles (deleted in PR), and these inelligible files
-  if [[ ! -f "$file" || $file =~ "yarn.lock|package-lock.json|Dockerfile" ]]; then
+  if [[ ! -f "$file" || $file =~ "yarn\.lock|package-lock\.json|.*\.spkg" ]]; then
     continue
   fi
   
   case "$FORMATTER" in
     prettier)
-      if ! npx prettier --log-level=error --check $CONFIG_ARG "$file"; then
+      if ! prettier --plugin=prettier-plugin-sh --log-level=error --check $CONFIG_ARG "$file"; then
         UNFORMATTED_FILES="${UNFORMATTED_FILES}${file}\n"
       fi
       ;;
