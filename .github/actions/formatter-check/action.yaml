@@ -105,6 +105,13 @@ runs:
         echo "EOF" >> $GITHUB_OUTPUT
         echo "::endgroup::"
 
+    - name: Run prettier
+      working-directory: project-files
+      shell: bash
+      run: npx --package=prettier --package=prettier-plugin-sh -c 'prettier --check .'
+      env:
+        NODE_PATH: ${{ runner.temp }}/prettier-tool/node_modules
+
     - name: Run formatter check
       id: format-check
       continue-on-error: true
