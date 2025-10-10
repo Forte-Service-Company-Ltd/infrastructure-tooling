@@ -105,12 +105,21 @@ runs:
         echo "EOF" >> $GITHUB_OUTPUT
         echo "::endgroup::"
 
+    - name: Debug paths
+      run: |
+        echo "Prettier binary exists?"
+        ls -la ${{ runner.temp }}/prettier-tool/node_modules/.bin/prettier
+        echo "Plugin exists?"
+        ls -la ${{ runner.temp }}/prettier-tool/node_modules/prettier-plugin-sh
+        echo "Target project:"
+        pwd
+        ls -la
+
     - name: Run prettier
       working-directory: project-files
-      shell: bash
-      run: npx --package=prettier --package=prettier-plugin-sh -c 'prettier --check .'
       env:
         NODE_PATH: ${{ runner.temp }}/prettier-tool/node_modules
+      run: ${{ runner.temp }}/prettier-tool/node_modules/.bin/prettier --check .
 
     - name: Run formatter check
       id: format-check
