@@ -19,6 +19,7 @@ while IFS= read -r file; do
   
   case "$FORMATTER" in
     prettier)
+      
       if ! npx prettier --plugin=prettier-plugin-sh --log-level=error --check $OPTIONS "$file"; then
         UNFORMATTED_FILES="${UNFORMATTED_FILES}${file}\n"
       fi

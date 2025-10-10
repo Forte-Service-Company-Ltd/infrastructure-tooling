@@ -66,7 +66,6 @@ runs:
         echo "::group::Installing Prettier at ${{ runner.temp }}/prettier-tool"
         npm install prettier
         npm install prettier-plugin-sh
-        export PATH=${{ runner.temp }}/prettier-tool/node_modules/.bin:$PATH
         echo "::endgroup::"
 
     - name: Install Black
@@ -114,6 +113,7 @@ runs:
       run: |
         echo "++++++ Working Dir ++++++"
         pwd
+        export PATH=${{ runner.temp }}/prettier-tool/node_modules/.bin:$PATH
         ${{ github.action_path }}/../../scripts/check-format.sh \
           "${{ steps.determine-formatter.outputs.formatter }}" \
           "${{ steps.determine-formatter.outputs.options }}" \
