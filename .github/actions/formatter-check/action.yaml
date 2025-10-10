@@ -91,7 +91,7 @@ runs:
       working-directory: project-files
       run: |
         ## Symlink the plugins into the project directory (Prettier loads them relative to the project config file)
-        mkdir -p project-files/node_modules
+        mkdir -p node_modules
         ln -s ${{ runner.temp }}/prettier-tool/node_modules/prettier-plugin-sh ./node_modules/prettier-plugin-sh
 
     - name: Get changed files
