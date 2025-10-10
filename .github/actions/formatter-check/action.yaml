@@ -106,6 +106,7 @@ runs:
         echo "::endgroup::"
 
     - name: Debug paths
+      shell: bash
       run: |
         echo "Prettier binary exists?"
         ls -la ${{ runner.temp }}/prettier-tool/node_modules/.bin/prettier
@@ -119,6 +120,7 @@ runs:
       working-directory: project-files
       env:
         NODE_PATH: ${{ runner.temp }}/prettier-tool/node_modules
+      shell: bash
       run: ${{ runner.temp }}/prettier-tool/node_modules/.bin/prettier --check .
 
     - name: Run formatter check
