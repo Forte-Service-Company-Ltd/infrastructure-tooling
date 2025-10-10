@@ -25,7 +25,7 @@ fi
 UNFORMATTED_FILES=""
 while IFS= read -r file; do
   # Ignore non-existfiles (deleted in PR), and these inelligible files
-  if [[ ! -f "$file" || $(basename "$file") =~ yarn\.lock|package-lock\.json|.*\.spkg ]]; then
+  if [[ ! -f "$file" || $(basename "$file") =~ yarn\.lock|package-lock\.json|.*\.spkg|Dockerfile ]]; then
     continue
   fi
   
