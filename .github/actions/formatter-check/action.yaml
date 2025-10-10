@@ -98,9 +98,10 @@ runs:
       id: format-check
       continue-on-error: true
       shell: bash
+      # projects need to be in a separate directory, as prettier plugins use node_modules which conflict with nodejs projects
       working-directory: project-files
       run: |
-        # projects need to be in a separate directory, as prettier plugins use node_modules
+        PATH=${{ github.action_path }}/node_modules/.bin:$PATH
         ${{ github.action_path }}/../../scripts/check-format.sh \
           "${{ steps.determine-formatter.outputs.formatter }}" \
           "${{ inputs.path }}" \
