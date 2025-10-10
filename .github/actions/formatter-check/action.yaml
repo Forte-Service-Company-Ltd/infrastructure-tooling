@@ -79,18 +79,17 @@ runs:
     - name: Get changed files
       id: changed-files
       shell: bash
+      working-directory: project-files
       run: |
-        cd repo-files
+        # PR context OR branch vs. default branch
         if [ "${{ github.event_name }}" == "pull_request" ]; then
           # Get files changed in PR
           git fetch origin ${{ github.base_ref }}
           CHANGED_FILES=$(git diff --name-only origin/${{ github.base_ref }}...HEAD)
         else
-          # Get files changed in branch compared to default branch
           git fetch origin ${{ github.event.repository.default_branch }}
           CHANGED_FILES=$(git diff --name-only origin/${{ github.event.repository.default_branch }}...HEAD)
         fi
-        
         echo "changed_files<<EOF" >> $GITHUB_OUTPUT
         echo "$CHANGED_FILES" >> $GITHUB_OUTPUT
         echo "EOF" >> $GITHUB_OUTPUT
