@@ -16,7 +16,7 @@ runs:
   using: 'composite'
   steps:
     # A note on directories: Due to nodejs module conflicts, prettier and its plugins cannot share a directory with a nodejs project.
-    # So each will need to run in separate directories. If the calling workflow runs other actions, they will inherit this checkout structure.
+    # Thus, install prettier in a temp directory and checkout the project files separately.
     - name: Checkout repository
       uses: actions/checkout@v4
       with:
@@ -57,7 +57,23 @@ runs:
         echo "options=$options" >> $GITHUB_OUTPUT
         echo "Using formatter: $formatter"
 
-    # This can't share a directory with nodejs project, hence the `project-files` checkout above
+    - name: Install Black
+      if: ${{ steps.determine-formatter.outputs.formatter == 'black' }}
+      shell: bash
+      run: |      
+        echo "Installing Black"
+        python3 -m pip install --upgrade pip
+        pip install black
+
+    # TODO: Add support for foundry/forge later if not a separate action
+
+    - name: Install Golang
+      if: ${{ steps.determine-formatter.outputs.formatter == 'gofmt' }}
+      uses: actions/setup-go@v4
+      with:
+        go-version: '1.22'
+
+    # Prettier can't share a directory with nodejs project, so use a temp directory
     - name: Install Prettier
       if: ${{ steps.determine-formatter.outputs.formatter == 'prettier' }}
       shell: bash
@@ -67,23 +83,11 @@ runs:
         npm install prettier
         npm install prettier-plugin-sh
         npm why prettier
+        
+        ## Symlink the plugins into the project directory (Prettier loads them relative to the project config file)
+        mkdir -p project-files/node_modules
+        ln -s ${{ runner.temp }}/prettier-tool/node_modules/prettier-plugin-sh project-files/node_modules/prettier-plugin-sh
         echo "::endgroup::"
-
-    - name: Install Black
-      if: ${{ steps.determine-formatter.outputs.formatter == 'black' }}
-      shell: bash
-      run: |      
-        echo "Installing Black"
-        python3 -m pip install --upgrade pip
-        pip install black
-
-    - name: Install Golang
-      if: ${{ steps.determine-formatter.outputs.formatter == 'gofmt' }}
-      uses: actions/setup-go@v4
-      with:
-        go-version: '1.22'
-
-    # TODO: Add support for foundry/forge later if not a separate action
 
     - name: Get changed files
       id: changed-files
@@ -105,30 +109,6 @@ runs:
         echo "EOF" >> $GITHUB_OUTPUT
         echo "::endgroup::"
 
-    - name: Debug paths
-      shell: bash
-      run: |
-        echo "Prettier binary exists?"
-        ls -la ${{ runner.temp }}/prettier-tool/node_modules/.bin/prettier
-        echo "Plugin exists?"
-        ls -la ${{ runner.temp }}/prettier-tool/node_modules/prettier-plugin-sh
-        echo "Target project:"
-        pwd
-        ls -la
-
-    - name: Symlink Prettier plugins into project
-      shell: bash
-      run: |
-        mkdir -p project-files/node_modules
-        ln -s ${{ runner.temp }}/prettier-tool/node_modules/prettier-plugin-sh project-files/node_modules/prettier-plugin-sh
-
-    - name: Run prettier
-      working-directory: project-files
-      env:
-        NODE_PATH: ${{ runner.temp }}/prettier-tool/node_modules
-      shell: bash
-      run: ${{ runner.temp }}/prettier-tool/node_modules/.bin/prettier --check .
-
     - name: Run formatter check
       id: format-check
       continue-on-error: true
@@ -136,11 +116,9 @@ runs:
       # projects need to be in a separate directory, as prettier plugins use node_modules which conflict with nodejs projects
       working-directory: project-files
       run: |
-        echo "++++++ Working Dir ++++++"
-        pwd
         export NODE_PATH="${{ runner.temp }}/prettier-tool/node_modules:$NODE_PATH"
-        ls -la ${{ runner.temp }}/prettier-tool/node_modules
         npm why prettier
+        
         ${{ github.action_path }}/../../scripts/check-format.sh \
           "${{ steps.determine-formatter.outputs.formatter }}" \
           "${{ steps.determine-formatter.outputs.options }}" \
