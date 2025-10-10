@@ -24,6 +24,7 @@ runs:
     - name: Determine formatter tool
       id: determine-formatter
       shell: bash
+      working-directory: project-files
       run: |
         echo "::group::Determining formatter"
         # Autodetect
@@ -65,7 +66,7 @@ runs:
       run: |      
         echo "Installing Black"
         python3 -m pip install --upgrade pip
-        pip install black 
+        pip install black
 
     - name: Install Golang
       if: ${{ steps.determine-formatter.outputs.formatter == 'gofmt' }}
@@ -106,15 +107,6 @@ runs:
           "${{ inputs.path }}" \
           "${{ inputs.config-file }}" \
           "${{ steps.changed-files.outputs.changed_files }}" >> $GITHUB_OUTPUT
-
-    # - name: Use third-party Prettier action (avoids npm/yarn install issues)
-    #   if: ${{ steps.determine-formatter.outputs.formatter == 'prettier' }}
-    #   uses: creyD/prettier_action@v4.6
-    #   with:
-    #     dry: true
-    #     no_commit: true
-    #     only_changed: true
-    #     prettier_plugins: 'prettier-plugin-sh'
 
     - name: Debug - Print format-check outputs
       if: always()
