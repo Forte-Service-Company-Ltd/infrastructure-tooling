@@ -66,7 +66,6 @@ runs:
         echo "Installing Prettier"
         npm install prettier
         npm install prettier-plugin-sh
-        PATH=${{ github.action_path }}/prettier-tool/node_modules/.bin:$PATH
 
     - name: Install Black
       if: ${{ steps.determine-formatter.outputs.formatter == 'black' }}
@@ -109,6 +108,7 @@ runs:
       # projects need to be in a separate directory, as prettier plugins use node_modules which conflict with nodejs projects
       # working-directory: project-files
       run: |
+        PATH=${{ github.action_path }}/prettier-tool/node_modules/.bin:$PATH
         ${{ github.action_path }}/../../scripts/check-format.sh \
           "${{ steps.determine-formatter.outputs.formatter }}" \
           "${{ steps.determine-formatter.outputs.options }}" \
