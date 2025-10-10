@@ -114,6 +114,7 @@ runs:
         echo "++++++ Working Dir ++++++"
         pwd
         export PATH=${{ runner.temp }}/prettier-tool/node_modules/.bin:$PATH
+        npm why prettier
         ${{ github.action_path }}/../../scripts/check-format.sh \
           "${{ steps.determine-formatter.outputs.formatter }}" \
           "${{ steps.determine-formatter.outputs.options }}" \
