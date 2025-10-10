@@ -21,12 +21,12 @@ runs:
       uses: actions/checkout@v4
       with:
         fetch-depth: 0
-        # path: project-files
+        path: project-files
     
     - name: Determine formatter tool
       id: determine-formatter
       shell: bash
-      # working-directory: project-files
+      working-directory: project-files
       run: |
         echo "::group::Determining formatter"
         # Autodetect
@@ -88,7 +88,7 @@ runs:
     - name: Get changed files
       id: changed-files
       shell: bash
-      # working-directory: project-files
+      working-directory: project-files
       run: |
         echo "::group::Determining changed files"
         # PR context OR branch vs. default branch
@@ -110,7 +110,7 @@ runs:
       continue-on-error: true
       shell: bash
       # projects need to be in a separate directory, as prettier plugins use node_modules which conflict with nodejs projects
-      # working-directory: project-files
+      working-directory: project-files
       run: |
         echo "++++++ Working Dir ++++++"
         pwd
