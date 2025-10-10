@@ -116,6 +116,12 @@ runs:
         pwd
         ls -la
 
+    - name: Symlink Prettier plugins into project
+      shell: bash
+      run: |
+        mkdir -p project-files/node_modules
+        ln -s ${{ runner.temp }}/prettier-tool/node_modules/prettier-plugin-sh project-files/node_modules/prettier-plugin-sh
+
     - name: Run prettier
       working-directory: project-files
       env:
