@@ -83,11 +83,16 @@ runs:
         npm install prettier
         npm install prettier-plugin-sh
         npm why prettier
-        
+        echo "::endgroup::"
+
+    - name: Symlink Prettier plugins into project
+      if: ${{ steps.determine-formatter.outputs.formatter == 'prettier' }}
+      shell: bash
+      working-directory: project-files
+      run: |
         ## Symlink the plugins into the project directory (Prettier loads them relative to the project config file)
         mkdir -p project-files/node_modules
-        ln -s ${{ runner.temp }}/prettier-tool/node_modules/prettier-plugin-sh project-files/node_modules/prettier-plugin-sh
-        echo "::endgroup::"
+        ln -s ${{ runner.temp }}/prettier-tool/node_modules/prettier-plugin-sh ./node_modules/prettier-plugin-sh
 
     - name: Get changed files
       id: changed-files
@@ -109,46 +114,13 @@ runs:
         echo "EOF" >> $GITHUB_OUTPUT
         echo "::endgroup::"
 
-
-
-    - name: Debug paths
-      shell: bash
-      run: |
-        echo "Prettier binary exists?"
-        ls -la ${{ runner.temp }}/prettier-tool/node_modules/.bin/prettier
-        echo "Plugin exists?"
-        ls -la ${{ runner.temp }}/prettier-tool/node_modules/prettier-plugin-sh
-        echo "Target project:"
-        pwd
-        ls -la
-
-    - name: Symlink Prettier plugins into project
-      shell: bash
-      run: |
-        mkdir -p project-files/node_modules
-        ln -s ${{ runner.temp }}/prettier-tool/node_modules/prettier-plugin-sh project-files/node_modules/prettier-plugin-sh
-
-    # - name: Run prettier
-    #   working-directory: project-files
-    #   continue-on-error: true
-    #   env:
-    #     NODE_PATH: ${{ runner.temp }}/prettier-tool/node_modules
-    #   shell: bash
-    #   run: ${{ runner.temp }}/prettier-tool/node_modules/.bin/prettier --check .
-
-
-
     - name: Run formatter check
       id: format-check
       continue-on-error: true
       shell: bash
       # projects need to be in a separate directory, as prettier plugins use node_modules which conflict with nodejs projects
       working-directory: project-files
-      env:
-        NODE_PATH: ${{ runner.temp }}/prettier-tool/node_modules
       run: |
-        # export PATH="${{ runner.temp }}/prettier-tool/node_modules/.bin:$PATH"
-        # export NODE_PATH="${{ runner.temp }}/prettier-tool/node_modules:$NODE_PATH"
         ${{ runner.temp }}/prettier-tool/node_modules/.bin/prettier --check .
 
         ${{ github.action_path }}/../../scripts/check-format.sh \
