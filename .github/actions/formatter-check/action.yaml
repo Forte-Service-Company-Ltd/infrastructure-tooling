@@ -130,6 +130,7 @@ runs:
 
     - name: Run prettier
       working-directory: project-files
+      continue-on-error: true
       env:
         NODE_PATH: ${{ runner.temp }}/prettier-tool/node_modules
       shell: bash
@@ -143,9 +144,11 @@ runs:
       shell: bash
       # projects need to be in a separate directory, as prettier plugins use node_modules which conflict with nodejs projects
       working-directory: project-files
+      env:
+        NODE_PATH: ${{ runner.temp }}/prettier-tool/node_modules
       run: |
         export PATH="${{ runner.temp }}/prettier-tool/node_modules/.bin:$PATH"
-        export NODE_PATH="${{ runner.temp }}/prettier-tool/node_modules:$NODE_PATH"
+        # export NODE_PATH="${{ runner.temp }}/prettier-tool/node_modules:$NODE_PATH"
         ${{ runner.temp }}/prettier-tool/node_modules/.bin/prettier --check .
 
         ${{ github.action_path }}/../../scripts/check-format.sh \
