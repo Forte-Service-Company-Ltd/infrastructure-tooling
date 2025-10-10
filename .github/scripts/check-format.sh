@@ -2,43 +2,31 @@
 set -e
 
 # Script to check formatting on changed files
-# Usage: ./check-format.sh <formatter> <path> <config-file> <changed-files>
+# Usage: ./check-format.sh <formatter> <options> <changed-files>
 
 FORMATTER="$1"
-PATH_TO_CHECK="$2"
-CONFIG_FILE="$3"
-CHANGED_FILES="$4"
-
-cd "$PATH_TO_CHECK"
-
-# Build formatter command
-CONFIG_ARG=""
-if [ -n "$CONFIG_FILE" ]; then
-  case "$FORMATTER" in
-    prettier|black)
-      CONFIG_ARG="--config $CONFIG_FILE"
-      ;;
-  esac
-fi
+OPTIONS="$2"
+CHANGED_FILES="$3"
 
 # Run formatter on changed files
 UNFORMATTED_FILES=""
 while IFS= read -r file; do
-  # Ignore non-existfiles (deleted in PR), and these inelligible files
+  # Ignore non-existent files (deleted in PR), and these ineligible files
+  # - Disable Dockerfile until https://github.com/reteps/dockerfmt/issues/25 is resolved
   if [[ ! -f "$file" || $(basename "$file") =~ yarn\.lock|package-lock\.json|.*\.spkg|Dockerfile ]]; then
     continue
   fi
   
   case "$FORMATTER" in
     prettier)
-      if ! npx prettier --plugin=prettier-plugin-sh --log-level=error --check $CONFIG_ARG "$file"; then
+      if ! npx prettier --plugin=prettier-plugin-sh --log-level=error --check $OPTIONS "$file"; then
         UNFORMATTED_FILES="${UNFORMATTED_FILES}${file}\n"
       fi
       ;;
     black)
       # Restrict to .py files
       if [[ "$file" == *.py ]]; then
-        if ! black --quiet --check $CONFIG_ARG "$file"; then
+        if ! black --quiet --check $OPTIONS "$file"; then
           UNFORMATTED_FILES="${UNFORMATTED_FILES}${file}\n"
         fi
       fi
@@ -47,7 +35,7 @@ while IFS= read -r file; do
       # Restrict to .go files
       if [[ "$file" == *.go ]]; then
         # gofmt always returns 0, so we check if there's any output (no output: passing)
-        if ! gofmt -l "$file" | grep -q .; then
+        if ! gofmt $OPTIONS -l "$file" | grep -q .; then
           UNFORMATTED_FILES="${UNFORMATTED_FILES}${file}\n"
         fi
       fi

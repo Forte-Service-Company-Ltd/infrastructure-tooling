@@ -15,6 +15,8 @@ inputs:
 runs:
   using: 'composite'
   steps:
+    # A note on directories: Due to nodejs module conflicts, prettier and its plugins cannot share a directory with a nodejs project.
+    # So each will need to run in neighboring directories. If the calling workflow runs other actions, they will inherit this checkout structure.
     - name: Checkout repository
       uses: actions/checkout@v4
       with:
@@ -36,12 +38,14 @@ runs:
         # Python (Black)
         elif [ -f "requirements.txt" ] || [ -f "pyproject.toml" ]; then
           formatter="black"
+          options="--config ${{ inputs.config-file }}"
         # Go (gofmt)
         elif [ -f "go.mod" ]; then
           formatter="gofmt"
         # Prettier (keep this last, as non-nodejs projects may have a package.json)
         elif [ -f ".prettierrc" ] || [ -f ".prettierrc.json" ] || [ -f "prettier.config.js" ] || [ -f "package.json" ]; then
           formatter="prettier"
+          options="--config ${{ inputs.config-file }}"
         else
           formatter="none"
           echo "::error::No formatter could be determined. Please specify a formatter using the 'formatter' input."
@@ -49,16 +53,19 @@ runs:
         fi
         echo "::endgroup::"
         echo "formatter=$formatter" >> $GITHUB_OUTPUT
+        echo "options=$options" >> $GITHUB_OUTPUT
         echo "Using formatter: $formatter"
 
+    # This can't share a directory with nodejs project, hence the `project-files` checkout above
     - name: Install Prettier
       if: ${{ steps.determine-formatter.outputs.formatter == 'prettier' }}
       shell: bash
+      working-directory: prettier-tool
       run: |
-        # This can't share a directory with nodejs project, hence the `project-files` checkout above
         echo "Installing Prettier"
         npm install prettier
         npm install prettier-plugin-sh
+        PATH=${{ github.action_path }}/prettier-tool/node_modules/.bin:$PATH
 
     - name: Install Black
       if: ${{ steps.determine-formatter.outputs.formatter == 'black' }}
@@ -101,11 +108,9 @@ runs:
       # projects need to be in a separate directory, as prettier plugins use node_modules which conflict with nodejs projects
       working-directory: project-files
       run: |
-        PATH=${{ github.action_path }}/node_modules/.bin:$PATH
         ${{ github.action_path }}/../../scripts/check-format.sh \
           "${{ steps.determine-formatter.outputs.formatter }}" \
-          "${{ inputs.path }}" \
-          "${{ inputs.config-file }}" \
+          "${{ steps.determine-formatter.outputs.options }}" \
           "${{ steps.changed-files.outputs.changed_files }}" >> $GITHUB_OUTPUT
 
     - name: Debug - Print format-check outputs
