@@ -109,6 +109,34 @@ runs:
         echo "EOF" >> $GITHUB_OUTPUT
         echo "::endgroup::"
 
+
+
+    - name: Debug paths
+      shell: bash
+      run: |
+        echo "Prettier binary exists?"
+        ls -la ${{ runner.temp }}/prettier-tool/node_modules/.bin/prettier
+        echo "Plugin exists?"
+        ls -la ${{ runner.temp }}/prettier-tool/node_modules/prettier-plugin-sh
+        echo "Target project:"
+        pwd
+        ls -la
+
+    - name: Symlink Prettier plugins into project
+      shell: bash
+      run: |
+        mkdir -p project-files/node_modules
+        ln -s ${{ runner.temp }}/prettier-tool/node_modules/prettier-plugin-sh project-files/node_modules/prettier-plugin-sh
+
+    - name: Run prettier
+      working-directory: project-files
+      env:
+        NODE_PATH: ${{ runner.temp }}/prettier-tool/node_modules
+      shell: bash
+      run: ${{ runner.temp }}/prettier-tool/node_modules/.bin/prettier --check .
+
+
+
     - name: Run formatter check
       id: format-check
       continue-on-error: true
