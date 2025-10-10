@@ -19,7 +19,6 @@ while IFS= read -r file; do
   
   case "$FORMATTER" in
     prettier)
-
       if ! prettier --plugin=prettier-plugin-sh --log-level=error --check $OPTIONS "$file"; then
         UNFORMATTED_FILES="${UNFORMATTED_FILES}${file}\n"
       fi
@@ -36,7 +35,7 @@ while IFS= read -r file; do
       # Restrict to .go files
       if [[ "$file" == *.go ]]; then
         # gofmt always returns 0, so we check if there's any output (no output: passing)
-        if ! gofmt $OPTIONS -l "$file" | grep -q .; then
+        if [ "$(gofmt $OPTIONS -l "$file" | wc -l)" -ne 0 ]; then
           UNFORMATTED_FILES="${UNFORMATTED_FILES}${file}\n"
         fi
       fi
