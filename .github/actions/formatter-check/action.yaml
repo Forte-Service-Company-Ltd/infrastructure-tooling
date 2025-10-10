@@ -66,7 +66,7 @@ runs:
         echo "::group::Installing Prettier at ${{ runner.temp }}/prettier-tool"
         npm install prettier
         npm install prettier-plugin-sh
-        env
+        npm why prettier
         echo "::endgroup::"
 
     - name: Install Black
