@@ -44,6 +44,7 @@ runs:
           formatter="gofmt"
         # Prettier (keep this last, as non-nodejs projects may have a package.json)
         elif [ -f ".prettierrc" ] || [ -f ".prettierrc.json" ] || [ -f "prettier.config.js" ] || [ -f "package.json" ]; then
+          mkdir -p ../prettier-tool
           formatter="prettier"
           options="--config ${{ inputs.config-file }}"
         else
