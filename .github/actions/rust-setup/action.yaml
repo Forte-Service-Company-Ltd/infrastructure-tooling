@@ -1,0 +1,31 @@
+name: Rust Test
+description: Run Rust tests in the repository
+inputs:
+  working-directory:
+    description: The working directory to run the tests in. Defaults to the repository root.
+    required: false
+    default: .
+runs:
+  using: 'composite'
+  steps:
+    - uses: actions/checkout@v4
+      with:
+        path: ${{ inputs.working-directory }}
+        fetch-depth: '0'
+        fetch-tags: true
+        submodules: recursive
+
+    - name: Set up Rust
+      uses: dtolnay/rust-toolchain@nightly
+      with:
+        components: rustfmt, clippy
+
+    - name: Save cache
+      uses: actions/cache/save@v4
+      with:
+        path: |
+          .
+          !.git
+          ~/.rustup
+          ~/.cargo
+        key: ${{ runner.os }}-rust-workspace-${{ github.sha }}
