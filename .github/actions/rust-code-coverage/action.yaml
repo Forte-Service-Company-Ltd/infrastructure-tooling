@@ -12,11 +12,13 @@ runs:
         run: cargo install cargo-tarpaulin --version 0.31.2
 
       - name: Run tests with coverage
+        shell: bash
         run: |
           cargo tarpaulin --out Html --out Lcov --output-dir coverage --ignore-panics --exclude-files src/pb/ --exclude-files src/abi/ > coverage-output.txt 2>&1 || true
           cat coverage-output.txt
 
       - name: Extract coverage percentage
+        shell: bash
         id: coverage
         run: |
           COVERAGE=$(grep -oP '\d+\.\d+% coverage' coverage-output.txt | head -1 || echo "0.00% coverage")
