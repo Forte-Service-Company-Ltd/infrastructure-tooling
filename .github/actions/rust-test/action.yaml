@@ -3,14 +3,6 @@ description: Run Rust tests in the repository
 runs:
   using: 'composite'
   steps:
-      - name: Run unit tests
-        shell: bash
-        run: cargo test --lib --verbose
-
-      - name: Run integration tests
-        shell: bash
-        run: cargo test --test integration_test --verbose
-
       - name: Run all tests
         shell: bash
         run: cargo test --verbose
