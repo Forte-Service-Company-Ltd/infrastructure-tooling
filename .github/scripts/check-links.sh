@@ -8,6 +8,9 @@ FILE_PATH="${INPUT_FILE_PATH:-}"
 
 echo "Config file: $CONFIG_FILE"
 echo "File paths: $FILE_PATH"
+echo "Current directory: $(pwd)"
+echo "Files in current directory:"
+ls -la
 
 # Install markdown-link-check if not present
 if ! command -v markdown-link-check &> /dev/null; then
