@@ -9,4 +9,4 @@ runs:
 
       - name: Run clippy
         shell: bash
-        run: cargo clippy --all-targets --all-features --
+        run: cargo clippy --all-targets --all-features
