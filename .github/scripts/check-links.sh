@@ -6,12 +6,6 @@ set -e
 CONFIG_FILE="${INPUT_CONFIG_FILE:-}"
 FILE_PATH="${INPUT_FILE_PATH:-}"
 
-echo "Config file: $CONFIG_FILE"
-echo "File paths: $FILE_PATH"
-echo "Current directory: $(pwd)"
-echo "Files in current directory:"
-ls -la
-
 # Install markdown-link-check if not present
 if ! command -v markdown-link-check &> /dev/null; then
     echo "Installing markdown-link-check..."
@@ -23,13 +17,10 @@ CONFIG_ARGS=""
 if [ -n "$CONFIG_FILE" ]; then
     # Try to find config file in current directory or parent directories
     if [ -f "$CONFIG_FILE" ]; then
-        echo "Using config file: $CONFIG_FILE"
         CONFIG_ARGS="--config $CONFIG_FILE"
     elif [ -f "../$CONFIG_FILE" ]; then
-        echo "Using config file: ../$CONFIG_FILE"
         CONFIG_ARGS="--config ../$CONFIG_FILE"
     elif [ -f "../../$CONFIG_FILE" ]; then
-        echo "Using config file: ../../$CONFIG_FILE"
         CONFIG_ARGS="--config ../../$CONFIG_FILE"
     else
         echo "Config file specified but not found: $CONFIG_FILE"
@@ -40,20 +31,17 @@ fi
 
 # Process file paths
 if [ -n "$FILE_PATH" ]; then
-    echo "Checking specific files: $FILE_PATH"
     # Split comma-separated file paths and check each one
     IFS=',' read -ra FILES <<< "$FILE_PATH"
     for file in "${FILES[@]}"; do
         # Trim whitespace
         file=$(echo "$file" | xargs)
         if [ -f "$file" ]; then
-            echo "Checking: $file"
             markdown-link-check $CONFIG_ARGS "$file"
         else
             echo "Warning: File not found: $file"
         fi
     done
 else
-    echo "No specific files provided, falling back to find all .md files"
     find . -name '*.md' -not -path './node_modules/*' -not -path './lib/*' -exec markdown-link-check $CONFIG_ARGS '{}' ';'
 fi
