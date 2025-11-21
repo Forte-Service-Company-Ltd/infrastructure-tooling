@@ -26,7 +26,6 @@ runs:
           echo "Coverage: $COVERAGE"
 
       - name: Comment PR with coverage
-        if: github.event_name == 'pull_request'
         uses: actions/github-script@v7
         with:
           github-token: ${{ inputs.repo-token }}
