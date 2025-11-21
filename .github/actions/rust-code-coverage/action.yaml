@@ -1,0 +1,32 @@
+name: Rust Code Coverage
+description: An action to run code coverage for a Rust project using cargo-tarpaulin.
+inputs:
+  repo-token:
+    description: Token to authenticate on GitHub API, typically provided by the calling workflow
+    required: true
+runs:
+  using: 'composite'
+  steps:
+      - name: Install tarpaulin
+        shell: bash
+        run: cargo install cargo-tarpaulin --version 0.31.2
+
+      - name: Run tests with coverage
+        run: |
+          cargo tarpaulin --out Html --out Lcov --output-dir coverage --ignore-panics --exclude-files src/pb/ --exclude-files src/abi/ > coverage-output.txt 2>&1 || true
+          cat coverage-output.txt
+
+      - name: Extract coverage percentage
+        id: coverage
+        run: |
+          COVERAGE=$(grep -oP '\d+\.\d+% coverage' coverage-output.txt | head -1 || echo "0.00% coverage")
+          echo "percentage=$COVERAGE" >> $GITHUB_OUTPUT
+          echo "Coverage: $COVERAGE"
+
+      - name: Comment PR with coverage
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ inputs.repo-token }}
+          script: |
+            const coverage = '${{ steps.coverage.outputs.percentage }}';
