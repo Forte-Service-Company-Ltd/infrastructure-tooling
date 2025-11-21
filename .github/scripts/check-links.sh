@@ -17,11 +17,22 @@ fi
 
 # Check if config file exists
 CONFIG_ARGS=""
-if [ -n "$CONFIG_FILE" ] && [ -f "$CONFIG_FILE" ]; then
-    echo "Using config file: $CONFIG_FILE"
-    CONFIG_ARGS="--config $CONFIG_FILE"
+if [ -n "$CONFIG_FILE" ]; then
+    # Try to find config file in current directory or parent directories
+    if [ -f "$CONFIG_FILE" ]; then
+        echo "Using config file: $CONFIG_FILE"
+        CONFIG_ARGS="--config $CONFIG_FILE"
+    elif [ -f "../$CONFIG_FILE" ]; then
+        echo "Using config file: ../$CONFIG_FILE"
+        CONFIG_ARGS="--config ../$CONFIG_FILE"
+    elif [ -f "../../$CONFIG_FILE" ]; then
+        echo "Using config file: ../../$CONFIG_FILE"
+        CONFIG_ARGS="--config ../../$CONFIG_FILE"
+    else
+        echo "Config file specified but not found: $CONFIG_FILE"
+    fi
 else
-    echo "No config file found or specified"
+    echo "No config file specified"
 fi
 
 # Process file paths
