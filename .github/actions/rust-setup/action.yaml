@@ -1,10 +1,5 @@
-name: Rust Test
-description: Run Rust tests in the repository
-inputs:
-  working-directory:
-    description: The working directory to run the tests in. Defaults to the repository root.
-    required: false
-    default: .
+name: Rust Setup
+description: Set up Rust toolchain in the repository
 runs:
   using: 'composite'
   steps:
