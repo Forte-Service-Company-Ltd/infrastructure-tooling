@@ -1,0 +1,9 @@
+name: Rust Setup
+description: Set up Rust toolchain in the repository
+runs:
+  using: 'composite'
+  steps:
+    - name: Set up Rust
+      uses: dtolnay/rust-toolchain@nightly
+      with:
+        components: rustfmt, clippy

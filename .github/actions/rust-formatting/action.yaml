@@ -1,0 +1,12 @@
+name: Rust Formatting
+description: An action to check Rust Formatting using rustfmt.
+runs:
+  using: 'composite'
+  steps:
+      - name: Check formatting
+        shell: bash
+        run: cargo fmt -- --check
+
+      - name: Run clippy
+        shell: bash
+        run: cargo clippy --all-targets --all-features
