@@ -19,7 +19,7 @@ runs:
           if [ -f "${{ inputs.requirements-file }}" ]; then
             pip install -r "${{ inputs.requirements-file }}"
           else
-            echo "Requirements file not found: ${{ inputs.requirements-file }}"
+            echo "::warning:: Requirements file not found: ${{ inputs.requirements-file }}"
           fi
           if [ -f "${{ inputs.dev-setup-script }}" ]; then
             chmod +x ${{ inputs.dev-setup-script }}
