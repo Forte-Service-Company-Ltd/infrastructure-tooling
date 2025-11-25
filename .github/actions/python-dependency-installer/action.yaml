@@ -5,10 +5,6 @@ inputs:
     description: "Path to the requirements file"
     required: false
     default: "requirements.txt"
-  dev-setup-script:
-    description: "Path to the development setup script"
-    required: false
-    default: "setup-dev.sh"
 runs:
   using: "composite"
   steps:
@@ -20,10 +16,4 @@ runs:
           pip install -r "${{ inputs.requirements-file }}"
         else
           echo "::warning:: Requirements file not found: ${{ inputs.requirements-file }}"
-        fi
-        if [ -f "${{ inputs.dev-setup-script }}" ]; then
-          chmod +x ${{ inputs.dev-setup-script }}
-          "./${{ inputs.dev-setup-script }}"
-        else
-          echo "Dev setup script not found: ${{ inputs.dev-setup-script }}"
         fi

@@ -1,0 +1,19 @@
+name: Dev Setup 
+description: Execute development environment setup
+inputs:
+  dev-setup-script:
+    description: "Path to the development setup script"
+    required: false
+    default: "setup-dev.sh"
+runs:
+  using: "composite"
+  steps:
+    - name: Install dependencies
+      shell: bash
+      run: |
+        if [ -f "${{ inputs.dev-setup-script }}" ]; then
+          chmod +x ${{ inputs.dev-setup-script }}
+          "./${{ inputs.dev-setup-script }}"
+        else
+          echo "Dev setup script not found: ${{ inputs.dev-setup-script }}"
+        fi
