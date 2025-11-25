@@ -17,7 +17,7 @@ runs:
         run: |
           python -m pip install --upgrade pip
           if [ -f "${{ inputs.requirements-file }}" ]; then
-            pip install -r ${{ inputs.requirements-file }}
+            pip install -r "${{ inputs.requirements-file }}"
           else
             echo "Requirements file not found: ${{ inputs.requirements-file }}"
           fi
