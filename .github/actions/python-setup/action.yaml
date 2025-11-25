@@ -1,6 +1,6 @@
 name: Python Setup
 description: Set up Python toolchain in the repository
-input:
+inputs:
   python-version:
     description: 'The version of Python to set up'
     required: false
