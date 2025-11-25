@@ -1,0 +1,30 @@
+name: Python Dependency Installer
+description: Install Python dependencies from a requirements files
+inputs:
+  requirements-file:
+    description: 'Path to the requirements file'
+    required: false
+    default: 'requirements.txt'
+  dev-setup-script:
+    description: 'Path to the development setup script'
+    required: false
+    default: 'setup-dev.sh'
+runs:
+  using: 'composite'
+  steps:
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          if [ -f "${{ inputs.requirements-file }}" ]; then
+            pip install -r ${{ inputs.requirements-file }}
+          else
+            echo "Requirements file not found: ${{ inputs.requirements-file }}"
+            exit 1
+          fi
+          if [ -f "${{ inputs.dev-setup-script }}" ]; then
+            chmod +x ${{ inputs.dev-setup-script }}
+            ./${{ inputs.dev-setup-script }}
+          else
+            echo "Dev setup script not found: ${{ inputs.dev-setup-script }}"
+            exit 1
+          fi
