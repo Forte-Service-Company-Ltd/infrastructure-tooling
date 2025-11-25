@@ -2,28 +2,28 @@ name: Python Dependency Installer
 description: Install Python dependencies from requirements files
 inputs:
   requirements-file:
-    description: 'Path to the requirements file'
+    description: "Path to the requirements file"
     required: false
-    default: 'requirements.txt'
+    default: "requirements.txt"
   dev-setup-script:
-    description: 'Path to the development setup script'
+    description: "Path to the development setup script"
     required: false
-    default: 'setup-dev.sh'
+    default: "setup-dev.sh"
 runs:
-  using: 'composite'
+  using: "composite"
   steps:
-      - name: Install dependencies
-        shell: bash
-        run: |
-          python -m pip install --upgrade pip
-          if [ -f "${{ inputs.requirements-file }}" ]; then
-            pip install -r "${{ inputs.requirements-file }}"
-          else
-            echo "::warning:: Requirements file not found: ${{ inputs.requirements-file }}"
-          fi
-          if [ -f "${{ inputs.dev-setup-script }}" ]; then
-            chmod +x ${{ inputs.dev-setup-script }}
-            "./${{ inputs.dev-setup-script }}"
-          else
-            echo "Dev setup script not found: ${{ inputs.dev-setup-script }}"
-          fi
+    - name: Install dependencies
+      shell: bash
+      run: |
+        python -m pip install --upgrade pip
+        if [ -f "${{ inputs.requirements-file }}" ]; then
+          pip install -r "${{ inputs.requirements-file }}"
+        else
+          echo "::warning:: Requirements file not found: ${{ inputs.requirements-file }}"
+        fi
+        if [ -f "${{ inputs.dev-setup-script }}" ]; then
+          chmod +x ${{ inputs.dev-setup-script }}
+          "./${{ inputs.dev-setup-script }}"
+        else
+          echo "Dev setup script not found: ${{ inputs.dev-setup-script }}"
+        fi

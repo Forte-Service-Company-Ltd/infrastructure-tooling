@@ -16,7 +16,7 @@ inputs:
     description: The arguments to pass to the test subcommand (e.g. test directory).
     required: false
 runs:
-  using: 'composite'
+  using: "composite"
   steps:
     - name: Validate package manager
       shell: bash

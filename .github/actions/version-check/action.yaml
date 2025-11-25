@@ -11,7 +11,7 @@ runs:
         set +e # Allow the script to exit non-zero and continue the workflow
         result=$("${{ github.action_path }}/../../scripts/check-versions.sh" "${{ github.event.repository.default_branch }}")
         exit_code=$?
-        
+
         if [ $exit_code -eq 0 ]; then
           echo "status=pass" >> $GITHUB_OUTPUT
         else
@@ -29,8 +29,8 @@ runs:
       uses: peter-evans/find-comment@v3
       with:
         issue-number: ${{ github.event.pull_request.number }}
-        comment-author: 'github-actions[bot]'
-        body-includes: '<!-- version-check-comment -->'
+        comment-author: "github-actions[bot]"
+        body-includes: "<!-- version-check-comment -->"
 
     - name: Create or update PR comment
       uses: peter-evans/create-or-update-comment@v4

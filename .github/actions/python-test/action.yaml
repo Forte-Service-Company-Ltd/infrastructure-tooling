@@ -1,14 +1,14 @@
 name: Python Test
 description: Run Python tests using PyTest
 runs:
-  using: 'composite'
+  using: "composite"
   steps:
-      - name: Run tests
-        shell: bash
-        run: |
-          if [ -f "./.venv/bin/activate" ]; then
-            source ./.venv/bin/activate
-          else
-            echo "No virtual environment found. Please ensure dependencies are installed."
-          fi
-          pytest
+    - name: Run tests
+      shell: bash
+      run: |
+        if [ -f "./.venv/bin/activate" ]; then
+          source ./.venv/bin/activate
+        else
+          echo "No virtual environment found. Please ensure dependencies are installed."
+        fi
+        pytest

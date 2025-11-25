@@ -1,21 +1,21 @@
 name: Rust WASM Build Check
 description: An action to build and verify a Rust WASM binary.
 runs:
-  using: 'composite'
+  using: "composite"
   steps:
-      - name: Install WASM target
-        shell: bash
-        run: rustup target add wasm32-unknown-unknown
-      - name: Build WASM binary
-        shell: bash
-        run: cargo build --target wasm32-unknown-unknown --release
-      - name: Check WASM binary exists
-        shell: bash
-        run: |
-          if [ -f "target/wasm32-unknown-unknown/release/substreams.wasm" ]; then
-            echo "✅ WASM binary built successfully"
-            ls -lh target/wasm32-unknown-unknown/release/substreams.wasm
-          else
-            echo "❌ WASM binary not found"
-            exit 1
-          fi
+    - name: Install WASM target
+      shell: bash
+      run: rustup target add wasm32-unknown-unknown
+    - name: Build WASM binary
+      shell: bash
+      run: cargo build --target wasm32-unknown-unknown --release
+    - name: Check WASM binary exists
+      shell: bash
+      run: |
+        if [ -f "target/wasm32-unknown-unknown/release/substreams.wasm" ]; then
+          echo "✅ WASM binary built successfully"
+          ls -lh target/wasm32-unknown-unknown/release/substreams.wasm
+        else
+          echo "❌ WASM binary not found"
+          exit 1
+        fi
