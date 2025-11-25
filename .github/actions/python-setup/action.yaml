@@ -1,9 +1,14 @@
 name: Python Setup
 description: Set up Python toolchain in the repository
+input:
+  python-version:
+    description: 'The version of Python to set up'
+    required: false
+    default: '3.13'
 runs:
   using: "composite"
   steps:
     - name: Install Python
       uses: actions/setup-python@v4
       with:
-        python-version: "3.13"
+        python-version: "${{ inputs.python-version }}"
