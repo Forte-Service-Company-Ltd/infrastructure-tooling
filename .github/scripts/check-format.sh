@@ -47,6 +47,15 @@ while IFS= read -r file; do
   esac
 done <<< "$CHANGED_FILES"
 
+##  Additional project-wide checks
+# 1. Golang: go mod tidy
+if [ "$FORMATTER" == "gofmt" ]; then
+  if [ "$(go mod tidy -v 2>&1 | wc -l)" -ne 0 ]; then
+    UNFORMATTED_FILES="${UNFORMATTED_FILES}go.mod\n"
+    UNFORMATTED_FILES="${UNFORMATTED_FILES}go.sum\n"
+  fi
+fi
+
 # Output results
 if [ -n "$UNFORMATTED_FILES" ]; then
   # Displays in Github Summary. The sed command replaces all literal newlines with %0A (URL-encoded newline) for proper display
