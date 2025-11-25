@@ -1,5 +1,5 @@
 name: Python Dependency Installer
-description: Install Python dependencies from a requirements files
+description: Install Python dependencies from requirements files
 inputs:
   requirements-file:
     description: 'Path to the requirements file'
