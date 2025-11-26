@@ -21,4 +21,4 @@ runs:
         INPUT_CONFIG_FILE: ${{ inputs['config-file'] }}
         INPUT_FILE_PATH: ${{ inputs['file-path'] }}
       run: |
-        ${{ github.action_path }}/.github/scripts/check-links.sh
+        ${{ github.action_path }}/../../scripts/check-links.sh
