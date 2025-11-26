@@ -20,6 +20,12 @@ The infrastructure-tooling repository contains standardized CI/CD components spe
 - **`onchain-test/`** - Runs comprehensive test suites with support for mainnet forking
 - **`typescript-build/`** - Builds TypeScript projects with support for multiple workspaces and components
 - **`typescript-test/`** - Runs TypeScript test suites with configurable script commands and arguments
+- **`python-setup/`** - Installs and configures Python environment (default: v3.13)
+- **`python-dependency-installer/`** - Installs Python dependencies from requirements.txt files
+- **`python-test/`** - Runs Python test suites using pytest
+- **`rust-setup/`** - Installs and configures Rust toolchain with rustfmt and clippy
+- **`rust-test/`** - Runs Rust test suites using cargo test
+- **`rust-wasm-build-check/`** - Builds and verifies Rust WASM binaries
 
 #### Code Quality & Analysis Actions
 
@@ -27,6 +33,8 @@ The infrastructure-tooling repository contains standardized CI/CD components spe
 - **`slither-analysis/`** - Performs static security analysis using Slither with SARIF output
 - **`medusa-fuzz/`** - Executes property-based fuzzing tests using Medusa fuzzer
 - **`contract-size/`** - Validates contract bytecode size against Ethereum's 24KB limit
+- **`rust-formatting/`** - Checks Rust code formatting with rustfmt and runs clippy linter
+- **`rust-code-coverage/`** - Generates code coverage reports for Rust projects using cargo-tarpaulin
 
 #### Documentation & Validation Actions
 
@@ -149,8 +157,33 @@ steps:
       package-manager: "yarn" # or npm
 
   - uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/typescript-test@main
-  
-  # For version validation (for projects having package.json) 
+
+  # For Python projects
+  - uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/python-setup@main
+    with:
+      python-version: "3.13" # optional, defaults to 3.13
+
+  - uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/python-dependency-installer@main
+    with:
+      requirements-file: "requirements.txt" # optional, defaults to requirements.txt
+
+  - uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/python-test@main
+
+  # For Rust projects
+  - uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/rust-setup@main
+
+  - uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/rust-test@main
+
+  - uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/rust-formatting@main
+
+  - uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/rust-code-coverage@main
+    with:
+      repo-token: ${{ secrets.GITHUB_TOKEN }}
+      pr-number: ${{ github.event.pull_request.number }}
+
+  - uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/rust-wasm-build-check@main
+
+  # For version validation (for projects having package.json)
   - uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/version-check@main
 ```
 
@@ -160,7 +193,11 @@ steps:
 - **Slither** - Static analysis security tool
 - **Medusa** - Property-based fuzzing framework
 - **LCOV** - Code coverage reporting
-- **Python/Pip** - For analysis tool dependencies
+- **Python/Pip** - For analysis tool dependencies and Python projects
+- **pytest** - Python testing framework
+- **Rust** - Systems programming language
+- **Cargo** - Rust package manager and build tool
+- **cargo-tarpaulin** - Code coverage tool for Rust
 - **Node.js** - For markdown link checking and TypeScript projects
 - **TypeScript** - Type-safe JavaScript development
 - **Yarn/NPM** - JavaScript package managers

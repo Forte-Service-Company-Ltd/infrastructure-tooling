@@ -1,9 +1,9 @@
 name: Rust Test
 description: Run Rust tests in the repository
 runs:
-  using: 'composite'
+  using: "composite"
   steps:
-      - name: Run all tests
-        shell: bash
-        run: cargo test --verbose
-        continue-on-error: false
+    - name: Run all tests
+      shell: bash
+      run: cargo test --verbose
+      continue-on-error: false

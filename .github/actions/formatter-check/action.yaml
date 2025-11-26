@@ -13,7 +13,7 @@ inputs:
     description: Path to the configuration file for the selected formatter (e.g., Prettier, Black). If not provided, the formatter's default settings will be used.
     required: false
 runs:
-  using: 'composite'
+  using: "composite"
   steps:
     # A note on directories: Due to nodejs module conflicts, prettier and its plugins cannot share a directory with a nodejs project.
     # Thus, install prettier in a temp directory and checkout the project files separately.
@@ -22,7 +22,7 @@ runs:
       with:
         fetch-depth: 0
         path: project-files
-    
+
     - name: Determine formatter tool
       id: determine-formatter
       shell: bash
@@ -60,7 +60,7 @@ runs:
     - name: Install Black
       if: ${{ steps.determine-formatter.outputs.formatter == 'black' }}
       shell: bash
-      run: |      
+      run: |
         echo "Installing Black"
         python3 -m pip install --upgrade pip
         pip install black
@@ -71,7 +71,7 @@ runs:
       if: ${{ steps.determine-formatter.outputs.formatter == 'gofmt' }}
       uses: actions/setup-go@v4
       with:
-        go-version: '1.22'
+        go-version: "1.22"
 
     # Prettier can't share a directory with nodejs project, so use a temp directory
     - name: Install Prettier
@@ -142,8 +142,8 @@ runs:
       uses: peter-evans/find-comment@v3
       with:
         issue-number: ${{ github.event.pull_request.number }}
-        comment-author: 'github-actions[bot]'
-        body-includes: '<!-- format-check-comment -->'
+        comment-author: "github-actions[bot]"
+        body-includes: "<!-- format-check-comment -->"
 
     - name: Create or update PR comment
       if: steps.format-check.outcome == 'failure' && github.event_name == 'pull_request'
@@ -156,9 +156,9 @@ runs:
         body: |
           <!-- format-check-comment -->
           ## ⚠️ Formatting Issues Detected
-          
+
           The following files need formatting with `${{ steps.determine-formatter.outputs.formatter }}`:
-          
+
           ```
           ${{ steps.format-check.outputs.unformatted_files }}
           ```

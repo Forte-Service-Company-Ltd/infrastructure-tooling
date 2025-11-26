@@ -7,7 +7,7 @@ inputs:
   node-version:
     description: The version of Node.js to use. (e.g. "20", "22", "lts/*", "current", etc.) Defaults to "20.x".
     required: false
-    default: '20.x'
+    default: "20.x"
   package-manager:
     description: The package manager to use (e.g. "yarn" or "npm"). Defaults to "yarn".
     required: false
@@ -23,14 +23,14 @@ inputs:
   submodules:
     description: Whether to checkout git submodules. Values may be 'recursive', 'true', or 'false'. Defaults to 'false'.
     required: false
-    default: 'false'
+    default: "false"
 runs:
-  using: 'composite'
+  using: "composite"
   steps:
     - uses: actions/checkout@v4
       with:
         path: ${{ inputs.working-directory }}
-        fetch-depth: '0'
+        fetch-depth: "0"
         fetch-tags: true
         submodules: ${{ inputs.submodules }}
 
