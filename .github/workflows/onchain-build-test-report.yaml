@@ -23,6 +23,11 @@ on:
         type: string
         required: false
         default: "./README.md, ./CHANGELOG.md, ./CODE_OF_CONDUCT.md, ./CONTRIBUTING.md, ./SECURITY.md"
+      code-coverage-args:
+        description: Arguments for code coverage report action
+        type: string
+        required: false
+        default: "--ffi --report lcov --no-match-path \"*invariant*\" --fuzz-runs 1"
       fork-test:
         description: Whether to run tests that require forking mainnet (true/false)
         type: boolean
@@ -240,7 +245,7 @@ jobs:
         uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/set-onchain-build-path@v0.0.7
       - name: Code Coverage
         id: code-coverage
-        uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/code-coverage@v0.0.7
+        uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/onchain-code-coverage@SE-1465-Setup-GitHub-Workflows
         with:
           alchemy_eth_api: ${{ secrets.ALCHEMY_KEY }}
           alchemy_polygon_api: ${{ secrets.POLYGON_ALCHEMY_KEY }}
@@ -248,6 +253,7 @@ jobs:
           salt-string: ${{ inputs.salt-string }}
           skip-forte-token-tests: ${{ inputs.skip-forte-token-tests }}
           repo-token: ${{ secrets.GITHUB_TOKEN }}
+          code-coverage-args: ${{ inputs.code-coverage-args }}
   notify:
     name: Notify Slack on Pipeline Failure
     needs:

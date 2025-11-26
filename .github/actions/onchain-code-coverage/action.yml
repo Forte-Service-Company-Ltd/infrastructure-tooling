@@ -19,6 +19,9 @@ inputs:
   repo-token:
     description: Token to authenticate on GitHub API, typically provided by the calling workflow
     required: true
+  code-coverage-args:
+    description: Arguments for code coverage report action
+    required: true
 runs:
   using: "composite"
   steps:
@@ -48,7 +51,7 @@ runs:
         SALT_STRING: ${{ inputs['salt-string'] }}
         SKIP_FORTE_TOKEN_TESTS: ${{ inputs['skip-forte-token-tests'] }}
       run: |
-        FOUNDRY_PROFILE=coverage forge coverage --ffi --report lcov --no-match-path "*invariant*" --fuzz-runs 1
+        FOUNDRY_PROFILE=coverage forge coverage ${{ inputs.code-coverage-args }}
 
     - name: Filter the coverage reports and reformat them
       shell: bash
