@@ -27,7 +27,7 @@ on:
         description: Arguments for code coverage report action
         type: string
         required: false
-        default: "--ffi --report lcov --no-match-path \"*invariant*\" --fuzz-runs 1"
+        default: '--ffi --report lcov --no-match-path "*invariant*" --fuzz-runs 1'
       fork-test:
         description: Whether to run tests that require forking mainnet (true/false)
         type: boolean
@@ -105,9 +105,11 @@ jobs:
       - name: Build
         id: build
         uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/onchain-build@v0.0.7
+
       - name: Locate and cache Foundry binaries
         id: locate-foundry-binaries
         uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/locate-and-cache-foundry-binaries@v0.0.7
+
       - name: Cache setup state
         uses: actions/cache/save@v4
         with:
@@ -124,6 +126,7 @@ jobs:
             include
             share
           key: setup-state-${{ steps.cache-key.outputs.key }}
+
   markdown-link-check:
     name: Markdown Link Check
     runs-on: ubuntu-latest
@@ -147,11 +150,13 @@ jobs:
             share
           key: setup-state-${{ needs.setup.outputs.cache-key }}
           fail-on-cache-miss: true
+
       - name: Markdown Link Check
         id: markdown-link-check
         uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/markdown-link-checker@v0.0.7
         with:
           file-path: ${{ inputs.markdown-file-path }}
+
   contract-size:
     name: Contract Size
     runs-on: ubuntu-latest
@@ -175,12 +180,15 @@ jobs:
             share
           key: setup-state-${{ needs.setup.outputs.cache-key }}
           fail-on-cache-miss: true
+
       - name: Set on-chain build PATH
         id: setup-path
         uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/set-onchain-build-path@v0.0.7
+
       - name: Contract Size
         id: contract-size
         uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/contract-size@v0.0.7
+
   build-and-test:
     name: Build and Test
     runs-on: ubuntu-latest
@@ -204,9 +212,11 @@ jobs:
             share
           key: setup-state-${{ needs.setup.outputs.cache-key }}
           fail-on-cache-miss: true
+
       - name: Set on-chain build PATH
         id: setup-path
         uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/set-onchain-build-path@v0.0.7
+
       - name: Test
         id: test
         uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/onchain-test@v0.0.7
@@ -240,12 +250,14 @@ jobs:
             share
           key: setup-state-${{ needs.setup.outputs.cache-key }}
           fail-on-cache-miss: true
+
       - name: Set on-chain build PATH
         id: setup-path
         uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/set-onchain-build-path@v0.0.7
+
       - name: Code Coverage
         id: code-coverage
-        uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/onchain-code-coverage@SE-1465-Setup-GitHub-Workflows
+        uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/onchain-code-coverage@SE-1465-On-Chain-Improvements
         with:
           alchemy_eth_api: ${{ secrets.ALCHEMY_KEY }}
           alchemy_polygon_api: ${{ secrets.POLYGON_ALCHEMY_KEY }}
@@ -254,6 +266,7 @@ jobs:
           skip-forte-token-tests: ${{ inputs.skip-forte-token-tests }}
           repo-token: ${{ secrets.GITHUB_TOKEN }}
           code-coverage-args: ${{ inputs.code-coverage-args }}
+
   notify:
     name: Notify Slack on Pipeline Failure
     needs:
