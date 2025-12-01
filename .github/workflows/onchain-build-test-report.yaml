@@ -58,7 +58,7 @@ on:
     outputs:
       status:
         description: The overall status of the workflow, either 'success', 'failure'.
-        value: ${{ jobs.build-and-test.result == 'success' && jobs.markdown-link-check.result == 'success' && jobs.code-coverage-report.result == 'success' && 'success' || 'failure' }}
+        value: ${{ jobs.build-and-test.result == 'success' && jobs.markdown-link-check.result == 'success' && (inputs.code-coverage == false || jobs.code-coverage-report.result == 'success') && 'success' || 'failure' }}
 
     secrets:
       # Secrets are passed from the calling repository
