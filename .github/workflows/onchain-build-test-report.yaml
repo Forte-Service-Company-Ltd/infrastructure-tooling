@@ -275,7 +275,7 @@ jobs:
 
       - name: Code Coverage
         id: code-coverage
-        uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/onchain-code-coverage@SE-1465-On-Chain-Improvements
+        uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/onchain-code-coverage@v0.0.11
         with:
           alchemy_eth_api: ${{ secrets.ALCHEMY_KEY }}
           alchemy_polygon_api: ${{ secrets.POLYGON_ALCHEMY_KEY }}
