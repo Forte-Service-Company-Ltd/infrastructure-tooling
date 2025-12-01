@@ -3,6 +3,7 @@
 # This workflow is designed to be called from other repositories via 'workflow_call' event.
 
 name: On-Chain Build and Test
+
 on:
   # Triggered from app repo's workflows
   workflow_call:
@@ -23,6 +24,16 @@ on:
         type: string
         required: false
         default: "./README.md, ./CHANGELOG.md, ./CODE_OF_CONDUCT.md, ./CONTRIBUTING.md, ./SECURITY.md"
+      code-coverage:
+        description: Whether to run code coverage report (true/false)
+        type: boolean
+        required: false
+        default: true
+      code-coverage-args:
+        description: Arguments for code coverage report action
+        type: string
+        required: false
+        default: '--ffi --report lcov --no-match-path "*invariant*" --fuzz-runs 1'
       fork-test:
         description: Whether to run tests that require forking mainnet (true/false)
         type: boolean
@@ -43,10 +54,12 @@ on:
         type: boolean
         required: false
         default: false
+
     outputs:
       status:
         description: The overall status of the workflow, either 'success', 'failure'.
-        value: ${{ jobs.build-and-test.result == 'success' && jobs.markdown-link-check.result == 'success' && jobs.code-coverage-report.result == 'success' && 'success' || 'failure' }}
+        value: ${{ jobs.build-and-test.result == 'success' && jobs.markdown-link-check.result == 'success' && (inputs.code-coverage == false || jobs.code-coverage-report.result == 'success') && 'success' || 'failure' }}
+
     secrets:
       # Secrets are passed from the calling repository
       ALCHEMY_KEY: # optional, only if needed for tests requiring mainnet fork
@@ -63,6 +76,7 @@ jobs:
     outputs:
       cache-key: ${{ steps.cache-key.outputs.key }}
       token: ${{ steps.get-token.outputs.token }}
+
     steps:
       - name: Generate GitHub App token
         id: get-token
@@ -72,17 +86,20 @@ jobs:
           app-id: ${{ inputs.gh-app-id }}
           private-key: ${{ secrets.GH_APP_PRIVATE_KEY }}
           repositories: ${{ inputs.project-repositories }}
+
       - name: Checkout local repository
         uses: actions/checkout@v4
         with:
           token: ${{ steps.get-token.outputs.token || github.token}}
           submodules: recursive
+
       - name: Checkout infrastructure-tooling repository
         uses: actions/checkout@v4
         with:
           repository: Forte-Service-Company-Ltd/infrastructure-tooling
           ref: v0.0.3
           path: infrastructure-tooling
+
       - name: Generate cache key
         id: cache-key
         uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/generate-gha-cache-key@v0.0.7
@@ -91,18 +108,23 @@ jobs:
           salt-string: ${{ inputs.salt-string }}
           skip-forte-token-tests: ${{ inputs.skip-forte-token-tests }}
           is-forte-token-project: ${{ inputs.is-forte-token-project }}
+
       - name: Install Foundry
         id: install-foundry
         uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/install-foundry@v0.0.7
+
       - name: Install Python Dependencies
         id: install-python-dependencies
         uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/install-python-dependencies@v0.0.7
+
       - name: Build
         id: build
         uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/onchain-build@v0.0.7
+
       - name: Locate and cache Foundry binaries
         id: locate-foundry-binaries
         uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/locate-and-cache-foundry-binaries@v0.0.7
+
       - name: Cache setup state
         uses: actions/cache/save@v4
         with:
@@ -119,11 +141,13 @@ jobs:
             include
             share
           key: setup-state-${{ steps.cache-key.outputs.key }}
+
   markdown-link-check:
     name: Markdown Link Check
     runs-on: ubuntu-latest
     needs: [setup]
     timeout-minutes: 15
+
     steps:
       - name: Restore setup state
         uses: actions/cache/restore@v4
@@ -142,16 +166,19 @@ jobs:
             share
           key: setup-state-${{ needs.setup.outputs.cache-key }}
           fail-on-cache-miss: true
+
       - name: Markdown Link Check
         id: markdown-link-check
         uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/markdown-link-checker@v0.0.7
         with:
           file-path: ${{ inputs.markdown-file-path }}
+
   contract-size:
     name: Contract Size
     runs-on: ubuntu-latest
     needs: [setup]
     timeout-minutes: 30
+
     steps:
       - name: Restore setup state
         uses: actions/cache/restore@v4
@@ -170,12 +197,15 @@ jobs:
             share
           key: setup-state-${{ needs.setup.outputs.cache-key }}
           fail-on-cache-miss: true
+
       - name: Set on-chain build PATH
         id: setup-path
         uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/set-onchain-build-path@v0.0.7
+
       - name: Contract Size
         id: contract-size
         uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/contract-size@v0.0.7
+
   build-and-test:
     name: Build and Test
     runs-on: ubuntu-latest
@@ -199,9 +229,11 @@ jobs:
             share
           key: setup-state-${{ needs.setup.outputs.cache-key }}
           fail-on-cache-miss: true
+
       - name: Set on-chain build PATH
         id: setup-path
         uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/set-onchain-build-path@v0.0.7
+
       - name: Test
         id: test
         uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/onchain-test@v0.0.7
@@ -217,6 +249,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: [setup]
     timeout-minutes: 30
+    if: inputs.code-coverage == true
     steps:
       - name: Restore setup state
         uses: actions/cache/restore@v4
@@ -235,12 +268,14 @@ jobs:
             share
           key: setup-state-${{ needs.setup.outputs.cache-key }}
           fail-on-cache-miss: true
+
       - name: Set on-chain build PATH
         id: setup-path
         uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/set-onchain-build-path@v0.0.7
+
       - name: Code Coverage
         id: code-coverage
-        uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/code-coverage@v0.0.7
+        uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/onchain-code-coverage@v0.0.11
         with:
           alchemy_eth_api: ${{ secrets.ALCHEMY_KEY }}
           alchemy_polygon_api: ${{ secrets.POLYGON_ALCHEMY_KEY }}
@@ -248,11 +283,14 @@ jobs:
           salt-string: ${{ inputs.salt-string }}
           skip-forte-token-tests: ${{ inputs.skip-forte-token-tests }}
           repo-token: ${{ secrets.GITHUB_TOKEN }}
+          code-coverage-args: ${{ inputs.code-coverage-args }}
+
   notify:
     name: Notify Slack on Pipeline Failure
     needs:
       [build-and-test, markdown-link-check, code-coverage-report, contract-size]
-    if: always() && (needs.contract-size.result != 'success' || needs.build-and-test.result != 'success' || needs.markdown-link-check.result != 'success' || needs.code-coverage-report.result != 'success')
+    if: always() && (needs.contract-size.result != 'success' || needs.build-and-test.result != 'success' || needs.markdown-link-check.result != 'success' || (needs.code-coverage-report.result != 'success' && needs.code-coverage-report.result != 'skipped'))
+
     uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/workflows/slack-notification.yaml@v0.0.7
     with:
       env: "onchain"

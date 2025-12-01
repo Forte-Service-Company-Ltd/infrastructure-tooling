@@ -49,26 +49,32 @@ jobs:
           app-id: ${{ inputs.gh-app-id }}
           private-key: ${{ secrets.GH_APP_PRIVATE_KEY }}
           repositories: ${{ inputs.project-repositories }}
+
       - name: Checkout local repository
         uses: actions/checkout@v4
         with:
           token: ${{ steps.get-token.outputs.token || github.token}}
           submodules: recursive
+
       - name: Checkout infrastructure-tooling repository
         uses: actions/checkout@v4
         with:
           repository: Forte-Service-Company-Ltd/infrastructure-tooling
           ref: v0.0.3
           path: infrastructure-tooling
+
       - name: Install Foundry
         id: install-foundry
         uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/install-foundry@v0.0.7
+
       - name: Install Python Dependencies
         id: install-python-dependencies
         uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/install-python-dependencies@v0.0.7
+
       - name: Build
         id: build
         uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/onchain-build@v0.0.7
+
       - name: Slither Analysis
         id: slither-analysis
         uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/slither-analysis@v0.0.7
