@@ -1,5 +1,5 @@
 name: Golang Setup
-description: Set up Rust toolchain in the repository
+description: Set up Go toolchain in the repository
 inputs:
   go-version:
     description: 'Go version to install'
