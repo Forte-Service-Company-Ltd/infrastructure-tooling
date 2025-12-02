@@ -9,16 +9,6 @@ runs:
       run: |
         go test -v -race -coverprofile=coverage.out -covermode=atomic $(go list ./... | grep -v '/gen/')
 
-    - name: Check test coverage
-      shell: bash
-      run: |
-        coverage=$(go tool cover -func=coverage.out | grep total | awk '{print $3}' | sed 's/%//')
-        echo "Test coverage: ${coverage}%"
-        if (( $(echo "$coverage < 40" | bc -l) )); then
-          echo "Test coverage is below 40%"
-          exit 1
-        fi
-    
     - name: Generate coverage report
       shell: bash
       run: go tool cover -html=coverage.out -o coverage.html
@@ -29,6 +19,15 @@ runs:
       run: |
         coverage=$(go tool cover -func=coverage.out | grep total | awk '{print $3}' | sed 's/%//')
         echo "percentage=$coverage" >> $GITHUB_OUTPUT
+
+    - name: Fail if coverage below threshold
+      shell: bash
+      run: |
+        COVERAGE_THRESHOLD=40
+        if (( $(echo "${{ steps.coverage.outputs.percentage }} < $COVERAGE_THRESHOLD" | bc -l) )); then
+          echo "::error title=Coverage too low::Test coverage ${{ steps.coverage.outputs.percentage }}% is below threshold of $COVERAGE_THRESHOLD%"
+          exit 1
+        fi
     
     - name: Comment PR with coverage
       if: github.event_name == 'pull_request'
