@@ -1,0 +1,31 @@
+name: Golang Build for PR Checks
+description: Bulids the project's Golang source. This can be used as a PR check.
+inputs:
+  packages:
+    description: The project packages (directories) to build.
+    required: true
+  output:
+    description: The output binary path. Used for verifying build output.
+    required: false
+runs:
+  using: 'composite'
+  steps:
+    ## `go build` docs: https://pkg.go.dev/cmd/go#hdr-Compile_packages_and_dependencies
+    - name: Build Golang Packages
+      id: golang-build
+      shell: bash
+      run: |
+        if [ -z "${{ inputs.output }}" ]; then
+          go build ${{ inputs.packages }}
+        else
+          go build -o "${{ inputs.output }}" ${{ inputs.packages }}
+        fi
+    - name: Verify Build Output
+      if: ${{ inputs.output != '' }}
+      id: verify-build
+      shell: bash
+      run: |
+        if [ ! -f "${{ inputs.output }}" ]; then
+          echo "Build output not found at ${{ inputs.output }}"
+          exit 1
+        fi
