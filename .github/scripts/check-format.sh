@@ -13,7 +13,7 @@ UNFORMATTED_FILES=""
 while IFS= read -r file; do
   # Ignore non-existent files (deleted in PR), and these ineligible files
   # - Disable Dockerfile until https://github.com/reteps/dockerfmt/issues/25 is resolved
-  if [[ ! -f "$file" || $(basename "$file") =~ yarn\.lock|package-lock\.json|.*\.spkg|*\.svg|\.env*|Dockerfile ]]; then
+  if [[ ! -f "$file" || $(basename "$file") =~ yarn\.lock|package-lock\.json|.*\.spkg|.*\.svg|\.env*|Dockerfile ]]; then
     continue
   fi
   
@@ -46,6 +46,17 @@ while IFS= read -r file; do
       ;;
   esac
 done <<< "$CHANGED_FILES"
+
+##  Additional project-wide checks
+# 1. Golang: go mod tidy
+if [ "$FORMATTER" == "gofmt" ]; then
+  # Run go mod tidy and check if it modifies the files
+  go mod tidy
+  if ! git diff --exit-code go.mod go.sum > /dev/null 2>&1; then
+    UNFORMATTED_FILES="${UNFORMATTED_FILES}go.mod\n"
+    UNFORMATTED_FILES="${UNFORMATTED_FILES}go.sum\n"
+  fi
+fi
 
 # Output results
 if [ -n "$UNFORMATTED_FILES" ]; then

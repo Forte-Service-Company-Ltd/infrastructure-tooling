@@ -1,0 +1,51 @@
+name: Golang Code Coverage
+description: Runs tests and code coverage evaluation for a go project.
+runs:
+  using: "composite"
+  steps:
+    - name: Run Tests with Coverage
+      shell: bash
+      run: |
+        go test -v -race -coverprofile=coverage.out -covermode=atomic $(go list ./... | grep -v '/gen/')
+
+    - name: Generate coverage report
+      shell: bash
+      run: go tool cover -html=coverage.out -o coverage.html
+
+    - name: Get coverage percentage
+      id: coverage
+      shell: bash
+      run: |
+        coverage=$(go tool cover -func=coverage.out | grep total | awk '{print $3}' | sed 's/%//')
+        echo "percentage=$coverage" >> $GITHUB_OUTPUT
+
+    - name: Fail if coverage below threshold
+      shell: bash
+      run: |
+        COVERAGE_THRESHOLD=40
+        if (( $(echo "${{ steps.coverage.outputs.percentage }} < $COVERAGE_THRESHOLD" | bc -l) )); then
+          echo "::error title=Coverage too low::Test coverage ${{ steps.coverage.outputs.percentage }}% is below threshold of $COVERAGE_THRESHOLD%"
+          exit 1
+        fi
+
+    - name: Comment PR with coverage
+      if: github.event_name == 'pull_request'
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const coveragePercent = '${{ steps.coverage.outputs.percentage }}';
+
+          const body = `## Test Results
+
+          ✅ All tests passed!
+
+          **Test Coverage:** ${coveragePercent}%
+
+          Run \`make test-coverage\` locally to view detailed coverage report.`;
+
+          github.rest.issues.createComment({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: body
+          })
