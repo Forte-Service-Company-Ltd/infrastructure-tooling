@@ -1,5 +1,5 @@
 name: Golang Build for PR Checks
-description: Bulids the project's Golang source. This can be used as a PR check.
+description: Builds the project's Golang source. This can be used as a PR check.
 inputs:
   packages:
     description: The project packages (directories) to build.
