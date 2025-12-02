@@ -13,7 +13,7 @@ UNFORMATTED_FILES=""
 while IFS= read -r file; do
   # Ignore non-existent files (deleted in PR), and these ineligible files
   # - Disable Dockerfile until https://github.com/reteps/dockerfmt/issues/25 is resolved
-  if [[ ! -f "$file" || $(basename "$file") =~ yarn\.lock|package-lock\.json|.*\.spkg|*\.svg|\.env*|Dockerfile ]]; then
+  if [[ ! -f "$file" || $(basename "$file") =~ yarn\.lock|package-lock\.json|.*\.spkg|.*\.svg|\.env*|Dockerfile ]]; then
     continue
   fi
   
