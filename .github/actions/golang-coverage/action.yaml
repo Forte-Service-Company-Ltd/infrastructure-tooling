@@ -5,6 +5,7 @@ runs:
   steps:
 
     - name: Check test coverage
+      shell: bash
       run: |
         coverage=$(go tool cover -func=coverage.out | grep total | awk '{print $3}' | sed 's/%//')
         echo "Test coverage: ${coverage}%"
@@ -14,10 +15,12 @@ runs:
         fi
     
     - name: Generate coverage report
+      shell: bash
       run: go tool cover -html=coverage.out -o coverage.html
     
     - name: Get coverage percentage
       id: coverage
+      shell: bash
       run: |
         coverage=$(go tool cover -func=coverage.out | grep total | awk '{print $3}' | sed 's/%//')
         echo "percentage=$coverage" >> $GITHUB_OUTPUT
