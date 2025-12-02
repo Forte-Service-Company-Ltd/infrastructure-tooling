@@ -1,6 +1,9 @@
 name: Golang Build for PR Checks
 description: Builds the project's Golang source. This can be used as a PR check.
 inputs:
+  prebuild-target:
+    description: An optional make target to run before building the Go packages. This can be used to set up the environment.
+    required: false
   packages:
     description: The project packages (directories) to build.
     required: true
@@ -10,6 +13,12 @@ inputs:
 runs:
   using: 'composite'
   steps:
+    - name: Pre-Build Step
+      if: ${{ inputs.prebuild-target != '' }}
+      shell: bash
+      run: |
+        make ${{ inputs.prebuild-target }}
+
     ## `go build` docs: https://pkg.go.dev/cmd/go#hdr-Compile_packages_and_dependencies
     - name: Build Golang Packages
       id: golang-build
