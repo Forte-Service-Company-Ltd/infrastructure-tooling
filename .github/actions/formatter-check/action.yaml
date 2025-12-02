@@ -72,7 +72,7 @@ runs:
       if: ${{ steps.determine-formatter.outputs.formatter == 'gofmt' }}
       uses: actions/setup-go@v4
       with:
-        go-version: '1.25'
+        go-version: "1.25"
 
     # Prettier can't share a directory with nodejs project, so use a temp directory
     - name: Install Prettier
