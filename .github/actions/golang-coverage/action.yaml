@@ -4,6 +4,11 @@ runs:
   using: "composite"
   steps:
 
+    - name: Run Tests with Coverage
+      shell: bash
+      run: |
+        go test -v -race -coverprofile=coverage.out -covermode=atomic $(go list ./... | grep -v '/gen/')
+
     - name: Check test coverage
       shell: bash
       run: |
