@@ -2,11 +2,11 @@ name: Golang Setup
 description: Set up Go toolchain in the repository
 inputs:
   go-version:
-    description: 'Go version to install'
+    description: "Go version to install"
     required: false
-    default: '1.25'
+    default: "1.25"
 runs:
-  using: 'composite'
+  using: "composite"
   steps:
     - name: Install Golang
       uses: actions/setup-go@v4

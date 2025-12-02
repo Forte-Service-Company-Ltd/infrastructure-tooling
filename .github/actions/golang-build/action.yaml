@@ -11,7 +11,7 @@ inputs:
     description: The output binary path. Used for verifying build output.
     required: false
 runs:
-  using: 'composite'
+  using: "composite"
   steps:
     - name: Pre-Build Step
       if: ${{ inputs.prebuild-target != '' }}
