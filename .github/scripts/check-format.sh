@@ -50,7 +50,9 @@ done <<< "$CHANGED_FILES"
 ##  Additional project-wide checks
 # 1. Golang: go mod tidy
 if [ "$FORMATTER" == "gofmt" ]; then
-  if [ "$(go mod tidy -v 2>&1 | wc -l)" -ne 0 ]; then
+  # Run go mod tidy and check if it modifies the files
+  go mod tidy
+  if ! git diff --exit-code go.mod go.sum > /dev/null 2>&1; then
     UNFORMATTED_FILES="${UNFORMATTED_FILES}go.mod\n"
     UNFORMATTED_FILES="${UNFORMATTED_FILES}go.sum\n"
   fi
