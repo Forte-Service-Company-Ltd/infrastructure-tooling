@@ -1,5 +1,5 @@
 name: Golang Code Coverage
-description: Runs code coverage evaluation for a go project.
+description: Runs tests and code coverage evaluation for a go project.
 runs:
   using: "composite"
   steps:
