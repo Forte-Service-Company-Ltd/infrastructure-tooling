@@ -76,6 +76,9 @@ runs:
         fi
         echo "::endgroup::"
       working-directory: ${{ inputs.working-directory }}
+      #### DO NOT MERGE THIS TO MAIN. TEMPORARY WORKAROUND FOR FORTE-DEX-UI ####
+      env:
+        GITHUB_TOKEN: ${{ secrets.XREPO_PACKAGES_TOKEN }}
 
     # We'll assume that each component has a script defined, such that we can run `yarn <component> build` instead of `yarn workspace <component> build`
     - name: Build components
