@@ -14,6 +14,10 @@ inputs:
     description: The private key for the GitHub App to use when checking out the repository. Only needed if accessing private submodules or registries.
     type: string
     required: false
+  npmrc-auth-token:
+    description: Optional NPM auth token to write to .npmrc for accessing private NPM registries.
+    type: string
+    required: false
 
 runs:
   using: "composite"
@@ -34,3 +38,15 @@ runs:
         fetch-tags: true
         submodules: ${{ inputs.submodules }}
         token: ${{ steps.get-token.outputs.token || github.token }}
+
+    - name: Setup .npmrc for private registries, by using special auth token
+      if: ${{ inputs.npmrc-auth-token }}
+      shell: bash
+      working-directory: ${{ inputs.working-directory }}
+      run: |
+        NPMRC_FILE=".npmrc"
+        if grep -q "_authToken=" "$NPMRC_FILE"; then
+          sed -i.bak "s/_authToken=.*/_authToken=${{ inputs.npmrc-auth-token }}/" "$NPMRC_FILE"
+        else
+          echo "::warning:: No private registries exist in $NPMRC_FILE, but `npmrc-auth-token` was provided."
+        fi 
