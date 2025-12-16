@@ -14,8 +14,8 @@ inputs:
     description: The private key for the GitHub App to use when checking out the repository. Only needed if accessing private submodules or registries.
     type: string
     required: false
-  npmrc-uses-app-token:
-    description: If true, will setup .npmrc to use the GitHub App token for accessing private registries.
+  npmrc-uses-github-token:
+    description: If true, will setup .npmrc to use the repository's default GITHUB_TOKEN for accessing GitHub Packages. This works when the repository has been granted access to the package.
     type: boolean
     required: false
   submodules:
@@ -42,20 +42,16 @@ runs:
 
     - uses: actions/checkout@v4
       with:
-        path: ${{ inputs.working-directory }}
         fetch-depth: "0"
         fetch-tags: true
         submodules: ${{ inputs.submodules }}
         token: ${{ steps.get-token.outputs.token || github.token }}
 
-    # - name: Setup .npmrc for private registries, by using special auth token
-    #   if: ${{ inputs.npmrc-uses-app-token && steps.get-token.outputs.token }}
-    #   shell: bash
-    #   working-directory: ${{ inputs.working-directory }}
-    #   run: |
-    #     NPMRC_FILE=".npmrc"
-    #     if grep -q "_authToken=" "$NPMRC_FILE"; then
-    #       sed -i.bak "s/_authToken=.*/_authToken=${{ steps.get-token.outputs.token }}/" "$NPMRC_FILE"
-    #     else
-    #       echo "::warning:: No private registries exist in $NPMRC_FILE, but `npmrc-auth-token` was provided."
-    #     fi 
+    - name: Setup .npmrc for GitHub Packages
+      if: ${{ inputs.npmrc-uses-github-token }}
+      shell: bash
+      run: |
+        cat > .npmrc << EOF
+        @forte-service-company-ltd:registry=https://npm.pkg.github.com
+        //npm.pkg.github.com/:_authToken=\${{ github.token }}
+        EOF 
