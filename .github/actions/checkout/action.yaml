@@ -6,9 +6,6 @@ description: Checks out the caller repository and any submodules/packages. Priva
   passing inputs of a GitHub App's id and private key.
 
 inputs:
-  repositories: 
-    description: A new-line-separated list of repositories to check out. Used when generating the token. Defaults to the caller repository.
-    required: false
   checkout-app-id:
     description: The GitHub App ID to use when checking out the repository. Only needed if accessing private submodules or registries.
     type: string
@@ -32,8 +29,7 @@ runs:
       with: # Github App with contents/read access to repo, submodules, and private registries
         app-id: ${{ inputs.checkout-app-id }}
         private-key: ${{ inputs.checkout-private-key }}
-        owner: Forte-Service-Company-Ltd
-        repositories: ${{ inputs.repositories || github.event.repository.name }}
+        owner: ${{ github.repository_owner }}
 
     - uses: actions/checkout@v4
       with:
