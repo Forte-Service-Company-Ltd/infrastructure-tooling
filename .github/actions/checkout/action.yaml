@@ -38,7 +38,7 @@ runs:
       if: ${{ steps.get-token.outputs.token }}
       shell: bash
       run: |
-        echo "GITHUB_TOKEN=\"${{ steps.get-token.outputs.token }}\"" >> $GITHUB_ENV
+        echo "GITHUB_TOKEN=foobar" >> $GITHUB_ENV
 
     - uses: actions/checkout@v4
       with:
@@ -48,14 +48,14 @@ runs:
         submodules: ${{ inputs.submodules }}
         token: ${{ steps.get-token.outputs.token || github.token }}
 
-    - name: Setup .npmrc for private registries, by using special auth token
-      if: ${{ inputs.npmrc-uses-app-token && steps.get-token.outputs.token }}
-      shell: bash
-      working-directory: ${{ inputs.working-directory }}
-      run: |
-        NPMRC_FILE=".npmrc"
-        if grep -q "_authToken=" "$NPMRC_FILE"; then
-          sed -i.bak "s/_authToken=.*/_authToken=${{ steps.get-token.outputs.token }}/" "$NPMRC_FILE"
-        else
-          echo "::warning:: No private registries exist in $NPMRC_FILE, but `npmrc-auth-token` was provided."
-        fi 
+    # - name: Setup .npmrc for private registries, by using special auth token
+    #   if: ${{ inputs.npmrc-uses-app-token && steps.get-token.outputs.token }}
+    #   shell: bash
+    #   working-directory: ${{ inputs.working-directory }}
+    #   run: |
+    #     NPMRC_FILE=".npmrc"
+    #     if grep -q "_authToken=" "$NPMRC_FILE"; then
+    #       sed -i.bak "s/_authToken=.*/_authToken=${{ steps.get-token.outputs.token }}/" "$NPMRC_FILE"
+    #     else
+    #       echo "::warning:: No private registries exist in $NPMRC_FILE, but `npmrc-auth-token` was provided."
+    #     fi 
