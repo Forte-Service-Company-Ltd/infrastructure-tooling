@@ -18,7 +18,10 @@ inputs:
     description: Optional NPM auth token to write to .npmrc for accessing private NPM registries.
     type: string
     required: false
-
+  submodules:
+    description: Whether to checkout git submodules. Values may be 'recursive', 'true', or 'false'. Defaults to 'recursive'.
+    required: false
+    default: "recursive"
 runs:
   using: "composite"
   steps:
