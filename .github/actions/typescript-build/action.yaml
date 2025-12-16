@@ -26,6 +26,10 @@ inputs:
     default: "false"
 runs:
   using: "composite"
+  permissions:
+    id-token: write
+    contents: read
+    packages: read
   steps:
 
     - name: Use Node.js ${{ inputs.node-version }}
