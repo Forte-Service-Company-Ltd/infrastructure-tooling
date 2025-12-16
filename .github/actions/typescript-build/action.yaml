@@ -42,6 +42,13 @@ runs:
         fi
       working-directory: ${{ inputs.working-directory }}
 
+    - name: TEMPORARY - DIAGNOSE NPMRC
+      shell: bash
+      run: |
+        echo "::group::++++++++++ .npmrc contents:"
+        cat ${{ inputs.working-directory }}/.npmrc
+        echo "::endgroup::++++++++"
+
     - name: Setup Yarn Version
       id: yarn-version
       if: ${{ inputs.package-manager == 'yarn' }}
