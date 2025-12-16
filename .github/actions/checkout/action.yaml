@@ -9,7 +9,6 @@ inputs:
   repositories: 
     description: A new-line-separated list of repositories to check out. Used when generating the token. Defaults to the caller repository.
     required: false
-    degault: ${{ github.event.repository.name }}
   checkout-app-id:
     description: The GitHub App ID to use when checking out the repository. Only needed if accessing private submodules or registries.
     type: string
@@ -34,7 +33,7 @@ runs:
         app-id: ${{ inputs.checkout-app-id }}
         private-key: ${{ inputs.checkout-private-key }}
         owner: Forte-Service-Company-Ltd
-        repositories: ${{ inputs.repositories }}
+        repositories: ${{ inputs.repositories || github.event.repository.name }}
 
     - uses: actions/checkout@v4
       with:
