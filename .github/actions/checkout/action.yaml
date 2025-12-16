@@ -58,7 +58,7 @@ runs:
       run: |
         NPMRC_FILE=".npmrc"
         if grep -q "_authToken=" "$NPMRC_FILE"; then
-          sed -i.bak "s/_authToken=.*/_authToken=\"${{ steps.get-token.outputs.token }}\"/" "$NPMRC_FILE"
+          sed -i.bak "s/_authToken=.*/_authToken=${{ steps.get-token.outputs.token }}/" "$NPMRC_FILE"
         else
           echo "::warning:: No private registries exist in $NPMRC_FILE, but `npmrc-auth-token` was provided."
         fi 
