@@ -46,7 +46,12 @@ runs:
       shell: bash
       run: |
         echo "::group::++++++++++ .npmrc contents:"
-        cat ${{ inputs.working-directory }}/.npmrc
+        if [ -f "${{ inputs.working-directory }}/.npmrc" ]; then
+          cat ${{ inputs.working-directory }}/.npmrc
+        else
+          echo "No .npmrc found at ${{ inputs.working-directory }}/.npmrc"
+          ls -la ${{ inputs.working-directory }}/
+        fi
         echo "::endgroup::++++++++"
 
     - name: Setup Yarn Version
