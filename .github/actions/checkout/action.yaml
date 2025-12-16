@@ -33,15 +33,12 @@ runs:
         app-id: ${{ inputs.checkout-app-id }}
         private-key: ${{ inputs.checkout-private-key }}
         owner: ${{ github.repository_owner }}
-        repositories: |
-          forte-dex-ui
-          perpetuals-sdk-typescript
 
     - name: Set GITHUB_TOKEN to the generated token
       if: ${{ steps.get-token.outputs.token }}
       shell: bash
       run: |
-        echo "GITHUB_TOKEN=${{ steps.get-token.outputs.token }}" >> $GITHUB_ENV
+        echo "GITHUB_TOKEN=\"${{ steps.get-token.outputs.token }}\"" >> $GITHUB_ENV
 
     - uses: actions/checkout@v4
       with:
