@@ -26,6 +26,7 @@ runs:
       id: get-token
       if: ${{ inputs.checkout-app-id && inputs.checkout-private-key }}
       uses: actions/create-github-app-token@v2
+      continue-on-error: true ## TEMPORARY: private-key is breaking in forte-dex-ui, so allow failure for now
       with: # Github App with contents/read access to repo, submodules, and private registries
         app-id: ${{ inputs.checkout-app-id }}
         private-key: ${{ inputs.checkout-private-key }}
