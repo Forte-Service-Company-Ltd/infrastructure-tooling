@@ -34,6 +34,12 @@ runs:
         private-key: ${{ inputs.checkout-private-key }}
         owner: ${{ github.repository_owner }}
 
+    - name: Set GITHUB_TOKEN to the generated token
+      if: ${{ steps.get-token.outputs.token }}
+      shell: bash
+      run: |
+        echo "GITHUB_TOKEN=${{ steps.get-token.outputs.token }}" >> $GITHUB_ENV
+
     - uses: actions/checkout@v4
       with:
         path: ${{ inputs.working-directory }}
