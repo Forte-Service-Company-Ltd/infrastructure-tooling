@@ -1,16 +1,15 @@
-# Checkout caller repository, and dependencies using a GitHub App token if provided
-# If no GitHub App token is provided, falls back to using the default GITHUB_TOKEN, which has read access to the caller repository only.
+# Checkout caller repository, and dependencies (using a GitHub App token if provided)
 
 name: Checkout Repository and Dependencies
-description: Checks out the caller repository and any submodules/packages. Private dependencies can be checked out by passing inputs of a GitHub App's id and private key.
+description: Checks out the caller repository and any submodules/packages. Private dependencies can be checked out by passing inputs of a GitHub App.
 
 inputs:
   checkout-app-id:
-    description: The GitHub App ID to use when checking out the repository. Only needed if accessing private submodules or registries.
+    description: The GitHub App ID to use when checking out the repository. Only needed if accessing private submodules.
     type: string
     required: false
   checkout-private-key:
-    description: The private key for the GitHub App to use when checking out the repository. Only needed if accessing private submodules or registries.
+    description: The private key for the GitHub App to use when checking out the repository. Only needed if accessing private submodules.
     type: string
     required: false
   npmrc-uses-github-token:
@@ -28,7 +27,7 @@ runs:
       id: get-token
       if: ${{ inputs.checkout-app-id && inputs.checkout-private-key }}
       uses: actions/create-github-app-token@v2
-      with: # Github App with contents/read access to repo, submodules, and private registries
+      with: # Github App with contents/read access to repo, submodules
         app-id: ${{ inputs.checkout-app-id }}
         private-key: ${{ inputs.checkout-private-key }}
         owner: ${{ github.repository_owner }}
