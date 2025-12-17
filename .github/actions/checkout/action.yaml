@@ -2,8 +2,7 @@
 # If no GitHub App token is provided, falls back to using the default GITHUB_TOKEN, which has read access to the caller repository only.
 
 name: Checkout Repository and Dependencies
-description: Checks out the caller repository and any submodules/packages. Private dependencies can be checked out by 
-  passing inputs of a GitHub App's id and private key.
+description: Checks out the caller repository and any submodules/packages. Private dependencies can be checked out by passing inputs of a GitHub App's id and private key.
 
 inputs:
   checkout-app-id:
