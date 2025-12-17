@@ -52,4 +52,4 @@ runs:
         cat > .npmrc << EOF
         @forte-service-company-ltd:registry=https://npm.pkg.github.com
         //npm.pkg.github.com/:_authToken=${{ github.token }}
-        EOF 
+        EOF
