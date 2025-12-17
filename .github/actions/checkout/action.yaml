@@ -1,0 +1,55 @@
+# Checkout caller repository, and dependencies (using a GitHub App token if provided)
+
+name: Checkout Repository and Dependencies
+description: Checks out the caller repository and any submodules/packages. Private dependencies can be checked out by passing inputs of a GitHub App.
+
+inputs:
+  checkout-app-id:
+    description: The GitHub App ID to use when checking out the repository. Only needed if accessing private submodules.
+    type: string
+    required: false
+  checkout-private-key:
+    description: The private key for the GitHub App to use when checking out the repository. Only needed if accessing private submodules.
+    type: string
+    required: false
+  npmrc-uses-github-token:
+    description: If true, will setup .npmrc to use the repository's default GITHUB_TOKEN for accessing GitHub Packages. This works when the repository has been granted access to the package.
+    type: boolean
+    required: false
+  submodules:
+    description: Whether to checkout git submodules. Values may be 'recursive', 'true', or 'false'. Defaults to 'recursive'.
+    required: false
+    default: "recursive"
+runs:
+  using: "composite"
+  steps:
+    - name: Generate GitHub App token
+      id: get-token
+      if: ${{ inputs.checkout-app-id && inputs.checkout-private-key }}
+      uses: actions/create-github-app-token@v2
+      with: # Github App with contents/read access to repo, submodules
+        app-id: ${{ inputs.checkout-app-id }}
+        private-key: ${{ inputs.checkout-private-key }}
+        owner: ${{ github.repository_owner }}
+
+    - name: Set GITHUB_TOKEN to the generated token
+      if: ${{ steps.get-token.outputs.token }}
+      shell: bash
+      run: |
+        echo "GITHUB_TOKEN=${{ steps.get-token.outputs.token }}" >> $GITHUB_ENV
+
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: "0"
+        fetch-tags: true
+        submodules: ${{ inputs.submodules }}
+        token: ${{ steps.get-token.outputs.token || github.token }}
+
+    - name: Setup .npmrc for GitHub Packages
+      if: ${{ inputs.npmrc-uses-github-token }}
+      shell: bash
+      run: |
+        cat > .npmrc << EOF
+        @forte-service-company-ltd:registry=https://npm.pkg.github.com
+        //npm.pkg.github.com/:_authToken=${{ github.token }}
+        EOF

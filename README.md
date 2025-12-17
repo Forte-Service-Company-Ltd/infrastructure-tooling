@@ -142,14 +142,15 @@ jobs:
 
 ### As Individual Actions
 
-Reference specific actions in your workflows:
+Reference specific actions in your workflows. Change `@main` to a recent tag release:
 
 ```yaml
 steps:
   - uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/install-foundry@main
   - uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/onchain-build@main
 
-  # For TypeScript projects
+  # For TypeScript projects (See additional inputs for private submodules/packages)
+  - uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/checkout@checkout-action
   - uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/typescript-build@main
     with: # All parameters are optional
       components: "server,client"

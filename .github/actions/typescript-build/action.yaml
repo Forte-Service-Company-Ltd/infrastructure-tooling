@@ -21,19 +21,12 @@ inputs:
     required: false
     default: .
   submodules:
-    description: Whether to checkout git submodules. Values may be 'recursive', 'true', or 'false'. Defaults to 'false'.
+    description: DEPRECATED - Remove this parameter if used in calling workflow
     required: false
     default: "false"
 runs:
   using: "composite"
   steps:
-    - uses: actions/checkout@v4
-      with:
-        path: ${{ inputs.working-directory }}
-        fetch-depth: "0"
-        fetch-tags: true
-        submodules: ${{ inputs.submodules }}
-
     - name: Use Node.js ${{ inputs.node-version }}
       uses: actions/setup-node@v4
       with:
