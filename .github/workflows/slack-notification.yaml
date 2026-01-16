@@ -33,7 +33,7 @@ jobs:
         shell: bash
         run: |
           if [[ "${{ inputs.env }}" == "staging" || "${{ inputs.env }}" == "onchain" ]]; then
-            echo "slack-webhook-url=${{ secrets.SLACK_ALERTS_STAGING_WEBHOOK_URL }}" >> $GITHUB_OUTPUT
+            echo "slack-webhook-url=${{ secrets.SLACK_ALERTS_DEV_WEBHOOK_URL }}" >> $GITHUB_OUTPUT
           elif [[ "${{ inputs.env }}" == "production" || "${{ inputs.env }}" == "demo" ]]; then
             echo "slack-webhook-url=${{ secrets.SLACK_ALERTS_PROD_WEBHOOK_URL }}" >> $GITHUB_OUTPUT
           else
