@@ -98,7 +98,7 @@ jobs:
     name: Notify Slack on Deployment Failure
     needs: [check]
     if: always() && (needs.check.result != 'success')
-    uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/workflows/slack-notification.yaml@v0.0.7
+    uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/workflows/slack-notification.yaml@v0.0.14
     with:
       env: "onchain"
       status: ${{ needs.check.result }}

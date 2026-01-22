@@ -291,7 +291,7 @@ jobs:
       [build-and-test, markdown-link-check, code-coverage-report, contract-size]
     if: always() && (needs.contract-size.result != 'success' || needs.build-and-test.result != 'success' || needs.markdown-link-check.result != 'success' || (needs.code-coverage-report.result != 'success' && needs.code-coverage-report.result != 'skipped'))
 
-    uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/workflows/slack-notification.yaml@v0.0.7
+    uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/workflows/slack-notification.yaml@v0.0.14
     with:
       env: "onchain"
       status: "failure"
