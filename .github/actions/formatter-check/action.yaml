@@ -161,8 +161,9 @@ runs:
           Please run the formatter locally to fix these issues.
 
     - name: Exit with error if formatting needed
-      if: steps.format-check.outcome == 'failure'
       shell: bash
       run: |
-        echo "Formatting check failed. Files need formatting."
-        exit 1
+        if [ -n "${{ steps.format-check.outputs.unformatted_files }}" ]; then
+          echo "Formatting check failed. Files need formatting."
+          exit 1
+        fi
