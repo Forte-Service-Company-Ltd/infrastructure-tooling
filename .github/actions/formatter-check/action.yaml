@@ -68,12 +68,6 @@ runs:
 
     # TODO: Add support for foundry/forge later if not a separate action
 
-    - name: Install Golang
-      if: ${{ steps.determine-formatter.outputs.formatter == 'gofmt' }}
-      uses: actions/setup-go@v4
-      with:
-        go-version: "1.25"
-
     # Prettier can't share a directory with nodejs project, so use a temp directory
     - name: Install Prettier
       if: ${{ steps.determine-formatter.outputs.formatter == 'prettier' }}
