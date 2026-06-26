@@ -165,7 +165,7 @@ jobs:
             include
             share
           key: setup-state-${{ needs.setup.outputs.cache-key }}
-          fail-on-cache-miss: true
+          fail-on-cache-miss: false
 
       - name: Markdown Link Check
         id: markdown-link-check
@@ -196,7 +196,7 @@ jobs:
             include
             share
           key: setup-state-${{ needs.setup.outputs.cache-key }}
-          fail-on-cache-miss: true
+          fail-on-cache-miss: false
 
       - name: Set on-chain build PATH
         id: setup-path
@@ -228,7 +228,7 @@ jobs:
             include
             share
           key: setup-state-${{ needs.setup.outputs.cache-key }}
-          fail-on-cache-miss: true
+          fail-on-cache-miss: false
 
       - name: Set on-chain build PATH
         id: setup-path
@@ -267,7 +267,7 @@ jobs:
             include
             share
           key: setup-state-${{ needs.setup.outputs.cache-key }}
-          fail-on-cache-miss: true
+          fail-on-cache-miss: false
 
       - name: Set on-chain build PATH
         id: setup-path
