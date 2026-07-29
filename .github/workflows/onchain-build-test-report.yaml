@@ -144,7 +144,7 @@ jobs:
 
   markdown-link-check:
     name: Markdown Link Check
-    runs-on: ubuntu-latest
+    runs-on: Linux-Arm64
     needs: [setup]
     timeout-minutes: 15
 
@@ -246,7 +246,7 @@ jobs:
 
   code-coverage-report:
     name: Code Coverage
-    runs-on: ubuntu-latest
+    runs-on: Linux-Arm64
     needs: [setup]
     timeout-minutes: 30
     if: inputs.code-coverage == true
