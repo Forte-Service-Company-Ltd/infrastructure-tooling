@@ -72,7 +72,7 @@ on:
 jobs:
   setup:
     name: Setup
-    runs-on: ubuntu-latest
+    runs-on: Linux-Arm64
     outputs:
       cache-key: ${{ steps.cache-key.outputs.key }}
       token: ${{ steps.get-token.outputs.token }}
@@ -175,9 +175,9 @@ jobs:
 
   contract-size:
     name: Contract Size
-    runs-on: ubuntu-latest
-    needs: [setup]
     timeout-minutes: 30
+    runs-on: Linux-Arm64
+    needs: [setup]
 
     steps:
       - name: Restore setup state
@@ -208,9 +208,9 @@ jobs:
 
   build-and-test:
     name: Build and Test
-    runs-on: ubuntu-latest
+    timeout-minutes: 60 # Allow very long running tests
+    runs-on: Linux-Arm64
     needs: [setup]
-    timeout-minutes: 30
     steps:
       - name: Restore setup state
         uses: actions/cache/restore@v4
