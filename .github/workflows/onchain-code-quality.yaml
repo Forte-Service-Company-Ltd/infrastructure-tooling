@@ -67,6 +67,9 @@ jobs:
         id: install-foundry
         uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/install-foundry@v0.0.7
 
+      - name: Check Solidity formatting
+        uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/onchain-format-check@v1
+
       - name: Install Python Dependencies
         id: install-python-dependencies
         uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/install-python-dependencies@v0.0.7
