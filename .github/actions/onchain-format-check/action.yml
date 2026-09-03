@@ -1,0 +1,18 @@
+name: On-chain Format Check
+description: Checks formatting using the consuming repository's Prettier configuration.
+runs:
+  using: "composite"
+  steps:
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: "20"
+        cache: npm
+
+    - name: Install dependencies
+      shell: bash
+      run: npm ci
+
+    - name: Check formatting
+      shell: bash
+      run: npm run format:check
