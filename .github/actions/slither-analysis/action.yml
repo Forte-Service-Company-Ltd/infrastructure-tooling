@@ -9,21 +9,33 @@ inputs:
     description: Target directory or file for slither analysis
     required: false
     default: .
+  slither-version:
+    description: Version of slither-analyzer to install
+    required: false
+    default: 0.11.6
 runs:
   using: "composite"
   steps:
     - name: Slither Analyze
       id: slither
       shell: bash
+      env:
+        SLITHER_CONFIG: ${{ inputs.config }}
+        SLITHER_TARGET: ${{ inputs.target }}
+        SLITHER_VERSION: ${{ inputs.slither-version }}
       run: |
-        pip install slither-analyzer
+        python -m pip install "slither-analyzer==${SLITHER_VERSION}"
         echo "Running slither analysis..."
-        echo "Target: ${{ inputs.target }}"
-        echo "Config: ${{ inputs.config }}"
+        echo "Target: ${SLITHER_TARGET}"
+        echo "Config: ${SLITHER_CONFIG}"
 
         # Try to run slither with error handling
         set +e  # Don't exit on error
-        slither --config-file ${{ inputs.config }} --sarif results.sarif --fail-none ${{ inputs.target }}
+        slither "${SLITHER_TARGET}" \
+          --config-file "${SLITHER_CONFIG}" \
+          --sarif results.sarif \
+          --json results.json \
+          --fail-none
 
     - name: Upload SARIF file
       uses: actions/upload-artifact@v4
@@ -32,65 +44,43 @@ runs:
         path: ./results.sarif
         retention-days: 5
 
-    - name: Create/update checklist as PR comment
+    - name: Create/update Slither PR comment
+      if: github.event.pull_request != null
       uses: actions/github-script@v7
       with:
         script: |
           const fs = require('fs');
           const path = require('path');
-          // Read the SARIF file
-          const sarifPath = './results.sarif';
-          let sarifContent = '';
-          try {
-            if (fs.existsSync(sarifPath)) {
-              const rawContent = fs.readFileSync(sarifPath, 'utf8');
-              const sarifData = JSON.parse(rawContent);
-              // Format the SARIF data for better readability
-              let formattedResults = '';
-              if (sarifData.runs && sarifData.runs.length > 0) {
-                for (const run of sarifData.runs) {
-                  if (run.results && run.results.length > 0) {
-                    formattedResults += `## ${run.tool.driver.name} Analysis Results\n\n`;
-                    formattedResults += `Found ${run.results.length} issue(s):\n\n`;
-                    for (const result of run.results) {
-                      const level = result.level || 'info';
-                      const ruleId = result.ruleId || 'unknown';
-                      const message = result.message.text || 'No message';
-                      const location = result.locations && result.locations[0] 
-                        ? `${result.locations[0].physicalLocation.artifactLocation.uri}:${result.locations[0].physicalLocation.region.startLine}`
-                        : 'Unknown location';
+          const {
+            MARKER,
+            extractJsonFindings,
+            findExistingComment,
+            renderReport,
+          } = require(path.join('${{ github.action_path }}', 'slither-comment.js'));
 
-                      formattedResults += `- **${level.toUpperCase()}** [${ruleId}]: ${message}\n`;
-                      formattedResults += `  - Location: \`${location}\`\n\n`;
-                    }
-                  } else {
-                    formattedResults += `## ${run.tool.driver.name} Analysis Results\n\n`;
-                    formattedResults += '✅ No issues found!\n\n';
-                  }
-                }
-              } else {
-                formattedResults = '✅ No analysis results found.\n';
-              }
-              sarifContent = formattedResults;
-            } else {
-              sarifContent = '❌ SARIF file not found.';
-            }
+          const jsonPath = './results.json';
+          let comment;
+          try {
+            const findings = extractJsonFindings(JSON.parse(fs.readFileSync(jsonPath, 'utf8')));
+            const repositoryUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}`;
+            const runUrl = `${repositoryUrl}/actions/runs/${context.runId}`;
+            comment = renderReport({
+              findings,
+              repositoryUrl,
+              headSha: context.payload.pull_request.head.sha,
+              runUrl,
+            });
           } catch (error) {
-            sarifContent = `❌ Error reading SARIF file: ${error.message}`;
+            comment = `${MARKER}\n# 🔍 Slither Analysis Report\n\n❌ Error reading Slither results: ${error.message}`;
           }
-          const header = '<details><summary>🔍 Slither Analysis Report</summary>\n\n';
-          const footer = '\n</details>';
-          const comment = header + sarifContent + footer;
-          const { data: comments } = await github.rest.issues.listComments({
+
+          const comments = await github.paginate(github.rest.issues.listComments, {
             owner: context.repo.owner,
             repo: context.repo.repo,
-            issue_number: context.payload.number,
+            issue_number: context.payload.pull_request.number,
+            per_page: 100,
           });
-          const botComment = comments.find(
-            (comment) =>
-              // github-actions bot user
-              comment.user.id === 41898282 && comment.body.includes('🔍 Slither Analysis Report')
-          );
+          const botComment = findExistingComment(comments);
           const commentFn = botComment ? "updateComment" : "createComment";
           await github.rest.issues[commentFn]({
             owner: context.repo.owner,
@@ -98,5 +88,5 @@ runs:
             body: comment,
             ...(botComment
               ? { comment_id: botComment.id }
-              : { issue_number: context.payload.number }),
+              : { issue_number: context.payload.pull_request.number }),
           });
