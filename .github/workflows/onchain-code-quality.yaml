@@ -38,7 +38,7 @@ on:
 jobs:
   check:
     name: Code Quality Checks
-    runs-on: ubuntu-latest
+    runs-on: self-host-deployment
     timeout-minutes: 45
     steps:
       - name: Generate GitHub App token

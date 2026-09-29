@@ -72,7 +72,7 @@ on:
 jobs:
   setup:
     name: Setup
-    runs-on: Linux-Arm64
+    runs-on: self-host-deployment
     outputs:
       cache-key: ${{ steps.cache-key.outputs.key }}
       token: ${{ steps.get-token.outputs.token }}
@@ -144,7 +144,7 @@ jobs:
 
   markdown-link-check:
     name: Markdown Link Check
-    runs-on: Linux-Arm64
+    runs-on: self-host-deployment
     needs: [setup]
     timeout-minutes: 15
 
@@ -176,7 +176,7 @@ jobs:
   contract-size:
     name: Contract Size
     timeout-minutes: 30
-    runs-on: Linux-Arm64
+    runs-on: self-host-deployment
     needs: [setup]
 
     steps:
@@ -209,7 +209,7 @@ jobs:
   build-and-test:
     name: Build and Test
     timeout-minutes: 60 # Allow very long running tests
-    runs-on: Linux-Arm64
+    runs-on: self-host-deployment
     needs: [setup]
     steps:
       - name: Restore setup state
@@ -246,7 +246,7 @@ jobs:
 
   code-coverage-report:
     name: Code Coverage
-    runs-on: Linux-Arm64
+    runs-on: self-host-deployment
     needs: [setup]
     timeout-minutes: 30
     if: inputs.code-coverage == true
