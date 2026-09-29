@@ -93,13 +93,6 @@ jobs:
           token: ${{ steps.get-token.outputs.token || github.token}}
           submodules: recursive
 
-      - name: Checkout infrastructure-tooling repository
-        uses: actions/checkout@v4
-        with:
-          repository: Forte-Service-Company-Ltd/infrastructure-tooling
-          ref: v0.0.3
-          path: infrastructure-tooling
-
       - name: Generate cache key
         id: cache-key
         uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/generate-gha-cache-key@v1
@@ -130,7 +123,6 @@ jobs:
         with:
           path: |
             .
-            infrastructure-tooling
             ~/.foundry
             ~/.npm
             ~/.cache/pip
@@ -154,7 +146,6 @@ jobs:
         with:
           path: |
             .
-            infrastructure-tooling
             ~/.foundry
             ~/.npm
             ~/.cache/pip
@@ -185,7 +176,6 @@ jobs:
         with:
           path: |
             .
-            infrastructure-tooling
             ~/.foundry
             ~/.npm
             ~/.cache/pip
@@ -217,7 +207,6 @@ jobs:
         with:
           path: |
             .
-            infrastructure-tooling
             ~/.foundry
             ~/.npm
             ~/.cache/pip
@@ -256,7 +245,6 @@ jobs:
         with:
           path: |
             .
-            infrastructure-tooling
             ~/.foundry
             ~/.npm
             ~/.cache/pip
