@@ -6,4 +6,4 @@ runs:
     - name: Check Contract Size
       shell: bash
       run: |
-        bash "${{ github.action_path }}/../../scripts/contract-size.sh"
+        bash infrastructure-tooling/.github/scripts/contract-size.sh
