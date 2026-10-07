@@ -73,7 +73,7 @@ runs:
         timeout ${{ inputs.timeout }} medusa fuzz --config "$CONFIG_FILE" || {
             exit_code=$?
             if [ $exit_code -eq 124 ]; then
-                echo "::error title=Medusa timeout::Medusa fuzzing was killed after ${{ inputs.timeout }} seconds before completing; results are unknown. Set fuzzing.timeout in $CONFIG_FILE below the action timeout to bound the campaign."
+                echo "::error title=Medusa timeout::Medusa fuzzing was killed after ${{ inputs.timeout }} seconds before completing;"
                 exit 1
             else
                 echo "Medusa fuzzing failed with exit code: $exit_code"
