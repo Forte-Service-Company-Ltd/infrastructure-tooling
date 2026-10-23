@@ -7,6 +7,11 @@ on:
   # Triggered from app repo's workflows
   workflow_call:
     inputs:
+      foundry-version:
+        description: Foundry version to install
+        type: string
+        required: false
+        default: v1.2.1
       gh-app-id:
         description: GitHub App ID for generating tokens
         type: string
@@ -66,6 +71,8 @@ jobs:
       - name: Install Foundry
         id: install-foundry
         uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/install-foundry@v1
+        with:
+          version: ${{ inputs.foundry-version }}
 
       - name: Check Solidity formatting
         uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/onchain-format-check@v1
