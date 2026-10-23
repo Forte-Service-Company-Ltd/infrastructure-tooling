@@ -1,19 +1,10 @@
 name: On-chain Build
 description: Runs forge build for on-chain microservices.
-inputs:
-  build-args:
-    description: Space-separated arguments passed to forge build
-    required: false
-    default: ""
 runs:
   using: "composite"
   steps:
     - name: Build the repository
       id: build
       shell: bash
-      env:
-        BUILD_ARGS: ${{ inputs.build-args }}
       run: |
-        read -r -a args <<< "$BUILD_ARGS"
-        forge clean
-        forge build "${args[@]}"
+        forge clean && forge build --optimize

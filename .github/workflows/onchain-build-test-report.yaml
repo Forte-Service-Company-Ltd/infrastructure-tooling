@@ -120,8 +120,6 @@ jobs:
       - name: Build
         id: build
         uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/onchain-build@v1
-        with:
-          build-args: --optimize
 
       - name: Locate and cache Foundry binaries
         id: locate-foundry-binaries
