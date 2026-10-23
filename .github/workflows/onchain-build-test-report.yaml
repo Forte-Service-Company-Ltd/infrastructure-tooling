@@ -12,7 +12,7 @@ on:
         description: Foundry version to install
         type: string
         required: false
-        default: v1.2.1
+        default: v1.7.1
       # Define any inputs needed from the calling workflow
       gh-app-id:
         description: GitHub App ID for generating tokens
