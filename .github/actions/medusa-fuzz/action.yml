@@ -65,6 +65,10 @@ runs:
             ls -la
             exit 1
         fi
+        jq '.fuzzing.coverageFormats = [] | .fuzzing.revertReporterEnabled = false' \
+          "$CONFIG_FILE" > "${CONFIG_FILE}.tmp"
+        mv "${CONFIG_FILE}.tmp" "$CONFIG_FILE"
+
         echo "Starting Medusa fuzzing with config: $CONFIG_FILE"
         echo "Working directory: $(pwd)"
         echo "Medusa version: $(medusa --version)"
