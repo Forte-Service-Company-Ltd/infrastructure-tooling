@@ -8,11 +8,6 @@ on:
   # Triggered from app repo's workflows
   workflow_call:
     inputs:
-      foundry-version:
-        description: Foundry version to install
-        type: string
-        required: false
-        default: v1.7.1
       # Define any inputs needed from the calling workflow
       gh-app-id:
         description: GitHub App ID for generating tokens
@@ -118,7 +113,7 @@ jobs:
         id: install-foundry
         uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/install-foundry@v1
         with:
-          version: ${{ inputs.foundry-version }}
+          version: v1.7.1
 
       - name: Install Python Dependencies
         id: install-python-dependencies
@@ -149,7 +144,7 @@ jobs:
             lib
             include
             share
-          key: setup-state-${{ inputs.foundry-version }}-${{ steps.cache-key.outputs.key }}
+          key: setup-state-${{ steps.cache-key.outputs.key }}
 
   markdown-link-check:
     name: Markdown Link Check
@@ -173,7 +168,7 @@ jobs:
             lib
             include
             share
-          key: setup-state-${{ inputs.foundry-version }}-${{ needs.setup.outputs.cache-key }}
+          key: setup-state-${{ needs.setup.outputs.cache-key }}
           fail-on-cache-miss: false
 
       - name: Markdown Link Check
@@ -204,7 +199,7 @@ jobs:
             lib
             include
             share
-          key: setup-state-${{ inputs.foundry-version }}-${{ needs.setup.outputs.cache-key }}
+          key: setup-state-${{ needs.setup.outputs.cache-key }}
           fail-on-cache-miss: false
 
       - name: Set on-chain build PATH
@@ -236,7 +231,7 @@ jobs:
             lib
             include
             share
-          key: setup-state-${{ inputs.foundry-version }}-${{ needs.setup.outputs.cache-key }}
+          key: setup-state-${{ needs.setup.outputs.cache-key }}
           fail-on-cache-miss: false
 
       - name: Set on-chain build PATH
@@ -275,7 +270,7 @@ jobs:
             lib
             include
             share
-          key: setup-state-${{ inputs.foundry-version }}-${{ needs.setup.outputs.cache-key }}
+          key: setup-state-${{ needs.setup.outputs.cache-key }}
           fail-on-cache-miss: false
 
       - name: Set on-chain build PATH
