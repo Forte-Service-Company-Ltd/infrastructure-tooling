@@ -16,7 +16,7 @@ The infrastructure-tooling repository contains standardized CI/CD components spe
 
 - **`install-foundry/`** - Installs and configures the Foundry toolchain (default: v1.2.1)
 - **`install-dependencies/`** - Handles dependency installation for Python and Soldeer packages
-- **`onchain-build/`** - Compiles smart contracts using Forge with optimization
+- **`onchain-build/`** - Compiles smart contracts using Forge with configurable build arguments
 - **`onchain-test/`** - Runs comprehensive test suites with support for mainnet forking
 - **`typescript-build/`** - Builds TypeScript projects with support for multiple workspaces and components
 - **`typescript-test/`** - Runs TypeScript test suites with configurable script commands and arguments
@@ -148,6 +148,8 @@ Reference specific actions in your workflows. Change `@main` to a recent tag rel
 steps:
   - uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/install-foundry@main
   - uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/onchain-build@main
+    with:
+      build-args: --optimize
 
   # For TypeScript projects (See additional inputs for private submodules/packages)
   - uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/checkout@checkout-action
@@ -203,6 +205,12 @@ steps:
 - **TypeScript** - Type-safe JavaScript development
 - **Yarn/NPM** - JavaScript package managers
 - **Soldeer** - Solidity package manager
+
+On-chain actions accept space-separated arguments through `build-args` (Forge),
+`slither-args` (Slither), and `crytic-compile-args` (Medusa crytic-compile config).
+These inputs default to empty. Arguments are split on whitespace; shell quoting and
+expansion are not evaluated. The code-quality workflow builds once and selects
+production sources and their imports for Slither. Medusa uses the full build output.
 
 ## 📋 Requirements
 

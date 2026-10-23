@@ -77,12 +77,22 @@ jobs:
       - name: Build
         id: build
         uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/onchain-build@v1
+        with:
+          build-args: --optimize --build-info
+
+      - name: Select production build-info for Slither
+        env:
+          SLITHER_TARGET: ${{ inputs.slither-target }}
+        run: |
+          python infrastructure-tooling/.github/actions/slither-analysis/select-build-info.py \
+            "$SLITHER_TARGET" .slither-build-info
 
       - name: Slither Analysis
         id: slither-analysis
         uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/slither-analysis@v1
         with:
           target: ${{ inputs.slither-target }}
+          slither-args: --ignore-compile --foundry-build-info-directory .slither-build-info
 
       - name: Check for medusa.conf
         id: check-medusa-conf
@@ -96,6 +106,8 @@ jobs:
         id: medusa-fuzz
         if: steps.check-medusa-conf.outputs.medusa-conf-exists == 'true'
         uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/medusa-fuzz@v1
+        with:
+          crytic-compile-args: --ignore-compile
 
   notify:
     name: Notify Slack on Deployment Failure

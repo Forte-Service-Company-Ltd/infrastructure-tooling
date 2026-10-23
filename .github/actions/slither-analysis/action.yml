@@ -13,6 +13,10 @@ inputs:
     description: Version of slither-analyzer to install
     required: false
     default: 0.11.6
+  slither-args:
+    description: Space-separated arguments passed to Slither
+    required: false
+    default: ""
 runs:
   using: "composite"
   steps:
@@ -23,15 +27,19 @@ runs:
         SLITHER_CONFIG: ${{ inputs.config }}
         SLITHER_TARGET: ${{ inputs.target }}
         SLITHER_VERSION: ${{ inputs.slither-version }}
+        SLITHER_ARGS: ${{ inputs.slither-args }}
       run: |
         python -m pip install "slither-analyzer==${SLITHER_VERSION}"
         echo "Running slither analysis..."
         echo "Target: ${SLITHER_TARGET}"
         echo "Config: ${SLITHER_CONFIG}"
 
+        read -r -a args <<< "$SLITHER_ARGS"
+
         # Try to run slither with error handling
         set +e  # Don't exit on error
         slither "${SLITHER_TARGET}" \
+          "${args[@]}" \
           --config-file "${SLITHER_CONFIG}" \
           --sarif results.sarif \
           --json results.json \
