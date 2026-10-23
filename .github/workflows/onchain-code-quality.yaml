@@ -77,12 +77,15 @@ jobs:
       - name: Build
         id: build
         uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/onchain-build@v1
+        with:
+          build-args: --optimize --build-info src
 
       - name: Slither Analysis
         id: slither-analysis
         uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/slither-analysis@v1
         with:
           target: ${{ inputs.slither-target }}
+          slither-args: --ignore-compile
 
       - name: Check for medusa.conf
         id: check-medusa-conf
