@@ -112,6 +112,8 @@ jobs:
       - name: Install Foundry
         id: install-foundry
         uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/install-foundry@v1
+        with:
+          version: v1.7.1
 
       - name: Install Python Dependencies
         id: install-python-dependencies
