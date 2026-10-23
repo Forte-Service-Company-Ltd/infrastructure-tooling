@@ -209,8 +209,8 @@ steps:
 On-chain actions accept space-separated arguments through `build-args` (Forge),
 `slither-args` (Slither), and `crytic-compile-args` (Medusa crytic-compile config).
 These inputs default to empty. Arguments are split on whitespace; shell quoting and
-expansion are not evaluated. The code-quality workflow builds once and selects
-production sources and their imports for Slither. Medusa uses the full build output.
+expansion are not evaluated. The code-quality workflow builds production contracts for Slither to reuse.
+Medusa then performs its normal full compilation, including test harnesses.
 
 ## 📋 Requirements
 
