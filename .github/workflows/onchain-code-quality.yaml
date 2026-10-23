@@ -76,7 +76,9 @@ jobs:
 
       - name: Build
         id: build
-        run: forge clean && forge build --optimize --build-info --skip './test/**' './script/**'
+        uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/onchain-build@v1
+        with:
+          build-args: --optimize --build-info --skip ./test/** ./script/**
 
       - name: Slither Analysis
         id: slither-analysis
