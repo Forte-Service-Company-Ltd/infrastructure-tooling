@@ -33,15 +33,38 @@ runs:
       run: |
         pip install crytic-compile slither-analyzer
 
-    - name: Install medusa
-      id: install-medusa
+    - name: Clone Medusa
+      id: medusa-source
       shell: bash
       run: |
         git clone https://github.com/crytic/medusa.git
+        echo "sha=$(git -C medusa rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
+    - name: Restore Medusa binary
+      id: medusa-cache
+      uses: actions/cache/restore@v4
+      with:
+        path: medusa/medusa
+        key: medusa-bin-v1-${{ runner.os }}-${{ runner.arch }}-${{ steps.medusa-source.outputs.sha }}
+
+    - name: Build Medusa
+      if: steps.medusa-cache.outputs.cache-hit != 'true'
+      shell: bash
+      run: |
         cd medusa
         go build -o medusa -v .
-        go install -v .
-        sudo cp medusa /usr/bin
+
+    - name: Save Medusa binary
+      if: steps.medusa-cache.outputs.cache-hit != 'true'
+      uses: actions/cache/save@v4
+      with:
+        path: medusa/medusa
+        key: ${{ steps.medusa-cache.outputs.cache-primary-key }}
+
+    - name: Install Medusa
+      id: install-medusa
+      shell: bash
+      run: sudo cp medusa/medusa /usr/bin
 
     - name: Verify installations
       id: verify-installs
