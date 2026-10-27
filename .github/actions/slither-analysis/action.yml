@@ -42,7 +42,15 @@ runs:
           --sarif results.sarif \
           --fail-none
 
-    - name: Upload SARIF file
+    - name: Upload SARIF artifact
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: results.sarif
+        path: ./results.sarif
+        retention-days: 5
+
+    - name: Upload SARIF to code scanning
       uses: github/codeql-action/upload-sarif@v3
       if: always()
       with:
