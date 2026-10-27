@@ -30,7 +30,7 @@ The infrastructure-tooling repository contains standardized CI/CD components spe
 #### Code Quality & Analysis Actions
 
 - **`code-coverage/`** - Generates LCOV coverage reports and posts results to pull requests
-- **`slither-analysis/`** - Performs static security analysis using Slither with SARIF output
+- **`slither-analysis/`** - Performs static security analysis using Slither and uploads SARIF to GitHub code scanning
 - **`medusa-fuzz/`** - Executes property-based fuzzing tests using Medusa fuzzer
 - **`contract-size/`** - Validates contract bytecode size against Ethereum's 24KB limit
 - **`rust-formatting/`** - Checks Rust code formatting with rustfmt and runs clippy linter
@@ -74,8 +74,7 @@ Focused workflow for code quality and security analysis:
 
 - Static security analysis with Slither
 - Conditional fuzzing with Medusa (when `medusa.json` exists)
-- SARIF report generation for security findings
-- Automated PR comments with analysis results
+- SARIF report upload to GitHub code scanning
 
 ### Utility Scripts (`.github/scripts/`)
 
@@ -131,14 +130,17 @@ on:
     types: [opened, synchronize, reopened, edited, ready_for_review]
 
 permissions:
+  actions: read
   contents: read
-  pull-requests: write
+  security-events: write
 
 jobs:
   code-quality:
-    uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/workflows/onchain-code-quality.yaml@v0.0.2
+    uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/workflows/onchain-code-quality.yaml@v1
     secrets: inherit
 ```
+
+The calling workflow must grant these permissions for SARIF uploads. Private repositories also need GitHub Code Security enabled. After merge, move the `v1` tag to the merge commit so callers receive the SARIF upload change.
 
 ### As Individual Actions
 
@@ -216,8 +218,7 @@ steps:
 
 - **Static Analysis**: Comprehensive security scanning with Slither
 - **Fuzzing**: Property-based testing with Medusa
-- **SARIF Reports**: Industry-standard security report format
-- **Automated PR Comments**: Security findings reported directly on pull requests
+- **SARIF Reports**: Security findings uploaded to GitHub code scanning
 
 ## 📊 Quality Assurance
 
