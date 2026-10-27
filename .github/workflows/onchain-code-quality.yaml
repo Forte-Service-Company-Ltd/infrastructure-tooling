@@ -40,6 +40,10 @@ jobs:
     name: Code Quality Checks
     runs-on: Linux-Arm64
     timeout-minutes: 45
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
     steps:
       - name: Generate GitHub App token
         id: get-token
