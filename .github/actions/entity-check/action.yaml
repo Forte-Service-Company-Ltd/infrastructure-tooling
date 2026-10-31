@@ -12,12 +12,17 @@ runs:
     - name: Check for entity changes
       id: entity_changes
       shell: bash
+      env:
+        # Inputs arrive via env vars so they stay data-only in the shell (CWE-78 hardening)
+        BASE_REF: ${{ github.base_ref }}
+        ENTITY_PATH: ${{ inputs.entity-path }}
       run: |
-        git fetch origin ${{ github.base_ref }}
-        CHANGED=$(git diff --name-only origin/${{ github.base_ref }}...HEAD -- ${{ inputs.entity-path }})
-        echo "changed_files<<EOF" >> $GITHUB_OUTPUT
+        git fetch origin "$BASE_REF"
+        CHANGED=$(git diff --name-only "origin/$BASE_REF"...HEAD -- "$ENTITY_PATH")
+        output_delimiter="ghadelim_$(openssl rand -hex 16)"
+        echo "changed_files<<$output_delimiter" >> $GITHUB_OUTPUT
         echo "$CHANGED" >> $GITHUB_OUTPUT
-        echo "EOF" >> $GITHUB_OUTPUT
+        echo "$output_delimiter" >> $GITHUB_OUTPUT
         if [ -n "$CHANGED" ]; then
           echo "entities_changed=true" >> $GITHUB_OUTPUT
         else
@@ -27,14 +32,18 @@ runs:
       if: steps.entity_changes.outputs.entities_changed == 'true'
       id: entity_diff
       shell: bash
+      env:
+        BASE_REF: ${{ github.base_ref }}
+        ENTITY_PATH: ${{ inputs.entity-path }}
       run: |
-        DIFF=$(git diff origin/${{ github.base_ref }}...HEAD -- ${{ inputs.entity-path }})
-        echo "diff<<EOF" >> $GITHUB_OUTPUT
+        DIFF=$(git diff "origin/$BASE_REF"...HEAD -- "$ENTITY_PATH")
+        output_delimiter="ghadelim_$(openssl rand -hex 16)"
+        echo "diff<<$output_delimiter" >> $GITHUB_OUTPUT
         echo "$DIFF" >> $GITHUB_OUTPUT
-        echo "EOF" >> $GITHUB_OUTPUT
+        echo "$output_delimiter" >> $GITHUB_OUTPUT
     - name: Comment on PR if entities changed
       if: steps.entity_changes.outputs.entities_changed == 'true'
-      uses: thollander/actions-comment-pull-request@v3
+      uses: thollander/actions-comment-pull-request@24bffb9b452ba05a4f3f77933840a6a841d1b32b # v3
       with:
         message: |
           ⚠️ **Database entities have changed in this PR.**

@@ -3,6 +3,12 @@
 # This workflow is designed to be called from other repositories via 'workflow_call' event.
 
 name: On-chain Code Quality
+
+# Least privilege: 'check' posts the Slither analysis comment (issues: write).
+permissions:
+  contents: read
+  issues: write
+
 on:
   # Triggered from app repo's workflows
   workflow_call:
@@ -25,8 +31,11 @@ on:
     outputs:
       status:
         description: The status of the deployment job, either 'success', 'failure', or 'skipped'
-        value: ${{ jobs.check.result }}
+        value: ${{ jobs.status.outputs.status }}
     secrets:
+      GH_APP_PRIVATE_KEY:
+        required: false
+        description: Private key for the optional GitHub App authentication
       # Secrets are passed from the calling repository
       ALCHEMY_KEY: # optional, only if needed for tests requiring mainnet fork
         required: false
@@ -44,47 +53,49 @@ jobs:
       - name: Generate GitHub App token
         id: get-token
         if: inputs.gh-app-id != ''
-        uses: actions/create-github-app-token@v2
+        uses: actions/create-github-app-token@fee1f7d63c2ff003460e3d139729b119787bc349 # v2
         with: # The app-id needs to be set and private-key should be configured in the calling repository's secrets to access private repos.
           app-id: ${{ inputs.gh-app-id }}
           private-key: ${{ secrets.GH_APP_PRIVATE_KEY }}
           repositories: ${{ inputs.project-repositories }}
 
       - name: Checkout local repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
+          persist-credentials: false
           token: ${{ steps.get-token.outputs.token || github.token}}
           submodules: recursive
 
       - name: Checkout infrastructure-tooling repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
+          persist-credentials: false
           repository: Forte-Service-Company-Ltd/infrastructure-tooling
           ref: v1
           path: infrastructure-tooling
 
       - name: Install Foundry
         id: install-foundry
-        uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/install-foundry@v1
+        uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/install-foundry@b8b16be6473c3787dfc4a707d80ce653626f2d74 # v1
         with:
           version: v1.7.1
 
       - name: Check Solidity formatting
-        uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/onchain-format-check@v1
+        uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/onchain-format-check@b8b16be6473c3787dfc4a707d80ce653626f2d74 # v1
 
       - name: Install Python Dependencies
         id: install-python-dependencies
-        uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/install-python-dependencies@v1
+        uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/python-dependency-installer@b8b16be6473c3787dfc4a707d80ce653626f2d74 # v1
 
       - name: Build
         id: build
-        uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/onchain-build@v1
+        uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/onchain-build@b8b16be6473c3787dfc4a707d80ce653626f2d74 # v1
         with:
           build-args: --optimize --build-info src
 
       - name: Slither Analysis
         id: slither-analysis
-        uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/slither-analysis@v1
+        uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/slither-analysis@b8b16be6473c3787dfc4a707d80ce653626f2d74 # v1
         with:
           target: ${{ inputs.slither-target }}
           slither-args: --ignore-compile
@@ -100,13 +111,27 @@ jobs:
       - name: Medusa Fuzz
         id: medusa-fuzz
         if: steps.check-medusa-conf.outputs.medusa-conf-exists == 'true'
-        uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/medusa-fuzz@v1
+        uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/medusa-fuzz@b8b16be6473c3787dfc4a707d80ce653626f2d74 # v1
+
+  status:
+    name: Collect workflow status
+    if: always()
+    needs: [check]
+    runs-on: ubuntu-latest
+    outputs:
+      status: ${{ steps.result.outputs.status }}
+    steps:
+      - name: Export status
+        id: result
+        env:
+          WORKFLOW_STATUS: ${{ needs.check.result }}
+        run: echo "status=$WORKFLOW_STATUS" >> "$GITHUB_OUTPUT"
 
   notify:
     name: Notify Slack on Deployment Failure
     needs: [check]
     if: always() && (needs.check.result != 'success')
-    uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/workflows/slack-notification.yaml@v1
+    uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/workflows/slack-notification.yaml@b8b16be6473c3787dfc4a707d80ce653626f2d74 # v1
     with:
       env: "onchain"
       status: ${{ needs.check.result }}
