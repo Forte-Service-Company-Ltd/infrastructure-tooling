@@ -18,8 +18,9 @@ runs:
     # A note on directories: Due to nodejs module conflicts, prettier and its plugins cannot share a directory with a nodejs project.
     # Thus, install prettier in a temp directory and checkout the project files separately.
     - name: Checkout repository
-      uses: actions/checkout@v4
+      uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
       with:
+        persist-credentials: false
         ref: ${{ github.ref }}
         fetch-depth: 0
         path: project-files
@@ -28,26 +29,38 @@ runs:
       id: determine-formatter
       shell: bash
       working-directory: project-files
+      env:
+        # Inputs arrive via env vars so they stay data-only in the shell (CWE-78 hardening)
+        FORMATTER_INPUT: ${{ inputs.formatter }}
+        CONFIG_FILE: ${{ inputs.config-file }}
       run: |
         echo "::group::Determining formatter"
         # Autodetect
-        if [ "${{ inputs.formatter }}" != "auto" ]; then
-          formatter="${{ inputs.formatter }}"
+        if [ "$FORMATTER_INPUT" != "auto" ]; then
+          formatter="$FORMATTER_INPUT"
         # Foundry
         elif [ -f "foundry.toml" ]; then
           formatter="forge"
         # Python (Black)
         elif [ -f "requirements.txt" ] || [ -f "pyproject.toml" ]; then
           formatter="black"
-          options=${{ inputs.config-file != '' && format('--config {0}', inputs.config-file) || '' }}
+          if [ -n "$CONFIG_FILE" ]; then
+            options="--config $CONFIG_FILE"
+          else
+            options=""
+          fi
         # Go (gofmt)
         elif [ -f "go.mod" ]; then
           formatter="gofmt"
         # Prettier (keep this last, as non-nodejs projects may have a package.json)
         elif [ -f ".prettierrc" ] || [ -f ".prettierrc.json" ] || [ -f "prettier.config.js" ] || [ -f "package.json" ]; then
-          mkdir -p ${{ runner.temp }}/prettier-tool
+          mkdir -p "$RUNNER_TEMP/prettier-tool"
           formatter="prettier"
-          options=${{ inputs.config-file != '' && format('--config {0}', inputs.config-file) || '' }}
+          if [ -n "$CONFIG_FILE" ]; then
+            options="--config $CONFIG_FILE"
+          else
+            options=""
+          fi
         else
           formatter="none"
           echo "::error::No formatter could be determined. Please specify a formatter using the 'formatter' input."
@@ -87,26 +100,31 @@ runs:
       run: |
         ## Symlink the plugins into the project directory (Prettier loads them relative to the project config file)
         mkdir -p node_modules
-        ln -s ${{ runner.temp }}/prettier-tool/node_modules/prettier-plugin-sh ./node_modules/prettier-plugin-sh
+        ln -s "$RUNNER_TEMP/prettier-tool/node_modules/prettier-plugin-sh" ./node_modules/prettier-plugin-sh
 
     - name: Get changed files
       id: changed-files
       shell: bash
       working-directory: project-files
+      env:
+        EVENT_NAME: ${{ github.event_name }}
+        BASE_REF: ${{ github.base_ref }}
+        DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
       run: |
         echo "::group::Determining changed files"
-        # PR context OR branch vs. default branch
-        if [ "${{ github.event_name }}" == "pull_request" ]; then
+        # PR context OR branch vs. default branch; refs arrive via env vars
+        if [ "$EVENT_NAME" == "pull_request" ]; then
           # Get files changed in PR
-          git fetch origin ${{ github.base_ref }}
-          CHANGED_FILES=$(git diff --name-only origin/${{ github.base_ref }}...HEAD)
+          git fetch origin "$BASE_REF"
+          CHANGED_FILES=$(git diff --name-only "origin/$BASE_REF"...HEAD)
         else
-          git fetch origin ${{ github.event.repository.default_branch }}
-          CHANGED_FILES=$(git diff --name-only origin/${{ github.event.repository.default_branch }}...HEAD)
+          git fetch origin "$DEFAULT_BRANCH"
+          CHANGED_FILES=$(git diff --name-only "origin/$DEFAULT_BRANCH"...HEAD)
         fi
-        echo "changed_files<<EOF" >> $GITHUB_OUTPUT
+        output_delimiter="ghadelim_$(openssl rand -hex 16)"
+        echo "changed_files<<$output_delimiter" >> $GITHUB_OUTPUT
         echo "$CHANGED_FILES" >> $GITHUB_OUTPUT
-        echo "EOF" >> $GITHUB_OUTPUT
+        echo "$output_delimiter" >> $GITHUB_OUTPUT
         echo "::endgroup::"
 
     - name: Run formatter check
@@ -117,24 +135,30 @@ runs:
       working-directory: project-files
       env:
         NODE_PATH: ${{ runner.temp }}/prettier-tool/node_modules
+        FORMATTER: ${{ steps.determine-formatter.outputs.formatter }}
+        FORMATTER_OPTIONS: ${{ steps.determine-formatter.outputs.options }}
+        CHANGED_FILES: ${{ steps.changed-files.outputs.changed_files }}
       run: |
-        export PATH="${{ runner.temp }}/prettier-tool/node_modules/.bin:$PATH"
-        ${{ github.action_path }}/../../scripts/check-format.sh \
-          "${{ steps.determine-formatter.outputs.formatter }}" \
-          "${{ steps.determine-formatter.outputs.options }}" \
-          "${{ steps.changed-files.outputs.changed_files }}" >> $GITHUB_OUTPUT
+        export PATH="$RUNNER_TEMP/prettier-tool/node_modules/.bin:$PATH"
+        # All arguments arrive via env vars so they stay data-only in the shell
+        "$GITHUB_ACTION_PATH/../../scripts/check-format.sh" \
+          "$FORMATTER" \
+          "$FORMATTER_OPTIONS" \
+          "$CHANGED_FILES" >> "$GITHUB_OUTPUT"
 
     - name: Debug - Print format-check outputs
       if: always()
       shell: bash
+      env:
+        UNFORMATTED_FILES: ${{ steps.format-check.outputs.unformatted_files }}
       run: |
         echo "Format check outputs:"
-        echo "Unformatted files: ${{ steps.format-check.outputs.unformatted_files }}"
+        echo "Unformatted files: $UNFORMATTED_FILES"
 
     - name: Find existing comment
       if: steps.format-check.outcome == 'failure' && github.event_name == 'pull_request'
       id: find-comment
-      uses: peter-evans/find-comment@v3
+      uses: peter-evans/find-comment@3eae4d37986fb5a8592848f6a574fdf654e61f9e # v3
       with:
         issue-number: ${{ github.event.pull_request.number }}
         comment-author: "github-actions[bot]"
@@ -142,7 +166,7 @@ runs:
 
     - name: Create or update PR comment
       if: steps.format-check.outcome == 'failure' && github.event_name == 'pull_request'
-      uses: peter-evans/create-or-update-comment@v4
+      uses: peter-evans/create-or-update-comment@71345be0265236311c031f5c7866368bd1eff043 # v4
       with:
         token: ${{ github.token }}
         comment-id: ${{ steps.find-comment.outputs.comment-id }}
@@ -162,8 +186,12 @@ runs:
 
     - name: Exit with error if formatting needed
       shell: bash
+      env:
+        # The step output arrives via env so it stays data-only in the shell
+        UNFORMATTED_FILES: ${{ steps.format-check.outputs.unformatted_files }}
+        FORMAT_CHECK_OUTCOME: ${{ steps.format-check.outcome }}
       run: |
-        if [ -n "${{ steps.format-check.outputs.unformatted_files }}" ]; then
+        if [ "$FORMAT_CHECK_OUTCOME" != "success" ] || [ -n "$UNFORMATTED_FILES" ]; then
           echo "Formatting check failed. Files need formatting."
           exit 1
         fi

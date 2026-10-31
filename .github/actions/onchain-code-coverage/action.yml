@@ -50,8 +50,13 @@ runs:
         FORK_TEST: ${{ inputs['fork-test'] }}
         SALT_STRING: ${{ inputs['salt-string'] }}
         SKIP_FORTE_TOKEN_TESTS: ${{ inputs['skip-forte-token-tests'] }}
+        CODE_COVERAGE_ARGS: ${{ inputs.code-coverage-args }}
       run: |
-        FOUNDRY_PROFILE=coverage forge coverage ${{ inputs.code-coverage-args }}
+        # Split the arguments string into a shell array; the input arrives via env
+        # so it is data-only and cannot introduce shell syntax.
+        read -r -a args <<< "$CODE_COVERAGE_ARGS"
+
+        FOUNDRY_PROFILE=coverage forge coverage "${args[@]}"
 
     - name: Filter the coverage reports and reformat them
       shell: bash
@@ -59,8 +64,8 @@ runs:
         lcov --extract lcov.info 'src/*' -o lcov.info
 
     - name: Report the code coverage if pull request
-      if: ${{github.event_name}} == 'pull_request'
-      uses: zgosalvez/github-actions-report-lcov@v3
+      if: github.event_name == 'pull_request'
+      uses: zgosalvez/github-actions-report-lcov@73c068acfc6a265af813132fbca7ef8738a1f52f # v3
       with:
         coverage-files: lcov.info
         minimum-coverage: 0

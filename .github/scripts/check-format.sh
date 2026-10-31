@@ -36,7 +36,11 @@ while IFS= read -r file; do
       # Restrict to .go files
       if [[ "$file" == *.go ]]; then
         # gofmt always returns 0, so we check if there's any output (no output: passing)
-        if [ "$(gofmt $OPTIONS -l "$file" | wc -l)" -ne 0 ]; then
+        if ! formatted_output=$(gofmt $OPTIONS -l "$file"); then
+          echo "gofmt failed for: $file" >&2
+          exit 1
+        fi
+        if [ -n "$formatted_output" ]; then
           UNFORMATTED_FILES="${UNFORMATTED_FILES}${file}\n"
         fi
       fi
@@ -64,13 +68,15 @@ if [ -n "$UNFORMATTED_FILES" ]; then
   # Displays in Github Summary. The sed command replaces all literal newlines with %0A (URL-encoded newline) for proper display
   echo "::notice::Files needing formatting with ${FORMATTER}:%0A$(echo -e "$UNFORMATTED_FILES" | sed ':a;N;$!ba;s/\n/%0A/g')" >&2
 
-  echo "unformatted_files<<EOF"
+  output_delimiter="ghadelim_$(openssl rand -hex 16)"
+  echo "unformatted_files<<$output_delimiter"
   echo -e "$UNFORMATTED_FILES"
-  echo "EOF"
+  echo "$output_delimiter"
   exit 1
 else
-  echo "unformatted_files<<EOF"
+  output_delimiter="ghadelim_$(openssl rand -hex 16)"
+  echo "unformatted_files<<$output_delimiter"
   echo ""
-  echo "EOF"
+  echo "$output_delimiter"
   exit 0
 fi

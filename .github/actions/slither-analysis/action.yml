@@ -22,6 +22,7 @@ runs:
   steps:
     - name: Slither Analyze
       id: slither
+      continue-on-error: true
       shell: bash
       env:
         SLITHER_CONFIG: ${{ inputs.config }}
@@ -36,17 +37,16 @@ runs:
 
         read -r -a args <<< "$SLITHER_ARGS"
 
-        # Try to run slither with error handling
-        set +e  # Don't exit on error
+        # Preserve reports while recording analyzer failures for the final gate.
         slither "${SLITHER_TARGET}" \
           "${args[@]}" \
           --config-file "${SLITHER_CONFIG}" \
           --sarif results.sarif \
           --json results.json \
-          --fail-none
+          --fail-high
 
     - name: Upload SARIF file
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
       with:
         name: results.sarif
         path: ./results.sarif
@@ -54,7 +54,7 @@ runs:
 
     - name: Create/update Slither PR comment
       if: github.event.pull_request != null
-      uses: actions/github-script@v7
+      uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7
       with:
         script: |
           const fs = require('fs');
@@ -98,3 +98,10 @@ runs:
               ? { comment_id: botComment.id }
               : { issue_number: context.payload.pull_request.number }),
           });
+
+    - name: Enforce Slither result
+      if: steps.slither.outcome == 'failure'
+      shell: bash
+      run: |
+        echo "::error::Slither failed or reported a high-impact finding."
+        exit 1
