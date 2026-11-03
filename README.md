@@ -39,7 +39,7 @@ The infrastructure-tooling repository contains standardized CI/CD components spe
 #### Documentation & Validation Actions
 
 - **`markdown-link-checker/`** - Validates links in markdown files (README, CHANGELOG, etc.)
-- **`formatter-check/`** - Checks formatting using language-appropriate tooling (prettier, black, gofmt), posting a comment on PRs when not passing.
+- **`formatter-check/`** - Checks formatting using language-appropriate tooling (prettier, black, gofmt), posting a comment on PRs when not passing. The optional `prebuild-target` input runs a `make` target before the check (e.g. code generation that affects `go mod tidy`); the toolchain it needs (e.g. Go) must already be set up earlier in the job. The optional `token` input (default `github.token`) is used to check out the repository and its submodules.
 - **`version-check/`** - Validates package.json versions are consistent across workspace and incremented from default branch
 
 ### Workflows (`.github/workflows/`)
