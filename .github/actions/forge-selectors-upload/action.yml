@@ -1,0 +1,11 @@
+name: Forge Selectors Upload
+description: >-
+  Upload selectors for all contracts in a Foundry project
+  to the public registry.
+  Requires Foundry and project dependencies to be installed.
+runs:
+  using: "composite"
+  steps:
+    - name: Upload selectors
+      shell: bash
+      run: forge selectors upload --all

@@ -17,6 +17,7 @@ The infrastructure-tooling repository contains standardized CI/CD components spe
 - **`install-foundry/`** - Installs and configures the Foundry toolchain (default: v1.2.1)
 - **`install-dependencies/`** - Handles dependency installation for Python and Soldeer packages
 - **`onchain-build/`** - Compiles smart contracts using Forge with optimization
+- **`forge-selectors-upload/`** - Runs `forge selectors upload --all` to publish contract selectors to the public registry. Requires Foundry and project dependencies to be installed.
 - **`onchain-test/`** - Runs comprehensive test suites with support for mainnet forking
 - **`typescript-build/`** - Builds TypeScript projects with support for multiple workspaces and components
 - **`typescript-test/`** - Runs TypeScript test suites with configurable script commands and arguments
@@ -54,6 +55,7 @@ A comprehensive callable workflow that orchestrates the complete build and test 
 - Foundry installation and dependency management
 - Contract size validation
 - Smart contract compilation with optimization
+- Selector upload after compilation (`upload-selectors: true`, enabled by default)
 - Test execution with mainnet/polygon forking support
 - Code coverage analysis with PR reporting
 - Configurable test parameters (salt strings, fork testing, etc.)
@@ -65,6 +67,11 @@ A comprehensive callable workflow that orchestrates the complete build and test 
 - Customizable markdown file paths
 - Fork testing configuration
 - Environment-specific test settings
+
+The workflow publishes selectors for all contracts in the project by default.
+Set `upload-selectors: false` in the calling job's `with` block to disable uploads.
+An upload failure fails the setup job. The
+`forge-selectors-upload` action must be available at `v1` before this option is used.
 
 #### `onchain-code-quality.yaml`
 
