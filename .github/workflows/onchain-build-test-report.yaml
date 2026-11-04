@@ -29,6 +29,12 @@ on:
         type: boolean
         required: false
         default: true
+      upload-selectors:
+        description: >-
+          Whether to upload selectors for all contracts to the public registry
+        type: boolean
+        required: false
+        default: true
       code-coverage-args:
         description: Arguments for code coverage report action
         type: string
@@ -124,6 +130,10 @@ jobs:
         uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/onchain-build@v1
         with:
           build-args: --optimize
+
+      - name: Upload selectors
+        if: inputs.upload-selectors
+        uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/forge-selectors-upload@v1
 
       - name: Locate and cache Foundry binaries
         id: locate-foundry-binaries
