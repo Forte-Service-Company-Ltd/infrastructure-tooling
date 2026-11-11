@@ -9,6 +9,11 @@ on:
   workflow_call:
     inputs:
       # Define any inputs needed from the calling workflow
+      foundry-version:
+        description: Foundry version to install
+        type: string
+        required: false
+        default: "v1.7.1"
       gh-app-id:
         description: GitHub App ID for generating tokens
         type: string
@@ -119,7 +124,7 @@ jobs:
         id: install-foundry
         uses: Forte-Service-Company-Ltd/infrastructure-tooling/.github/actions/install-foundry@v1
         with:
-          version: v1.7.1
+          version: ${{ inputs.foundry-version }}
 
       - name: Install Python Dependencies
         id: install-python-dependencies
